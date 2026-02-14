@@ -1,12 +1,17 @@
 {
+  "description": "A minimal social media website built as the final project for The Odin Project curriculum.",
   "name": "odin-book",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
+    "type-check": "tsc --noEmit -p ./tsconfig.app.json && tsc --noEmit -p ./tsconfig.spec.json",
+    "zip": "cd ./dist/$npm_package_name/browser/ && zip -r ../../$npm_package_name.zip .",
+    "watch": "ng build --watch --configuration development",
+    "build:zip": "npm run build && npm run zip",
+    "lint": "ng lint --silent",
     "start": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "ng": "ng"
   },
   "prettier": {
     "printWidth": 100,
@@ -28,7 +33,9 @@
     "@angular/forms": "^21.1.0",
     "@angular/platform-browser": "^21.1.0",
     "@angular/router": "^21.1.0",
+    "eslint": "^9.39.1",
     "rxjs": "~7.8.0",
+    "socket.io-client": "^4.8.3",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
@@ -36,10 +43,17 @@
     "@angular/cli": "^21.1.4",
     "@angular/compiler-cli": "^21.1.0",
     "@tailwindcss/postcss": "^4.1.12",
+    "@testing-library/angular": "^19.1.0",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/user-event": "^14.6.1",
+    "angular-eslint": "^21.2.0",
+    "eslint": "^9.39.1",
     "jsdom": "^27.1.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^4.1.12",
     "typescript": "~5.9.2",
+    "typescript-eslint": "8.46.4",
     "vitest": "^4.0.8"
   }
 }
