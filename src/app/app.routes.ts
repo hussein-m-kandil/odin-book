@@ -1,5 +1,8 @@
+import { ResolveFn, Routes, TitleStrategy, RouterStateSnapshot } from '@angular/router';
+import { inject, Injectable } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { authGuard, userResolver } from './auth';
-import { ResolveFn, Routes } from '@angular/router';
+import { environment } from '../environments';
 import { profileResolver } from './profiles';
 
 const loadProfileList = async () => (await import('./profiles/profile-list')).ProfileList;
@@ -75,3 +78,17 @@ export const routes: Routes = [
   },
   { path: '**', redirectTo: 'not-found' },
 ];
+
+@Injectable({ providedIn: 'root' })
+export class RouteTitleStrategy extends TitleStrategy {
+  private readonly _title = inject(Title);
+  override updateTitle(snapshot: RouterStateSnapshot): void {
+    let routeTitle = this.buildTitle(snapshot);
+    if (!routeTitle) {
+      // Note: The title of a named outlet is never used; angular.dev/api/router/TitleStrategy
+      if (snapshot.url === '/chats') routeTitle = 'Chats';
+      if (snapshot.url === '/profiles') routeTitle = 'Profiles';
+    }
+    this._title.setTitle((routeTitle ? routeTitle + ' | ' : '') + environment.title);
+  }
+}

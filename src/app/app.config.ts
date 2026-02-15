@@ -3,15 +3,15 @@ import {
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { provideRouter, TitleStrategy, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { initColorScheme, DARK_SCHEME_CN } from './color-scheme';
 import { retryingInterceptor } from './retrying-interceptor';
+import { routes, RouteTitleStrategy } from './app.routes';
 import { default as Aura } from '@primeuix/themes/aura';
 import { notFoundInterceptor } from './not-found';
 import { providePrimeNG } from 'primeng/config';
 import { authInterceptor } from './auth';
-import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -35,5 +35,6 @@ export const appConfig: ApplicationConfig = {
         },
       },
     }),
+    { provide: TitleStrategy, useClass: RouteTitleStrategy },
   ],
 };
