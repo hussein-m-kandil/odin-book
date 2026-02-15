@@ -1,6 +1,7 @@
 import { Router, RouterLink, RouterOutlet, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Component, inject, signal } from '@angular/core';
+import { Navigation, Navigator } from './navigation';
 import { Tab, Tabs, TabList } from 'primeng/tabs';
 import { environment } from '../environments';
 import { MessageService } from 'primeng/api';
@@ -11,7 +12,7 @@ import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterLinkActive, RouterOutlet, RouterLink, Toast, Tab, Tabs, TabList],
+  imports: [RouterLinkActive, RouterOutlet, RouterLink, Navigator, Toast, Tab, Tabs, TabList],
   templateUrl: './app.html',
   providers: [MessageService],
 })
@@ -22,6 +23,7 @@ export class App {
   protected readonly auth = inject(Auth);
 
   protected readonly title = signal(environment.title);
+  protected readonly navigation = inject(Navigation);
   protected readonly activeMenuIndex = signal(0);
 
   protected readonly mainNavItems = [
