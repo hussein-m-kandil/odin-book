@@ -8,8 +8,10 @@ const loadDeleteForm = async () => (await import('./auth/delete-form')).DeleteFo
 const loadImageForm = async () => (await import('./images/image-form')).ImageForm;
 const loadAuthForm = async () => (await import('./auth/auth-form')).AuthForm;
 const loadProfile = async () => (await import('./profiles/profile')).Profile;
+const loadNotFound = async () => (await import('./not-found')).NotFound;
 
 export const routes: Routes = [
+  { path: 'not-found', title: 'Not Found', loadComponent: loadNotFound },
   { path: 'signin', canActivate: [authGuard], title: 'Sing In', loadComponent: loadAuthForm },
   { path: 'signup', canActivate: [authGuard], title: 'Sing Up', loadComponent: loadAuthForm },
   {
@@ -71,4 +73,5 @@ export const routes: Routes = [
       },
     ],
   },
+  { path: '**', redirectTo: 'not-found' },
 ];
