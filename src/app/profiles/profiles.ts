@@ -1,0 +1,131 @@
+import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { of, map, defer, catchError, Subject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments';
+import { ListStore } from '../list/list-store';
+import { Profile } from '../app.types';
+import { Auth } from '../auth';
+
+const { apiUrl } = environment;
+
+@Injectable({
+  providedIn: 'root',
+})
+export class Profiles extends ListStore<Profile> {
+  private readonly _destroyRef = inject(DestroyRef);
+  private readonly _http = inject(HttpClient);
+  private readonly _auth = inject(Auth);
+
+  protected override loadErrorMessage = 'Failed to load any profiles.';
+
+  readonly path = signal<'' | 'following' | 'followers'>('');
+  readonly searchValue = signal('');
+
+  readonly baseUrl = `${apiUrl}/profiles`;
+
+  readonly profileUpdated = new Subject<Profile>();
+
+  protected override getMore() {
+    const path = this.path();
+    const profiles = this.list();
+    const searchValue = this.searchValue();
+    const cursor = profiles[profiles.length - 1]?.id;
+    const params: Record<string, string> = {
+      ...(searchValue ? { name: searchValue } : {}),
+      ...(cursor ? { cursor } : {}),
+    };
+    return this._http
+      .get<Profile[]>(`${this.baseUrl}${path && '/' + path}`, { params })
+      .pipe(takeUntilDestroyed(this._destroyRef));
+  }
+
+  override reset() {
+    this.searchValue.set('');
+    this.path.set('');
+    super.reset();
+  }
+
+  constructor() {
+    super();
+
+    this._auth.userUpdated.subscribe((user) => {
+      this.list.update((profiles) =>
+        profiles.map((oldProfile) =>
+          oldProfile.user.id === user.id
+            ? { ...oldProfile, user: { ...oldProfile.user, ...user } }
+            : oldProfile,
+        ),
+      );
+
+      user.socket.on('profile:updated', (data) => {
+        if (data) {
+          const id = typeof data === 'string' || typeof data === 'number' ? data : data.id;
+          if (id) {
+            this._http
+              .get<Profile>(`${this.baseUrl}/${id}`)
+              .pipe(catchError(() => of(null)))
+              .subscribe((updatedProfile) => {
+                if (updatedProfile) {
+                  this.profileUpdated.next(updatedProfile);
+                  this.list.update((profiles) =>
+                    profiles.map((profile) => (profile.id === id ? updatedProfile : profile)),
+                  );
+                }
+              });
+          }
+        }
+      });
+    });
+  }
+
+  getProfile(idOrUsername: string) {
+    return defer(() => {
+      const foundProfile = this.list().find(
+        (p) => p.id === idOrUsername || p.user.username === idOrUsername,
+      );
+      if (foundProfile) return of(foundProfile);
+      return this._http.get<Profile>(`${this.baseUrl}/${idOrUsername}`);
+    });
+  }
+
+  updateCurrentProfile(updates: { visible?: boolean; tangible?: boolean }) {
+    return this._http.patch<Profile>(this.baseUrl, updates).pipe(
+      map((profile) => {
+        this.list.update((profiles) => profiles.map((p) => (p.id === profile.id ? profile : p)));
+        return profile;
+      }),
+    );
+  }
+
+  toggleFollowing(profileData: Profile) {
+    const profileId = profileData.id;
+    const followed = profileData.followedByCurrentUser;
+    const url = `${this.baseUrl}/following/${profileId}`;
+    return (followed ? this._http.delete<''>(url) : this._http.post<''>(url, null)).pipe(
+      map(() => {
+        const followedByCurrentUser = !followed;
+        let updatedProfile = { ...profileData, followedByCurrentUser };
+        this.list.update((profiles) =>
+          profiles.map((profile) => {
+            if (profile.id === profileId) {
+              updatedProfile = { ...profile, followedByCurrentUser };
+              return updatedProfile;
+            }
+            return profile;
+          }),
+        );
+        return updatedProfile;
+      }),
+    );
+  }
+
+  isCurrentProfile(id: Profile['id']) {
+    const currentUser = this._auth.user();
+    return !!currentUser && currentUser.profile.id === id;
+  }
+
+  isOnline(id: Profile['id']) {
+    return this._http.get<boolean>(`${this.baseUrl}/${id}/online`);
+  }
+}
