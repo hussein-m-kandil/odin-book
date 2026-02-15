@@ -69,6 +69,27 @@ const renderComponent = ({
 describe('App', () => {
   afterEach(vi.resetAllMocks);
 
+  it('should show a dismissable disclaimer', async () => {
+    const actor = userEvent.setup();
+    storageMock.getItem.mockImplementation(() => '');
+    await renderComponent();
+    expect(screen.getByText(/demo web application/i)).toBeVisible();
+    await actor.click(screen.getByRole('button', { name: /close disclaimer/i }));
+    expect(screen.queryByRole('button', { name: /close disclaimer/i })).toBeNull();
+    expect(screen.queryByText(/demo web application/i)).toBeNull();
+    expect(storageMock.getItem).toHaveBeenCalledTimes(1);
+    expect(storageMock.setItem).toHaveBeenCalledTimes(1);
+    expect(storageMock.setItem.mock.calls[0][0]).toBeTruthy();
+    expect(storageMock.setItem.mock.calls[0][1]).toBeTruthy();
+  });
+
+  it('should not show a dismissable disclaimer', async () => {
+    storageMock.getItem.mockImplementation(() => 'v');
+    await renderComponent();
+    expect(screen.queryByText(/demo web application/i)).toBeNull();
+    expect(screen.queryByRole('button', { name: /close disclaimer/i })).toBeNull();
+  });
+
   it('should display the profile list', async () => {
     await renderComponent({ initialRoute: '/profiles' });
     expect(screen.getByText(ProfileListMock.TITLE)).toBeVisible();

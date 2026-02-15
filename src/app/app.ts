@@ -1,10 +1,12 @@
 import { Router, RouterLink, RouterOutlet, RouterLinkActive, NavigationEnd } from '@angular/router';
+import { afterNextRender, Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Component, inject, signal } from '@angular/core';
 import { Navigation, Navigator } from './navigation';
 import { Tab, Tabs, TabList } from 'primeng/tabs';
 import { environment } from '../environments';
 import { MessageService } from 'primeng/api';
+import { AppStorage } from './app-storage';
+import { Message } from 'primeng/message';
 import { Profiles } from './profiles';
 import { Toast } from 'primeng/toast';
 import { Mainbar } from './mainbar';
@@ -19,6 +21,7 @@ import { filter } from 'rxjs';
     RouterLink,
     Navigator,
     Mainbar,
+    Message,
     Toast,
     Tab,
     Tabs,
@@ -32,16 +35,20 @@ export class App {
   private readonly _router = inject(Router);
 
   protected readonly auth = inject(Auth);
+  protected readonly storage = inject(AppStorage);
 
   protected readonly title = signal(environment.title);
   protected readonly navigation = inject(Navigation);
-  protected readonly activeMenuIndex = signal(0);
+  protected readonly activeNavItemIndex = signal(0);
+  protected readonly disclaimed = signal(true);
 
-  protected readonly mainNavItems = [
+  protected readonly navItems = [
     { route: '/profiles', label: 'Profiles', icon: 'pi pi-users' },
     { route: '/followers', label: 'Followers', icon: 'pi pi-users' },
     { route: '/following', label: 'Following', icon: 'pi pi-users' },
   ] as const;
+
+  protected readonly DISCLAIMER_KEY = 'disclaimed';
 
   private _reset() {
     this._profiles.reset();
@@ -54,10 +61,14 @@ export class App {
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
       )
       .subscribe((event) => {
-        this.activeMenuIndex.set(
-          this.mainNavItems.findIndex(({ route }) => event.urlAfterRedirects.startsWith(route)),
+        this.activeNavItemIndex.set(
+          this.navItems.findIndex(({ route }) => event.urlAfterRedirects.startsWith(route)),
         );
       });
+
+    afterNextRender(() => {
+      this.disclaimed.set(!!this.storage.getItem(this.DISCLAIMER_KEY));
+    });
 
     this.auth.userSignedOut.subscribe(() => this._reset());
   }
