@@ -10,10 +10,11 @@ import { retryingInterceptor } from './retrying-interceptor';
 import { default as Aura } from '@primeuix/themes/aura';
 import { providePrimeNG } from 'primeng/config';
 import { routes } from './app.routes';
+import { authInterceptor } from './auth';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideHttpClient(withInterceptors([retryingInterceptor])),
+    provideHttpClient(withInterceptors([retryingInterceptor, authInterceptor])),
     provideRouter(routes, withComponentInputBinding()),
     provideAppInitializer(initColorScheme),
     provideBrowserGlobalErrorListeners(),
