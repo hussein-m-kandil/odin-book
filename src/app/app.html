@@ -1,9 +1,7 @@
 @let _user = auth.user();
 <div class="bg-(--p-content-background) flex flex-col" style="height: 100vh; height: 100dvh;">
   <header>
-    <h1 class="text-3xl text-center font-bold p-2">
-      <a routerLink="/">{{ title() }}</a>
-    </h1>
+    <app-mainbar />
   </header>
 
   <main class="grow overflow-auto">

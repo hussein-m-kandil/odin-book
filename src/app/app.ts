@@ -7,12 +7,23 @@ import { environment } from '../environments';
 import { MessageService } from 'primeng/api';
 import { Profiles } from './profiles';
 import { Toast } from 'primeng/toast';
+import { Mainbar } from './mainbar';
 import { Auth } from './auth';
 import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterLinkActive, RouterOutlet, RouterLink, Navigator, Toast, Tab, Tabs, TabList],
+  imports: [
+    RouterLinkActive,
+    RouterOutlet,
+    RouterLink,
+    Navigator,
+    Mainbar,
+    Toast,
+    Tab,
+    Tabs,
+    TabList,
+  ],
   templateUrl: './app.html',
   providers: [MessageService],
 })
