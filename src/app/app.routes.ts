@@ -1,9 +1,74 @@
-import { authGuard } from './auth/auth-guard';
-import { Routes } from '@angular/router';
+import { authGuard, userResolver } from './auth';
+import { ResolveFn, Routes } from '@angular/router';
+import { profileResolver } from './profiles';
 
+const loadProfileList = async () => (await import('./profiles/profile-list')).ProfileList;
+const loadDeleteImage = async () => (await import('./images/delete-image')).DeleteImage;
+const loadDeleteForm = async () => (await import('./auth/delete-form')).DeleteForm;
+const loadImageForm = async () => (await import('./images/image-form')).ImageForm;
 const loadAuthForm = async () => (await import('./auth/auth-form')).AuthForm;
+const loadProfile = async () => (await import('./profiles/profile')).Profile;
 
 export const routes: Routes = [
   { path: 'signin', canActivate: [authGuard], title: 'Sing In', loadComponent: loadAuthForm },
   { path: 'signup', canActivate: [authGuard], title: 'Sing Up', loadComponent: loadAuthForm },
+  {
+    path: '',
+    canActivate: [authGuard],
+    resolve: { user: userResolver },
+    children: [
+      {
+        path: 'followers',
+        children: [{ path: '', title: 'Followers', loadComponent: loadProfileList }],
+      },
+      {
+        path: 'following',
+        children: [{ path: '', title: 'Following', loadComponent: loadProfileList }],
+      },
+      {
+        path: 'profiles',
+        children: [
+          { path: '', title: 'Profiles', loadComponent: loadProfileList },
+          {
+            path: ':profileId/edit',
+            title: 'Update Profile',
+            resolve: { profile: profileResolver },
+            loadComponent: loadAuthForm,
+          },
+          {
+            path: ':profileId/delete',
+            title: 'Delete Profile',
+            resolve: {
+              redirectUrl: ((_, state) =>
+                state.url.split('/').slice(0, -1).join('/')) as ResolveFn<string>,
+            },
+            loadComponent: loadDeleteForm,
+          },
+          {
+            path: ':profileId/pic',
+            title: 'Upload Profile Picture',
+            resolve: { isAvatar: () => true },
+            loadComponent: loadImageForm,
+          },
+          {
+            path: ':profileId/pic/:imageId/delete',
+            title: 'Delete Profile Picture',
+            resolve: {
+              isAvatar: () => true,
+              redirectUrl: ((_, state) =>
+                state.url.split('/').slice(0, -3).join('/')) as ResolveFn<string>,
+            },
+            loadComponent: loadDeleteImage,
+          },
+          {
+            path: ':profileId',
+            title: 'Profile',
+            runGuardsAndResolvers: 'always',
+            resolve: { profile: profileResolver },
+            loadComponent: loadProfile,
+          },
+        ],
+      },
+    ],
+  },
 ];
