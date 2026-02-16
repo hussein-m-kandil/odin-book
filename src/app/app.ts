@@ -44,8 +44,6 @@ export class App {
 
   protected readonly navItems = [
     { route: '/profiles', label: 'Profiles', icon: 'pi pi-users' },
-    { route: '/followers', label: 'Followers', icon: 'pi pi-users' },
-    { route: '/following', label: 'Following', icon: 'pi pi-users' },
   ] as const;
 
   protected readonly DISCLAIMER_KEY = 'disclaimed';

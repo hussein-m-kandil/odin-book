@@ -9,9 +9,9 @@ import {
   DestroyRef,
   linkedSignal,
 } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Profile as ProfileT } from '../../app.types';
 import { ToggleSwitch } from 'primeng/toggleswitch';
@@ -23,7 +23,7 @@ import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
-  imports: [ReactiveFormsModule, ToggleSwitch, Button, Avatar, Menu],
+  imports: [ReactiveFormsModule, ToggleSwitch, RouterLink, Button, Avatar, Menu],
   templateUrl: './profile.html',
   styles: ``,
 })

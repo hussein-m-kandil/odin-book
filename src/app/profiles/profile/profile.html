@@ -18,16 +18,23 @@
   <div class="max-w-sm m-auto p-4 text-center space-y-4">
     <div>
       <app-avatar preview [user]="_profile.user" [profile]="_profile" size="lg" />
+      @if (_currentUserProfile) {
+      <div class="text-xs text-muted-color-emphasis">
+        <a routerLink="/followers">Followers</a>
+        <span class="text-md text-muted-color font-light mx-1">|</span>
+        <a routerLink="/following">Following</a>
+      </div>
+      }
     </div>
     <div class="**:leading-tight">
       <h2 class="text-xl font-bold">
         {{ _profile.user.fullname }}
       </h2>
       <p class="text-sm text-muted-color font-light">@{{ _profile.user.username }}</p>
-      <p class="mt-2 text-muted-color-emphasis tracking-wider">
-        {{ _profile.user.bio }}
-      </p>
     </div>
+    <p class="text-muted-color-emphasis tracking-wider">
+      {{ _profile.user.bio }}
+    </p>
     @if (_currentUserProfile) {
     <div class="text-sm **:align-middle">
       <span class="inline-block w-[0.75em]"></span>

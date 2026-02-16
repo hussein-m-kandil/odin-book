@@ -90,44 +90,6 @@ describe('App', () => {
     expect(screen.queryByRole('button', { name: /close disclaimer/i })).toBeNull();
   });
 
-  it('should display the profile list', async () => {
-    await renderComponent({ initialRoute: '/profiles' });
-    expect(screen.getByText(ProfileListMock.TITLE)).toBeVisible();
-    expect(screen.getByRole('link', { name: /followers/i })).not.toHaveAttribute('aria-current');
-    expect(screen.getByRole('link', { name: /profiles/i })).toHaveAttribute('aria-current', 'page');
-  });
-
-  it('should display the follower list', async () => {
-    await renderComponent({ initialRoute: '/followers' });
-    expect(screen.getByText(FollowerListMock.TITLE)).toBeVisible();
-    expect(screen.getByRole('link', { name: /profiles/i })).not.toHaveAttribute('aria-current');
-    expect(screen.getByRole('link', { name: /followers/i })).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
-  });
-
-  it('should navigate to `/profiles`', async () => {
-    const user = userEvent.setup();
-    await renderComponent({ initialRoute: '/followers' });
-    await user.click(screen.getByRole('link', { name: /profiles/i }));
-    await vi.waitFor(() => expect(screen.getByText(ProfileListMock.TITLE)).toBeVisible());
-    expect(screen.getByRole('link', { name: /followers/i })).not.toHaveAttribute('aria-current');
-    expect(screen.getByRole('link', { name: /profiles/i })).toHaveAttribute('aria-current', 'page');
-  });
-
-  it('should navigate to `/followers`', async () => {
-    const user = userEvent.setup();
-    await renderComponent({ initialRoute: '/profiles' });
-    await user.click(screen.getByRole('link', { name: /followers/i }));
-    await vi.waitFor(() => expect(screen.getByText(FollowerListMock.TITLE)).toBeVisible());
-    expect(screen.getByRole('link', { name: /profiles/i })).not.toHaveAttribute('aria-current');
-    expect(screen.getByRole('link', { name: /followers/i })).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
-  });
-
   const urls = ['/profiles', '/followers'];
 
   for (const initialRoute of urls) {
