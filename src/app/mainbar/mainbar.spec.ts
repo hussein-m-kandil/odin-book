@@ -62,6 +62,13 @@ describe('Mainbar', () => {
     expect(link).toBeVisible();
   });
 
+  it('should have a link to the profile page', async () => {
+    await renderComponent();
+    const profilesLink = screen.getByRole('link', { name: /profiles/i });
+    expect(profilesLink).toBeVisible();
+    expect(profilesLink).toHaveAttribute('href', '/profiles');
+  });
+
   it('should have a color-scheme toggler that indicates to the selected value', async () => {
     colorSchemeMock.selectedScheme.mockImplementation(() => SCHEMES[2]);
     await renderComponent();

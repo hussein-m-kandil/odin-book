@@ -1,17 +1,17 @@
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Component, computed, inject } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { ColorScheme, SCHEMES } from '../color-scheme';
 import { Avatar } from '../profiles/profile/avatar';
 import { ButtonDirective } from 'primeng/button';
 import { environment } from '../../environments';
-import { RouterLink } from '@angular/router';
 import { Ripple } from 'primeng/ripple';
 import { Menu } from 'primeng/menu';
 import { Auth } from '../auth';
 
 @Component({
   selector: 'app-mainbar',
-  imports: [ButtonDirective, RouterLink, Avatar, Ripple, Menu],
+  imports: [RouterLinkActive, ButtonDirective, RouterLink, Avatar, Ripple, Menu],
   templateUrl: './mainbar.html',
   styles: ``,
 })
