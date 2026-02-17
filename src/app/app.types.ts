@@ -4,7 +4,7 @@ interface Common {
   updatedAt: string;
 }
 
-export interface ImageBase {
+export interface ImageData {
   scale: number;
   info: string;
   xPos: number;
@@ -12,9 +12,8 @@ export interface ImageBase {
   alt: string;
 }
 
-export interface Image extends ImageBase {
+export interface ImageBase extends ImageData {
   id: string;
-  owner: User;
   src: string;
   size: number;
   order: number;
@@ -26,23 +25,28 @@ export interface Image extends ImageBase {
   updatedAt: string;
 }
 
-export type NewImageData = Partial<ImageBase & { isAvatar: boolean }>;
+export interface Image extends ImageBase {
+  owner: User;
+}
+
+export type NewImageData = Partial<ImageData & { isAvatar: boolean }>;
 
 export interface ProfileBase {
   id: string;
   visible: boolean;
   tangible: boolean;
   lastSeen: string;
-  followedByCurrentUser: boolean;
+  followedByCurrentUser?: boolean;
 }
 
 export interface User extends Common {
   bio: string;
+  order: number;
   username: string;
   fullname: string;
   isAdmin: boolean;
   profile: ProfileBase;
-  avatar?: { image: Image } | null;
+  avatar?: { image: ImageBase } | null;
 }
 
 export interface Profile extends ProfileBase {
