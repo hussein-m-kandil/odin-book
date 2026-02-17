@@ -1,0 +1,4 @@
+<ng-template #li let-_post>
+  <app-post brief [post]="_post" />
+</ng-template>
+<app-list [store]="posts" singularLabel="Post" pluralLabel="Posts" [itemFragment]="li" />
