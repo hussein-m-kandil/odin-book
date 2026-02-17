@@ -4,6 +4,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../environments';
 import { ListStore } from '../list/list-store';
 import { Post } from './posts.types';
+import { defer, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -31,6 +32,14 @@ export class Posts extends ListStore<Post> {
     return this._http
       .get<ReturnType<typeof this.list>>(this.baseUrl, { params })
       .pipe(takeUntilDestroyed(this._destroyRef));
+  }
+
+  getPost(id: Post['id']) {
+    return defer(() => {
+      const foundPost = this.list().find((p) => p.id === id);
+      if (foundPost) return of(foundPost);
+      return this._http.get<Post>(`${this.baseUrl}/${id}`);
+    });
   }
 
   setParams(params: HttpParams) {

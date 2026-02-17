@@ -89,4 +89,32 @@ describe('Posts', () => {
     expect(service.hasMore()).toBe(true);
     httpTesting.verify();
   });
+
+  it('should get a post by id from the current list', () => {
+    const { service, httpTesting } = setup();
+    const post = posts[1];
+    service.list.set(posts);
+    const post$ = service.getPost(post.id);
+    let resData, resError;
+    post$.subscribe({ next: (d) => (resData = d), error: (e) => (resError = e) });
+    httpTesting.expectNone(`${postsUrl}/${post.id}`, 'Request to get a post');
+    expect(resData).toEqual(post);
+    expect(resError).toBeUndefined();
+    httpTesting.verify();
+  });
+
+  it('should get a post from the backend', () => {
+    const { service, httpTesting } = setup();
+    const postId = crypto.randomUUID();
+    service.list.set(posts);
+    const post$ = service.getPost(postId);
+    let resData, resError;
+    post$.subscribe({ next: (d) => (resData = d), error: (e) => (resError = e) });
+    const reqInfo = { method: 'GET', url: `${postsUrl}/${postId}` };
+    const req = httpTesting.expectOne(reqInfo, 'Request to get a post');
+    req.flush(posts[1]);
+    expect(resData).toEqual(posts[1]);
+    expect(resError).toBeUndefined();
+    httpTesting.verify();
+  });
 });
