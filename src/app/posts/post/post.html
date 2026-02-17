@@ -1,5 +1,6 @@
 @let _post = post();
 @let _brief = brief();
+@let _loading = loading();
 @let _labelId = `post-label-${_post.id}`;
 <article aria-labelledby="{{ _labelId }}" class="mx-auto p-4"
          [class]="_brief ? 'max-w-xl' : 'max-w-3xl'">
@@ -45,15 +46,19 @@
         <span>{{ _post._count.downvotes | i18nPlural: { '=1': '1 dislike', 'other': '# dislikes' } }}</span>
       </div>
       <div class="*:grow">
+        @let _liking = _loading === 'upvote';
+        @let _disliking = _loading === 'downvote';
         @let _liked = _post.upvotedByCurrentUser && !_post.downvotedByCurrentUser;
         @let _disliked = _post.downvotedByCurrentUser && !_post.upvotedByCurrentUser;
-        <button pButton pRipple text type="button" size="small"
-                [severity]="_liked ? 'primary' : 'secondary'" icon="pi pi-thumbs-up">
+        <button pButton pRipple text type="button" size="small" [loading]="_liking"
+                [severity]="_liked ? 'primary' : 'secondary'" icon="pi pi-thumbs-up"
+                (click)="vote('upvote')">
           <span pButtonLabel>Like{{ _liked ? 'd' : '' }}</span>
         </button>
         <span class="grow-0! border-surface border-r"></span>
-        <button pButton pRipple text type="button" size="small"
-                [severity]="_disliked ? 'primary' : 'secondary'" icon="pi pi-thumbs-down">
+        <button pButton pRipple text type="button" size="small" [loading]="_disliking"
+                [severity]="_disliked ? 'primary' : 'secondary'" icon="pi pi-thumbs-down"
+                (click)="vote('downvote')">
           <span pButtonLabel>Dislike{{ _disliked ? 'd' : '' }}</span>
         </button>
       </div>

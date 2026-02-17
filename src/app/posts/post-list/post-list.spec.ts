@@ -1,5 +1,6 @@
 import { render, RenderComponentOptions, screen } from '@testing-library/angular';
 import { HttpParams } from '@angular/common/http';
+import { MessageService } from 'primeng/api';
 import { PostList } from './post-list';
 import { posts } from '../posts.mock';
 import { Posts } from '../posts';
@@ -20,7 +21,11 @@ const renderComponent = ({
   ...options
 }: RenderComponentOptions<PostList> = {}) => {
   return render(PostList, {
-    providers: [{ provide: Posts, useValue: postsMock }, ...(providers || [])],
+    providers: [
+      { provide: MessageService, useValue: { add: vi.fn() } },
+      { provide: Posts, useValue: postsMock },
+      ...(providers || []),
+    ],
     inputs: { following: false, ...inputs },
     autoDetectChanges: false,
     ...options,

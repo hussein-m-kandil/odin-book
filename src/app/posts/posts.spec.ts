@@ -117,4 +117,55 @@ describe('Posts', () => {
     expect(resError).toBeUndefined();
     httpTesting.verify();
   });
+
+  it('should upvote a post', async () => {
+    const { service, httpTesting } = setup();
+    const testPost = { ...posts[0], upvotedByCurrentUser: false };
+    service.list.set([testPost, ...posts.slice(1)]);
+    const post$ = service.upvote(testPost.id);
+    let resData, resError;
+    post$.subscribe({ next: (d) => (resData = d), error: (e) => (resError = e) });
+    const reqInfo = { method: 'POST', url: `${postsUrl}/${testPost.id}/upvote` };
+    const req = httpTesting.expectOne(reqInfo, 'Request to upvote a post');
+    const upvotedPost = { ...testPost, upvotedByCurrentUser: true };
+    req.flush(upvotedPost);
+    expect(service.list()).toStrictEqual([upvotedPost, ...posts.slice(1)]);
+    expect(resData).toEqual(upvotedPost);
+    expect(resError).toBeUndefined();
+    httpTesting.verify();
+  });
+
+  it('should downvote a post', async () => {
+    const { service, httpTesting } = setup();
+    const testPost = { ...posts[0], downvotedByCurrentUser: false };
+    service.list.set([testPost, ...posts.slice(1)]);
+    const post$ = service.downvote(testPost.id);
+    let resData, resError;
+    post$.subscribe({ next: (d) => (resData = d), error: (e) => (resError = e) });
+    const reqInfo = { method: 'POST', url: `${postsUrl}/${testPost.id}/downvote` };
+    const req = httpTesting.expectOne(reqInfo, 'Request to downvote a post');
+    const downvotedPost = { ...testPost, downvotedByCurrentUser: true };
+    req.flush(downvotedPost);
+    expect(service.list()).toStrictEqual([downvotedPost, ...posts.slice(1)]);
+    expect(resData).toEqual(downvotedPost);
+    expect(resError).toBeUndefined();
+    httpTesting.verify();
+  });
+
+  it('should unvote a post', async () => {
+    const { service, httpTesting } = setup();
+    const testPost = { ...posts[0], upvotedByCurrentUser: true };
+    service.list.set([testPost, ...posts.slice(1)]);
+    const post$ = service.unvote(testPost.id);
+    let resData, resError;
+    post$.subscribe({ next: (d) => (resData = d), error: (e) => (resError = e) });
+    const reqInfo = { method: 'POST', url: `${postsUrl}/${testPost.id}/unvote` };
+    const req = httpTesting.expectOne(reqInfo, 'Request to unvote a post');
+    const unvotedPost = { ...testPost, upvotedByCurrentUser: false };
+    req.flush(unvotedPost);
+    expect(service.list()).toStrictEqual([unvotedPost, ...posts.slice(1)]);
+    expect(resData).toEqual(unvotedPost);
+    expect(resError).toBeUndefined();
+    httpTesting.verify();
+  });
 });

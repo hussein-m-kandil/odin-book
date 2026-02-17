@@ -1,12 +1,35 @@
 import { render, RenderComponentOptions, screen } from '@testing-library/angular';
+import { userEvent } from '@testing-library/user-event';
+import { Observable, of, Subscriber } from 'rxjs';
+import { MessageService } from 'primeng/api';
 import { post } from '../posts.mock';
+import { Posts } from '../posts';
 import { Post } from './post';
 
-const renderComponent = ({ inputs, ...options }: RenderComponentOptions<Post> = {}) => {
-  return render(Post, { inputs: { post, ...inputs }, autoDetectChanges: false, ...options });
+const toastMock = { add: vi.fn() };
+
+const postsMock = {
+  upvote: vi.fn(() => of()),
+  unvote: vi.fn(() => of()),
+  downvote: vi.fn(() => of()),
+};
+
+const renderComponent = ({ providers, inputs, ...options }: RenderComponentOptions<Post> = {}) => {
+  return render(Post, {
+    providers: [
+      { provide: MessageService, useValue: toastMock },
+      { provide: Posts, useValue: postsMock },
+      ...(providers || []),
+    ],
+    inputs: { post, ...inputs },
+    autoDetectChanges: false,
+    ...options,
+  });
 };
 
 describe('Post', () => {
+  afterEach(vi.resetAllMocks);
+
   it('should display the author name as a link', async () => {
     await renderComponent();
     const authorLink = screen.getByRole('link', { name: new RegExp(post.author.username) });
@@ -91,5 +114,119 @@ describe('Post', () => {
     expect(screen.getByRole('button', { name: 'Dislike' })).toBeVisible();
     expect(screen.queryByRole('button', { name: 'Disliked' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Liked' })).toBeNull();
+  });
+
+  it('should like the post', async () => {
+    let sub!: Subscriber<void>;
+    postsMock.upvote.mockImplementation(() => new Observable((s) => (sub = s)));
+    const actor = userEvent.setup();
+    const { detectChanges } = await renderComponent({
+      inputs: { post: { ...post, upvotedByCurrentUser: false, downvotedByCurrentUser: false } },
+    });
+    const likeBtn = screen.getByRole('button', { name: 'Like' });
+    await actor.click(likeBtn);
+    expect(likeBtn).toBeVisible();
+    expect(likeBtn).toHaveClass('p-disabled', 'p-button-loading');
+    sub.next();
+    sub.complete();
+    detectChanges();
+    expect(likeBtn).toBeVisible();
+    expect(likeBtn).not.toHaveClass('p-disabled', 'p-button-loading');
+    expect(postsMock.upvote).toHaveBeenCalledExactlyOnceWith(post.id);
+  });
+
+  it('should like a disliked post', async () => {
+    let sub!: Subscriber<void>;
+    postsMock.upvote.mockImplementation(() => new Observable((s) => (sub = s)));
+    const actor = userEvent.setup();
+    const { detectChanges } = await renderComponent({
+      inputs: { post: { ...post, upvotedByCurrentUser: false, downvotedByCurrentUser: true } },
+    });
+    const likeBtn = screen.getByRole('button', { name: 'Like' });
+    await actor.click(likeBtn);
+    expect(likeBtn).toBeVisible();
+    expect(likeBtn).toHaveClass('p-disabled', 'p-button-loading');
+    sub.next();
+    sub.complete();
+    detectChanges();
+    expect(likeBtn).toBeVisible();
+    expect(likeBtn).not.toHaveClass('p-disabled', 'p-button-loading');
+    expect(postsMock.upvote).toHaveBeenCalledExactlyOnceWith(post.id);
+  });
+
+  it('should dislike the post', async () => {
+    let sub!: Subscriber<void>;
+    postsMock.downvote.mockImplementation(() => new Observable((s) => (sub = s)));
+    const actor = userEvent.setup();
+    const { detectChanges } = await renderComponent({
+      inputs: { post: { ...post, upvotedByCurrentUser: false, downvotedByCurrentUser: false } },
+    });
+    const dislikeBtn = screen.getByRole('button', { name: 'Dislike' });
+    await actor.click(dislikeBtn);
+    expect(dislikeBtn).toBeVisible();
+    expect(dislikeBtn).toHaveClass('p-disabled', 'p-button-loading');
+    sub.next();
+    sub.complete();
+    detectChanges();
+    expect(dislikeBtn).toBeVisible();
+    expect(dislikeBtn).not.toHaveClass('p-disabled', 'p-button-loading');
+    expect(postsMock.downvote).toHaveBeenCalledExactlyOnceWith(post.id);
+  });
+
+  it('should dislike a liked post', async () => {
+    let sub!: Subscriber<void>;
+    postsMock.downvote.mockImplementation(() => new Observable((s) => (sub = s)));
+    const actor = userEvent.setup();
+    const { detectChanges } = await renderComponent({
+      inputs: { post: { ...post, upvotedByCurrentUser: true, downvotedByCurrentUser: false } },
+    });
+    const dislikeBtn = screen.getByRole('button', { name: 'Dislike' });
+    await actor.click(dislikeBtn);
+    expect(dislikeBtn).toBeVisible();
+    expect(dislikeBtn).toHaveClass('p-disabled', 'p-button-loading');
+    sub.next();
+    sub.complete();
+    detectChanges();
+    expect(dislikeBtn).toBeVisible();
+    expect(dislikeBtn).not.toHaveClass('p-disabled', 'p-button-loading');
+    expect(postsMock.downvote).toHaveBeenCalledExactlyOnceWith(post.id);
+  });
+
+  it('should remove a like from the post', async () => {
+    let sub!: Subscriber<void>;
+    postsMock.unvote.mockImplementation(() => new Observable((s) => (sub = s)));
+    const actor = userEvent.setup();
+    const { detectChanges } = await renderComponent({
+      inputs: { post: { ...post, upvotedByCurrentUser: true, downvotedByCurrentUser: false } },
+    });
+    const likeBtn = screen.getByRole('button', { name: 'Liked' });
+    await actor.click(likeBtn);
+    expect(likeBtn).toBeVisible();
+    expect(likeBtn).toHaveClass('p-disabled', 'p-button-loading');
+    sub.next();
+    sub.complete();
+    detectChanges();
+    expect(likeBtn).toBeVisible();
+    expect(likeBtn).not.toHaveClass('p-disabled', 'p-button-loading');
+    expect(postsMock.unvote).toHaveBeenCalledExactlyOnceWith(post.id);
+  });
+
+  it('should remove a dislike from the post', async () => {
+    let sub!: Subscriber<void>;
+    postsMock.unvote.mockImplementation(() => new Observable((s) => (sub = s)));
+    const actor = userEvent.setup();
+    const { detectChanges } = await renderComponent({
+      inputs: { post: { ...post, upvotedByCurrentUser: false, downvotedByCurrentUser: true } },
+    });
+    const likeBtn = screen.getByRole('button', { name: 'Disliked' });
+    await actor.click(likeBtn);
+    expect(likeBtn).toBeVisible();
+    expect(likeBtn).toHaveClass('p-disabled', 'p-button-loading');
+    sub.next();
+    sub.complete();
+    detectChanges();
+    expect(likeBtn).toBeVisible();
+    expect(likeBtn).not.toHaveClass('p-disabled', 'p-button-loading');
+    expect(postsMock.unvote).toHaveBeenCalledExactlyOnceWith(post.id);
   });
 });
