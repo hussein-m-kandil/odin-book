@@ -1,0 +1,236 @@
+import { User } from '../app.types';
+import { Post } from './posts.types';
+
+export const user: User = {
+  id: 'a9826180-945a-4062-bce2-9257f7f8c5e2',
+  order: 2,
+  bio: 'From Krypton with love.',
+  fullname: 'Clark Kent / Kal El',
+  username: 'superman',
+  isAdmin: true,
+  createdAt: '2024-10-24T14:14:43.582Z',
+  updatedAt: '2026-01-09T09:09:57.332Z',
+  avatar: {
+    image: {
+      id: '959d41ea-986b-410b-80d9-7a909aadbef7',
+      order: 34,
+      ownerId: 'a9826180-945a-4062-bce2-9257f7f8c5e2',
+      createdAt: '2026-02-11T08:21:56.851Z',
+      updatedAt: '2026-02-11T08:21:56.851Z',
+      info: '',
+      alt: '',
+      src: '/user.jpg',
+      mimetype: 'image/jpeg',
+      size: 160889,
+      width: 1518,
+      height: 1032,
+      xPos: 0,
+      yPos: 0,
+      scale: 1,
+    },
+  },
+  profile: {
+    id: '5f2575f0-2e4c-4ba7-907b-abea5d5a3b41',
+    lastSeen: '2026-02-15T15:29:39.782Z',
+    visible: true,
+    tangible: true,
+  },
+};
+
+export const user2: User = {
+  id: '400d7f7b-34bd-47b9-9c84-c83c8b321ae7',
+  order: 3,
+  bio: 'From Gotham in black.',
+  fullname: 'Bruce Wayne',
+  username: 'batman',
+  isAdmin: true,
+  createdAt: '2025-04-24T10:09:44.306Z',
+  updatedAt: '2026-02-01T12:53:23.162Z',
+  avatar: {
+    image: {
+      id: '3f0ad591-a378-4288-b080-0e2c50e0eb6b',
+      order: 33,
+      ownerId: '400d7f7b-34bd-47b9-9c84-c83c8b321ae7',
+      createdAt: '2026-02-01T12:51:40.958Z',
+      updatedAt: '2026-02-01T12:51:40.958Z',
+      info: '',
+      alt: '',
+      src: '/user2.webp',
+      mimetype: 'image/webp',
+      size: 56618,
+      width: 1124,
+      height: 632,
+      xPos: 0,
+      yPos: 0,
+      scale: 1,
+    },
+  },
+  profile: {
+    id: 'a2662b64-3e28-4c37-8a1e-4ae52e5a909e',
+    lastSeen: '2026-02-17T06:12:20.049Z',
+    visible: true,
+    tangible: true,
+  },
+};
+
+export const post: Post = {
+  id: 'c25d007b-55b3-47ce-bcf4-c3fb51fdebeb',
+  order: 10,
+  authorId: '6a18bed2-d3b4-4c96-8114-658fcd952184',
+  published: true,
+  createdAt: '2025-11-26T05:22:41.336Z',
+  updatedAt: '2025-11-26T05:22:41.336Z',
+  content:
+    'Ante vigilo beneficium neque vinco apud appositus tunc. Crinis aegrotatio ulterius sono velociter dolorem vulgo audentia tandem sed. Bellicus adopto quas uberrime cattus thermae tamdiu impedit suscipit delicate. Itaque apparatus thesaurus ars corrupti derelinquo. Colo non spero bos tonsor. Spiritus defaeco vindico celebrer spectaculum degero. Suffoco clementia ventus corroboro explicabo vigor. Aestas beneficium thymum quaerat demergo ventus. Vorax utpote totus acies. Artificiose conor denuo colligo spargo conspergo asporto. Confero voluptate valde acquiro advoco solus neque apparatus. Degusto sub succurro. Amissio aptus cultellus creator corrigo centum spiculum quo sursum. Defungo adiuvo atque admitto bos repudiandae sordeo aspicio curso. Dedico fugit exercitationem aestivus calcar quaerat. Taceo totus tantum colligo caritas toties virgo. Comedo communis ipsam architecto vitae acer antiquus uredo. Atrocitas curto turba adsidue minima cumque. Ustilo adduco decumbo. Censura degero corpus. Bardus paens vilitas doloremque. Considero caelestis vita. Sophismata cimentarius deorsum voluntarius ante cohors vinco. Aut conicio despecto harum. Contego triumphus voluptates attonbitus explicabo demergo. Sophismata supra sustineo cubo sollicito tres calco studio. Caelum curvo aperio eveniet spectaculum sustineo fugiat doloribus blanditiis sollers. Tantillus confero contego tantillus tracto. Aperte totam blanditiis adflicto stips comminor. Aureus admoneo ullus. Ater taceo totidem. Cena aliqua solutio arcus adeptio ager. Absque vespillo balbus adsidue. Thesis communis adhuc tergum commemoro repudiandae quaerat spes tergo turba. Utroque adipiscor tam. Tempus infit quisquam clamo facere damno curto stillicidium tabernus. Acerbitas contabesco venio tersus sopor. Vivo sollicito voluptates. Vorago quia una caries adiuvo tripudio rem tempore concedo claro. Copiose ter aer valeo strenuus canonicus demens carmen. Cursus quibusdam viridis tergiversatio carcer verbum titulus. Tantum cerno degero. Nemo bonus cotidie infit aspicio creta tabula. Saepe civitas varius testimonium apud vomito abscido. Vinum verbum alii.',
+  title: 'How I Built a Portfolio While Learning to Code',
+  imageId: '57d3df29-55ae-4890-8954-f621da04746c',
+  _count: {
+    comments: 1,
+    votes: 2,
+    upvotes: 1,
+    downvotes: 1,
+  },
+  votes: [
+    {
+      id: '4d0b3f40-33b6-4699-abda-65ef794f68da',
+      order: 19,
+      userId: 'a9826180-945a-4062-bce2-9257f7f8c5e2',
+      postId: 'c25d007b-55b3-47ce-bcf4-c3fb51fdebeb',
+      isUpvote: true,
+      createdAt: '2025-11-26T05:22:42.336Z',
+      updatedAt: '2025-11-26T05:22:42.336Z',
+      user: user,
+    },
+    {
+      id: 'ceaa73ed-2ab3-4dd0-96fc-098125f1fb6c',
+      order: 20,
+      userId: '400d7f7b-34bd-47b9-9c84-c83c8b321ae7',
+      postId: 'c25d007b-55b3-47ce-bcf4-c3fb51fdebeb',
+      isUpvote: false,
+      createdAt: '2025-11-26T05:22:43.336Z',
+      updatedAt: '2025-11-26T05:22:43.336Z',
+      user: user2,
+    },
+  ],
+  comments: [
+    {
+      id: 'd3bd76b2-eb45-4df2-be1e-9747e3e89bf4',
+      order: 30,
+      authorId: 'a9826180-945a-4062-bce2-9257f7f8c5e2',
+      postId: 'c25d007b-55b3-47ce-bcf4-c3fb51fdebeb',
+      createdAt: '2025-11-26T05:22:42.336Z',
+      updatedAt: '2025-11-26T05:22:42.336Z',
+      content:
+        'Anser iste amor coepi cuppedia. Coniuratio id collum candidus claro doloribus super sordeo concido.',
+      author: user2,
+    },
+  ],
+  image: {
+    id: '57d3df29-55ae-4890-8954-f621da04746c',
+    order: 10,
+    ownerId: '6a18bed2-d3b4-4c96-8114-658fcd952184',
+    createdAt: '2025-11-26T05:22:40.336Z',
+    updatedAt: '2025-11-26T05:22:40.336Z',
+    info: '',
+    alt: '',
+    src: '/post.jpg',
+    mimetype: 'image/jpeg',
+    size: 7654321,
+    width: 1920,
+    height: 1080,
+    xPos: 0,
+    yPos: 0,
+    scale: 1,
+    owner: user,
+  },
+  upvotedByCurrentUser: false,
+  downvotedByCurrentUser: true,
+  author: user,
+  tags: [],
+};
+
+export const post2 = {
+  id: '59e92560-d27b-46ce-aa25-753dad89ce6f',
+  order: 9,
+  authorId: 'a9826180-945a-4062-bce2-9257f7f8c5e2',
+  published: true,
+  createdAt: '2025-11-21T09:56:06.798Z',
+  updatedAt: '2025-11-21T09:56:06.798Z',
+  content:
+    'At solitudo adulatio pecto crur. Viriliter subiungo suggero defero quas creo benigne pariatur capto truculenter. Vir vilicus tergum centum atrocitas curis.\nVilitas adulatio vesco torrens desolo victus acer. Vestigium tribuo celo impedit veniam celer. Vos unus ipsa usus delectus.\nSophismata trucido voco. Deorsum error solvo auditor creber timor depromo antepono. Corpus volubilis denuncio spoliatio cupressus apto utpote cubo defessus strenuus.\nAbsque bardus votum strenuus crinis est dapifer viscus voluntarius dolorum. Laudantium itaque aegrus exercitationem canis doloribus. Ante substantia traho ter cerno suadeo civitas versus.\nTot virgo basium defaeco adinventitias verbum curto arx calculus voro. Coadunatio accusantium tollo defessus abundans super maiores. Comptus compono delicate turpis.\nNulla vigor canis molestiae. Summisse deleniti asporto stips abstergo calamitas. Spiculum admitto vulgo degenero clam calco clibanus confido.\nTermes undique quas denego. Ars socius tam alienus. Caste cubitum celebrer tutis adopto caveo delego demonstro utor.\nAmoveo arguo terebro adipiscor pel cultura autus deprecator. Theca angustus nobis comitatus vergo tametsi adficio cubo acceptus cetera. Aegrotatio earum comburo.\nVulgaris sed deficio. Comminor alius capto natus sol damnatio provident amplus angulus. Asperiores animadverto appono conforto praesentium deripio.\nVideo sufficio delectus vobis tam cornu apto ara. Audacia volo quam vito deripio. Sapiente temporibus clamo textilis surgo.\nVomer congregatio vomer tum itaque solutio ut pauper titulus vulgo. Sumptus suasoria perspiciatis avaritia teneo corroboro. Caveo depulso dolorem subiungo cometes nemo.\nDelectatio sponte admoneo tabernus contabesco suspendo civis sed. Vacuus cervus verto magnam victus. Ascisco spiritus corporis spiculum.\nTantillus fugit curvo spargo doloremque. Depopulo venio veritatis. Theca quisquam venia territo debitis advoco suggero.\nTergeo decor amo crastinus. Audeo stipes abbas depulso cenaculum corona celebrer reprehenderit deripio voro. Deleniti theatrum studio impedit bibo amplitudo conqueror stipes calamitas altus.',
+  title: 'Docker Compose for Local Development',
+  imageId: '22d894d4-6a5a-4520-835f-205dc6c19011',
+  _count: {
+    comments: 3,
+    votes: 2,
+    upvotes: 1,
+    downvotes: 1,
+  },
+  votes: [
+    {
+      id: 'cf8bf8d8-f37d-4452-9766-afe297827497',
+      order: 17,
+      userId: '6a18bed2-d3b4-4c96-8114-658fcd952184',
+      postId: '59e92560-d27b-46ce-aa25-753dad89ce6f',
+      isUpvote: true,
+      createdAt: '2025-11-21T09:56:07.798Z',
+      updatedAt: '2025-11-21T09:56:07.798Z',
+      user: user2,
+    },
+    {
+      id: 'ed6f60d6-a368-4e4b-bcb5-d78ab34723e0',
+      order: 18,
+      userId: '400d7f7b-34bd-47b9-9c84-c83c8b321ae7',
+      postId: '59e92560-d27b-46ce-aa25-753dad89ce6f',
+      isUpvote: false,
+      createdAt: '2025-11-21T09:56:08.798Z',
+      updatedAt: '2025-11-21T09:56:08.798Z',
+      user: user,
+    },
+  ],
+  comments: [
+    {
+      id: '5468800e-535d-4ca4-a531-71a8f7511cfb',
+      order: 27,
+      authorId: '6a18bed2-d3b4-4c96-8114-658fcd952184',
+      postId: '59e92560-d27b-46ce-aa25-753dad89ce6f',
+      createdAt: '2025-11-21T09:56:07.798Z',
+      updatedAt: '2025-11-21T09:56:07.798Z',
+      content: 'Taceo reprehenderit cinis accommodo.',
+      author: user,
+    },
+  ],
+  image: {
+    id: '22d894d4-6a5a-4520-835f-205dc6c19011',
+    order: 9,
+    ownerId: 'a9826180-945a-4062-bce2-9257f7f8c5e2',
+    createdAt: '2025-11-21T09:56:05.798Z',
+    updatedAt: '2025-11-21T09:56:05.798Z',
+    info: '',
+    alt: '',
+    src: '/post2.jpg',
+    mimetype: 'image/jpeg',
+    size: 7654321,
+    width: 1920,
+    height: 1080,
+    xPos: 0,
+    yPos: 0,
+    scale: 1,
+    _count: {
+      posts: 1,
+    },
+    owner: user2,
+  },
+  tags: [],
+  author: user2,
+  upvotedByCurrentUser: false,
+  downvotedByCurrentUser: true,
+};
+
+export const { image } = post;
+
+export const { image: image2 } = post2;
+
+export const posts = [post, post2];
+
+export default posts;
