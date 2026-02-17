@@ -12,6 +12,7 @@ const loadImageForm = async () => (await import('./images/image-form')).ImageFor
 const loadAuthForm = async () => (await import('./auth/auth-form')).AuthForm;
 const loadProfile = async () => (await import('./profiles/profile')).Profile;
 const loadNotFound = async () => (await import('./not-found')).NotFound;
+const loadHome = async () => (await import('./home')).Home;
 
 export const routes: Routes = [
   { path: 'not-found', title: 'Not Found', loadComponent: loadNotFound },
@@ -22,6 +23,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     resolve: { user: userResolver },
     children: [
+      { path: '', loadComponent: loadHome },
       {
         path: 'followers',
         children: [{ path: '', title: 'Followers', loadComponent: loadProfileList }],

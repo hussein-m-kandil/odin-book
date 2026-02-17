@@ -1,0 +1,19 @@
+@let _following = !!queryParamMap()?.has('following');
+<nav class="size-full flex flex-col">
+  <p-tabs scrollable [value]="_following ? 1 : 0">
+    <p-tablist>
+      @for(_item of navItems; track _item.label){
+      <p-tab [value]="$index" class="grow p-0">
+        <a ariaCurrentWhenActive="page" routerLinkActive="p-tab-active" routerLink="/"
+           [queryParams]="_item.queryParams" [routerLinkActiveOptions]="{ exact: true }"
+           class="inline-block w-full p-1.5 text-center leading-tight *:align-middle">
+          <i [class]="_item.icon"></i>&nbsp;{{ _item.label }}
+        </a>
+      </p-tab>
+      }
+    </p-tablist>
+  </p-tabs>
+  <div class="grow overflow-auto">
+    <app-post-list [following]="_following" />
+  </div>
+</nav>
