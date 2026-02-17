@@ -4,6 +4,7 @@ import { Title } from '@angular/platform-browser';
 import { authGuard, userResolver } from './auth';
 import { environment } from '../environments';
 import { profileResolver } from './profiles';
+import { postResolver } from './posts';
 
 const loadProfileList = async () => (await import('./profiles/profile-list')).ProfileList;
 const loadDeleteImage = async () => (await import('./images/delete-image')).DeleteImage;
@@ -12,6 +13,7 @@ const loadImageForm = async () => (await import('./images/image-form')).ImageFor
 const loadAuthForm = async () => (await import('./auth/auth-form')).AuthForm;
 const loadProfile = async () => (await import('./profiles/profile')).Profile;
 const loadNotFound = async () => (await import('./not-found')).NotFound;
+const loadPost = async () => (await import('./posts/post')).Post;
 const loadHome = async () => (await import('./home')).Home;
 
 export const routes: Routes = [
@@ -24,6 +26,12 @@ export const routes: Routes = [
     resolve: { user: userResolver },
     children: [
       { path: '', loadComponent: loadHome },
+      {
+        title: 'Post',
+        path: ':postId',
+        loadComponent: loadPost,
+        resolve: { post: postResolver },
+      },
       {
         path: 'followers',
         children: [{ path: '', title: 'Followers', loadComponent: loadProfileList }],
