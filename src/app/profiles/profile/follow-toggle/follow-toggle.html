@@ -1,0 +1,8 @@
+@let _profile = profile();
+@if (!profiles.isCurrentProfile(_profile.id)) {
+@let _followingToggleData = followed()
+? { label: 'Unfollow', icon: 'pi pi-user-minus' }
+: { label: 'Follow', icon: 'pi pi-user-plus' };
+<p-button rounded type="button" severity="secondary" [loading]="toggling()" (click)="toggle()"
+          [icon]="_followingToggleData.icon" [ariaLabel]="_followingToggleData.label"></p-button>
+}

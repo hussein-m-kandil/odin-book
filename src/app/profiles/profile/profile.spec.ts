@@ -34,6 +34,8 @@ const profilesMock = {
   updateCurrentProfile: vi.fn(() => of(profile)),
 };
 
+const toastMock = { add: vi.fn() };
+
 const navigationSpy = vi.spyOn(Router.prototype, 'navigate');
 
 const renderComponent = ({
@@ -43,8 +45,8 @@ const renderComponent = ({
 }: RenderComponentOptions<Profile> = {}) => {
   return render(Profile, {
     providers: [
+      { provide: MessageService, useValue: toastMock },
       { provide: Profiles, useValue: profilesMock },
-      MessageService,
       ...(providers || []),
     ],
     inputs: { profile, ...inputs },
@@ -213,50 +215,4 @@ describe('Profile', () => {
       visible: !profile.visible,
     });
   });
-
-  const followingTestData = [
-    { action: 'follow' as const, followedByCurrentUser: false },
-    { action: 'unfollow' as const, followedByCurrentUser: true },
-  ];
-
-  for (const { action, followedByCurrentUser } of followingTestData) {
-    it(`should ${action}`, async () => {
-      let sub!: Subscriber<unknown>;
-      const actor = userEvent.setup();
-      profilesMock.isCurrentProfile.mockImplementation(() => false);
-      profilesMock.toggleFollowing.mockImplementation(() => new Observable((s) => (sub = s)));
-      const testProfile = { ...profile, followedByCurrentUser };
-      const { detectChanges } = await renderComponent({ inputs: { profile: testProfile } });
-      const followBtn = screen.getByRole('button', { name: new RegExp(`^${action}`, 'i') });
-      assertBtnsEnabled();
-      await actor.click(followBtn);
-      assertBtnsEnabled();
-      expect(followBtn).toBeDisabled();
-      sub.next(profile);
-      sub.complete();
-      detectChanges();
-      assertBtnsEnabled(followBtn);
-      expect(navigationSpy).toHaveBeenCalledTimes(0);
-      expect(profilesMock.toggleFollowing).toHaveBeenCalledExactlyOnceWith(testProfile);
-    });
-
-    it(`should fail to ${action}`, async () => {
-      let sub!: Subscriber<unknown>;
-      const actor = userEvent.setup();
-      profilesMock.isCurrentProfile.mockImplementation(() => false);
-      profilesMock.toggleFollowing.mockImplementation(() => new Observable((s) => (sub = s)));
-      const testProfile = { ...profile, followedByCurrentUser };
-      const { detectChanges } = await renderComponent({ inputs: { profile: testProfile } });
-      const followBtn = screen.getByRole('button', { name: new RegExp(`^${action}`, 'i') });
-      assertBtnsEnabled(followBtn);
-      await actor.click(followBtn);
-      assertBtnsEnabled();
-      expect(followBtn).toBeDisabled();
-      sub.error(new ProgressEvent('Network error'));
-      detectChanges();
-      assertBtnsEnabled(followBtn);
-      expect(navigationSpy).toHaveBeenCalledTimes(0);
-      expect(profilesMock.toggleFollowing).toHaveBeenCalledExactlyOnceWith(testProfile);
-    });
-  }
 });

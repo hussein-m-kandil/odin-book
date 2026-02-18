@@ -1,4 +1,3 @@
-@let _loading = loading();
 @let _profile = activeProfile(); @let _currentUserProfile = profiles.isCurrentProfile(_profile.id);
 <section class="size-full overflow-auto flex flex-col">
   <ul class="flex justify-between">
@@ -41,23 +40,18 @@
       <label for="active-status-toggler">
         Active Status
       </label>
-      <p-toggle-switch inputId="active-status-toggler" class="mx-1"
-                       (onChange)="toggle('visibility')" [formControl]="visible"
+      <p-toggle-switch inputId="active-status-toggler" class="mx-1" (onChange)="switchVisibility()"
+                       [formControl]="visible"
                        [dt]="{ root: { width: '1.5rem', height: '0.9rem' }, handle: { size: '0.5rem' } }" />
       <span class="inline-block w-[0.75em] **:text-[0.75em]">
-        @if (_loading === 'visibility') {
+        @if (switchingVisibility()) {
         <span aria-label="Toggling active status..." class="pi pi-spinner pi-spin"></span>
         }
       </span>
     </div>
     } @else {
     <div class="*:align-middle *:inline-block space-x-2 flex flex-wrap justify-center">
-      @let _followingToggleData = _profile.followedByCurrentUser
-      ? { label: 'Unfollow', icon: 'pi pi-user-minus' }
-      : { label: 'Follow', icon: 'pi pi-user-plus' };
-      <p-button rounded type="button" severity="secondary" [loading]="_loading === 'following'"
-                [icon]="_followingToggleData.icon" ariaLabel="{{_followingToggleData.label}}"
-                (click)="toggle('following')"></p-button>
+      <app-follow-toggle [profile]="_profile" />
     </div>
     }
   </div>

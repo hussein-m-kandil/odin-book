@@ -15,6 +15,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Profile as ProfileT } from '../../app.types';
 import { ToggleSwitch } from 'primeng/toggleswitch';
+import { FollowToggle } from './follow-toggle';
 import { Button } from 'primeng/button';
 import { Profiles } from '../profiles';
 import { Menu } from 'primeng/menu';
@@ -23,7 +24,7 @@ import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
-  imports: [ReactiveFormsModule, ToggleSwitch, RouterLink, Button, Avatar, Menu],
+  imports: [ReactiveFormsModule, ToggleSwitch, FollowToggle, RouterLink, Button, Avatar, Menu],
   templateUrl: './profile.html',
   styles: ``,
 })
@@ -36,7 +37,7 @@ export class Profile {
   protected readonly optionsMenuItems = computed<MenuItem[]>(() => {
     const profile = this.activeProfile();
     const imageId = profile.user.avatar?.image.id;
-    if (!this.loading() && this.profiles.isCurrentProfile(profile.id)) {
+    if (!this.switchingVisibility() && this.profiles.isCurrentProfile(profile.id)) {
       return [
         { icon: 'pi pi-pencil', routerLink: './edit', label: 'Edit profile' },
         { icon: 'pi pi-camera', routerLink: './pic', label: 'Upload picture' },
@@ -61,8 +62,6 @@ export class Profile {
     return [];
   });
 
-  protected readonly loading = signal<'' | 'visibility' | 'following'>('');
-
   protected readonly visible = new FormControl(true, { nonNullable: true });
 
   protected readonly profiles = inject(Profiles);
@@ -71,34 +70,26 @@ export class Profile {
 
   protected readonly activeProfile = linkedSignal(() => this.profile());
 
-  protected toggle(property: ReturnType<typeof this.loading>) {
+  protected readonly switchingVisibility = signal(false);
+
+  protected switchVisibility() {
     const profile = this.activeProfile();
-    const currentUserProfile = this.profiles.isCurrentProfile(profile.id);
-    const visibility = property === 'visibility' && currentUserProfile;
-    const following = property === 'following' && !currentUserProfile;
-    if (!this.loading() && (visibility || following)) {
-      this.loading.set(property);
-      const req$ = visibility
-        ? this.profiles.updateCurrentProfile({ visible: !profile.visible })
-        : this.profiles.toggleFollowing(profile);
-      req$
+    if (!this.switchingVisibility() && this.profiles.isCurrentProfile(profile.id)) {
+      this.switchingVisibility.set(true);
+      this.profiles
+        .updateCurrentProfile({ visible: !profile.visible })
         .pipe(
           takeUntilDestroyed(this._destroyRef),
-          finalize(() => this.loading.set('')),
+          finalize(() => this.switchingVisibility.set(false)),
         )
         .subscribe({
           next: (updatedProfile) => this.activeProfile.set(updatedProfile),
           error: () => {
-            let summary: string, detail: string;
-            if (visibility) {
-              detail = `Failed to toggle your active status.`;
-              summary = `Toggle Failed`;
-            } else {
-              const action = profile.followedByCurrentUser ? 'Unfollow' : 'Follow';
-              detail = `Failed to ${action.toLowerCase()} this profile.`;
-              summary = `${action} Failed`;
-            }
-            this._toast.add({ detail, summary, severity: 'error' });
+            this._toast.add({
+              detail: `Failed to toggle your active status.`,
+              summary: `Toggle Failed`,
+              severity: 'error',
+            });
           },
         });
     }
