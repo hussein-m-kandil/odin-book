@@ -1,0 +1,13 @@
+@let _profile = profile();
+<div pRipple class="flex justify-between items-center px-4 border-surface border-b *:align-middle">
+  <app-avatar [user]="_profile.user" [profile]="_profile" size="sm" />
+  <a ariaCurrentWhenActive="page" routerLinkActive="bg-highlight"
+     [routerLinkActiveOptions]="{ exact: true }" [title]="_profile.user.username"
+     [routerLink]="['/profiles', _profile.user.username]"
+     class="grow inline-block w-[calc(100%-8rem)] py-8 px-2 font-bold tracking-wide truncate">
+    <span class="text-primary-emphasis-alt">
+      {{ _profile.user.username || 'Anonymous' }}
+    </span>
+  </a>
+  <app-follow-toggle [profile]="_profile" />
+</div>

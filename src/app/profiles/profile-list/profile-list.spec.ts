@@ -1,6 +1,7 @@
 import { provideRouter, Router, withComponentInputBinding } from '@angular/router';
 import { render, RenderComponentOptions, screen } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
+import { MessageService } from 'primeng/api';
 import { ProfileList } from './profile-list';
 import { Profiles } from '../profiles';
 import { User } from '../../app.types';
@@ -33,7 +34,11 @@ const renderComponent = ({
   ...options
 }: RenderComponentOptions<ProfileList> = {}) => {
   return render(ProfileList, {
-    providers: [{ provide: Profiles, useValue: profilesMock }, ...(providers || [])],
+    providers: [
+      { provide: MessageService, useValue: { add: vi.fn() } },
+      { provide: Profiles, useValue: profilesMock },
+      ...(providers || []),
+    ],
     inputs: { user, ...inputs },
     autoDetectChanges: false,
     ...options,

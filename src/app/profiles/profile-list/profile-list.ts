@@ -1,14 +1,13 @@
-import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { input, inject, OnChanges, Component, SimpleChanges } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthData } from '../../auth/auth.types';
-import { Avatar } from '../profile/avatar';
-import { Ripple } from 'primeng/ripple';
+import { ProfileItem } from './profile-item';
 import { Profiles } from '../profiles';
 import { List } from '../../list';
 
 @Component({
   selector: 'app-profile-list',
-  imports: [RouterLinkActive, RouterLink, Ripple, Avatar, List],
+  imports: [ProfileItem, List],
   templateUrl: './profile-list.html',
   styles: ``,
 })
