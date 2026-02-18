@@ -7,13 +7,23 @@ import { MessageService } from 'primeng/api';
 import { RouterLink } from '@angular/router';
 import { PostHeader } from './post-header';
 import { Ripple } from 'primeng/ripple';
+import { Comments } from './comments';
 import { Image } from '../../images';
 import { Posts } from '../posts';
 import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-post',
-  imports: [ButtonDirective, I18nPluralPipe, ButtonLabel, RouterLink, PostHeader, Ripple, Image],
+  imports: [
+    ButtonDirective,
+    I18nPluralPipe,
+    ButtonLabel,
+    RouterLink,
+    PostHeader,
+    Comments,
+    Ripple,
+    Image,
+  ],
   templateUrl: './post.html',
   styles: ``,
 })
@@ -23,9 +33,14 @@ export class Post {
   private readonly _posts = inject(Posts);
 
   protected readonly loading = signal<'' | 'upvote' | 'downvote'>('');
+  protected readonly commentsOpened = signal(false);
 
   readonly brief = input(false, { transform: booleanAttribute });
   readonly post = input.required<PostT>();
+
+  protected toggleComments() {
+    this.commentsOpened.update((opened) => !opened);
+  }
 
   protected vote(kind: 'upvote' | 'downvote') {
     if (!this.loading()) {

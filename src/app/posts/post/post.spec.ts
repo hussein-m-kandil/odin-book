@@ -229,4 +229,14 @@ describe('Post', () => {
     expect(likeBtn).not.toHaveClass('p-disabled', 'p-button-loading');
     expect(postsMock.unvote).toHaveBeenCalledExactlyOnceWith(post.id);
   });
+
+  it('should have a button that toggles the post comments', async () => {
+    const actor = userEvent.setup();
+    await renderComponent();
+    for (const comment of post.comments) expect(screen.queryByText(comment.content)).toBeNull();
+    await actor.click(screen.getByRole('button', { name: /comments?/i }));
+    for (const comment of post.comments) expect(screen.getByText(comment.content)).toBeVisible();
+    await actor.click(screen.getByRole('button', { name: /comments?/i }));
+    for (const comment of post.comments) expect(screen.queryByText(comment.content)).toBeNull();
+  });
 });

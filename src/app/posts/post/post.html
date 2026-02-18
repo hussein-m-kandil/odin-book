@@ -25,7 +25,10 @@
       <div class="*:flex *:justify-between">
         <div class="text-xs text-muted-color p-2">
           <span>{{ _post._count.upvotes | i18nPlural: { '=1': '1 like', 'other': '# likes' } }}</span>
-          <span>{{ _post._count.comments | i18nPlural: { '=1': '1 comment', 'other': '# comments' } }}</span>
+          <button type="button" (click)="toggleComments()"
+                  class="cursor-pointer hover:underline underline-offset-2">
+            {{ _post._count.comments | i18nPlural: { '=1': '1 comment', 'other': '# comments' } }}
+          </button>
           <span>{{ _post._count.downvotes | i18nPlural: { '=1': '1 dislike', 'other': '# dislikes' } }}</span>
         </div>
         <div class="*:grow border-surface border-t">
@@ -46,6 +49,11 @@
           </button>
         </div>
       </div>
+      @if (commentsOpened()) {
+      <div class="border-surface border-t" [class]="_brief ? 'max-h-64 overflow-auto' : ''">
+        <app-comments [comments]="_post.comments" />
+      </div>
+      }
     </footer>
   </div>
 </article>
