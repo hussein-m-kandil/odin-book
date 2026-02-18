@@ -1,28 +1,19 @@
 import { booleanAttribute, Component, DestroyRef, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonDirective, ButtonLabel } from 'primeng/button';
-import { DatePipe, I18nPluralPipe } from '@angular/common';
+import { I18nPluralPipe } from '@angular/common';
 import { Post as PostT } from '../posts.types';
 import { MessageService } from 'primeng/api';
 import { RouterLink } from '@angular/router';
+import { PostHeader } from './post-header';
 import { Ripple } from 'primeng/ripple';
-import { Avatar } from '../../profiles';
 import { Image } from '../../images';
 import { Posts } from '../posts';
 import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-post',
-  imports: [
-    ButtonDirective,
-    I18nPluralPipe,
-    ButtonLabel,
-    RouterLink,
-    DatePipe,
-    Ripple,
-    Avatar,
-    Image,
-  ],
+  imports: [ButtonDirective, I18nPluralPipe, ButtonLabel, RouterLink, PostHeader, Ripple, Image],
   templateUrl: './post.html',
   styles: ``,
 })
@@ -64,12 +55,5 @@ export class Post {
           },
         });
     }
-  }
-
-  protected getDistanceDays(date: Date | string) {
-    const dayMS = 24 * 60 * 60 * 1000;
-    const nowMS = new Date().getTime();
-    const dateMS = new Date(date).getTime();
-    return Math.floor((nowMS - dateMS) / dayMS);
   }
 }
