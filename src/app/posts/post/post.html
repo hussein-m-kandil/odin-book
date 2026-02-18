@@ -11,7 +11,7 @@
     <main>
       <p class="my-4 tracking-wide leading-relaxed">
         @if (_brief) {
-        <a [routerLink]="[_post.id]" class="line-clamp-3"> {{ _post.content }} </a>
+        <a [routerLink]="['/posts', _post.id]" class="line-clamp-3"> {{ _post.content }} </a>
         } @else {
         <span> {{ _post.content }} </span>
         }

@@ -27,10 +27,16 @@ export const routes: Routes = [
     children: [
       { path: '', loadComponent: loadHome },
       {
-        title: 'Post',
-        path: ':postId',
-        loadComponent: loadPost,
-        resolve: { post: postResolver },
+        path: 'posts',
+        children: [
+          { path: '', loadComponent: loadHome },
+          {
+            title: 'Post',
+            path: ':postId',
+            loadComponent: loadPost,
+            resolve: { post: postResolver },
+          },
+        ],
       },
       {
         path: 'followers',
