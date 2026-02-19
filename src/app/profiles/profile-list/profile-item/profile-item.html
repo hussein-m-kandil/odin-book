@@ -1,13 +1,16 @@
 @let _profile = profile();
-<div pRipple class="flex justify-between items-center px-4 border-surface border-b *:align-middle">
+<div pRipple pButton text severity="secondary"
+     class="flex justify-between items-center p-4 *:align-middle" tabindex="0"
+     (click)="link.click()" (keydown.enter)="link.click()">
   <app-avatar [user]="_profile.user" [profile]="_profile" size="sm" />
-  <a ariaCurrentWhenActive="page" routerLinkActive="bg-highlight"
+  <a #link ariaCurrentWhenActive="page" routerLinkActive="bg-highlight"
      [routerLinkActiveOptions]="{ exact: true }" [title]="_profile.user.username"
      [routerLink]="['/profiles', _profile.user.username]"
-     class="grow inline-block w-[calc(100%-8rem)] py-8 px-2 font-bold tracking-wide truncate">
+     class="grow inline-block w-[calc(100%-8rem)] px-2 font-bold tracking-wide truncate">
     <span class="text-primary-emphasis-alt">
       {{ _profile.user.username || 'Anonymous' }}
     </span>
   </a>
-  <app-follow-toggle [profile]="_profile" />
+  <app-follow-toggle [profile]="_profile" (click)="$event.stopPropagation()" />
 </div>
+<div class="border-surface border-b"></div>
