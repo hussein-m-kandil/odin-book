@@ -9,9 +9,11 @@
       <button pButton pRipple rounded size="small" type="button" [icon]="_selectedScheme.icon"
               (click)="colorSchemeMenu.toggle($event)"
               aria-label="Change the {{ _selectedScheme.value }} color scheme."></button>
+      @if(_user) {
       <a pButton pRipple rounded routerLinkActive size="small" routerLink="/profiles"
          icon="pi pi-users" aria-label="Profiles" ariaCurrentWhenActive="page"
          [routerLinkActiveOptions]="{ exact: true }"></a>
+      }
       <p-menu #colorSchemeMenu [model]="colorSchemeMenuItems()" ariaLabel="Color scheme menu"
               [popup]="true" />
     </li>
