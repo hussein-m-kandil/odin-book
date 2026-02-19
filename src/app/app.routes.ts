@@ -38,14 +38,8 @@ export const routes: Routes = [
           },
         ],
       },
-      {
-        path: 'followers',
-        children: [{ path: '', title: 'Followers', loadComponent: loadProfileList }],
-      },
-      {
-        path: 'following',
-        children: [{ path: '', title: 'Following', loadComponent: loadProfileList }],
-      },
+      { path: 'followers', title: 'Followers', loadComponent: loadProfileList },
+      { path: 'following', title: 'Following', loadComponent: loadProfileList },
       {
         path: 'profiles',
         children: [
