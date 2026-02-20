@@ -1,6 +1,6 @@
 <!-- prettier-ignore -->
 @let _store = store(); @let _storeList = _store.list(); @let _pluralLabel = pluralLabel();
-<div class="relative size-full overflow-auto">
+<div class="relative size-full overflow-auto flex flex-col">
   @if (searchable()) {
   <div class="relative">
     <input #searchbox pInputText fluid pSize="small" placeholder="Search" aria-label="Search"
@@ -27,12 +27,14 @@
     }
   </ul>
   }
-  <app-list-loader [pluralLabel]="_pluralLabel" [listSize]="_storeList.length"
-                   [loadError]="_store.loadError()" [loading]="_store.loading()"
-                   [hasMore]="_store.hasMore()" (loaded)="_store.load()"
-                   [autoLoadMore]="autoLoadMore()">
-    @if (!_storeList.length) {
-    <p class="text-muted-color">There are no {{ _pluralLabel.toLowerCase() }}.</p>
-    }
-  </app-list-loader>
+  <div class="grow flex flex-col justify-center">
+    <app-list-loader [pluralLabel]="_pluralLabel" [listSize]="_storeList.length"
+                     [loadError]="_store.loadError()" [loading]="_store.loading()"
+                     [hasMore]="_store.hasMore()" (loaded)="_store.load()"
+                     [autoLoadMore]="autoLoadMore()">
+      @if (!_storeList.length) {
+      <p class="text-muted-color">There are no {{ _pluralLabel.toLowerCase() }}.</p>
+      }
+    </app-list-loader>
+  </div>
 </div>
