@@ -1,5 +1,5 @@
 <ng-template #li let-_profile>
   <app-profile-item [profile]="_profile" />
 </ng-template>
-<app-list [store]="profiles" singularLabel="Profile" pluralLabel="Profiles" [itemFragment]="li"
-          searchable [searchValue]="name()" (searched)="search($event)" />
+<app-list autoLoadMore [store]="profiles" singularLabel="Profile" pluralLabel="Profiles"
+          [itemFragment]="li" searchable [searchValue]="name()" (searched)="search($event)" />
