@@ -59,7 +59,7 @@
 
       @if (commentsOpened()) {
       <div class="border-surface border-t" [class]="_brief ? 'max-h-64 overflow-auto' : ''">
-        <app-comment-list [comments]="_post.comments" />
+        <app-comment-list [postId]="_post.id" />
       </div>
       }
     </footer>

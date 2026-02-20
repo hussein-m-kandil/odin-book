@@ -1,26 +1,48 @@
 import { render, RenderComponentOptions, screen } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
+import { environment } from '../../../environments';
 import { Observable, of, Subscriber } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
+import { Comments } from './comments';
 import { post } from '../posts.mock';
 import { Posts } from '../posts';
 import { Post } from './post';
+
+const { comments } = post;
+
+const postsUrl = `${environment.apiUrl}/posts`;
 
 const navigationSpy = vi.spyOn(Router.prototype, 'navigate');
 
 const toastMock = { add: vi.fn() };
 
 const postsMock = {
+  baseUrl: postsUrl,
   upvote: vi.fn(() => of()),
   unvote: vi.fn(() => of()),
   downvote: vi.fn(() => of()),
+};
+
+const commentsMock = {
+  config: vi.fn(),
+  load: vi.fn(),
+  reset: vi.fn(),
+  loadError: vi.fn(() => ''),
+  loading: vi.fn(() => false),
+  hasMore: vi.fn(() => false),
+  list: vi.fn(() => comments),
+  isCurrentProfile: vi.fn(() => false),
+  profileUpdated: { subscribe: vi.fn() },
+  searchValue: { set: vi.fn() },
+  path: { set: vi.fn() },
 };
 
 const renderComponent = ({ providers, inputs, ...options }: RenderComponentOptions<Post> = {}) => {
   return render(Post, {
     providers: [
       { provide: MessageService, useValue: toastMock },
+      { provide: Comments, useValue: commentsMock },
       { provide: Posts, useValue: postsMock },
       ...(providers || []),
     ],
@@ -264,21 +286,21 @@ describe('Post', () => {
 
   it('should have a list of comments', async () => {
     await renderComponent({ inputs: { brief: false } });
-    for (const comment of post.comments) expect(screen.getByText(comment.content)).toBeVisible();
+    for (const comment of comments) expect(screen.getByText(comment.content)).toBeVisible();
   });
 
   it('should not have a list of comments', async () => {
     await renderComponent({ inputs: { brief: true } });
-    for (const comment of post.comments) expect(screen.queryByText(comment.content)).toBeNull();
+    for (const comment of comments) expect(screen.queryByText(comment.content)).toBeNull();
   });
 
   it('should have a button that toggles the post comments', async () => {
     const actor = userEvent.setup();
     await renderComponent({ inputs: { brief: true } });
-    for (const comment of post.comments) expect(screen.queryByText(comment.content)).toBeNull();
+    for (const comment of comments) expect(screen.queryByText(comment.content)).toBeNull();
     await actor.click(screen.getByRole('button', { name: /comments?/i }));
-    for (const comment of post.comments) expect(screen.getByText(comment.content)).toBeVisible();
+    for (const comment of comments) expect(screen.getByText(comment.content)).toBeVisible();
     await actor.click(screen.getByRole('button', { name: /comments?/i }));
-    for (const comment of post.comments) expect(screen.queryByText(comment.content)).toBeNull();
+    for (const comment of comments) expect(screen.queryByText(comment.content)).toBeNull();
   });
 });

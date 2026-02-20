@@ -1,18 +1,15 @@
-@let _comments = comments();
-<ul class="*:border-surface *:border-b *:last:border-none">
-  @for (_comment of _comments; track _comment.id) {
-  <li>
-    @let _labelId = `comment-label-${_comment.id}`;
-    <article [aria-labelledby]="_labelId" class="p-4 space-y-2">
-      <header>
-        <app-post-header [author]="_comment.author" [date]="_comment.createdAt" />
-      </header>
-      <main>
-        <p class="text-muted-color-emphasis tracking-wide leading-snug">
-          {{ _comment.content }}
-        </p>
-      </main>
-    </article>
-  </li>
-  }
-</ul>
+<ng-template #li let-_comment>
+  @let _labelId = `comment-label-${_comment.id}`;
+  <article [aria-labelledby]="_labelId" class="p-4 space-y-2 border-surface border-b">
+    <header>
+      <app-post-header [author]="_comment.author" [date]="_comment.createdAt" />
+    </header>
+    <main>
+      <p class="text-muted-color-emphasis tracking-wide leading-snug">
+        {{ _comment.content }}
+      </p>
+    </main>
+  </article>
+</ng-template>
+
+<app-list [store]="comments" singularLabel="Comment" pluralLabel="Comments" [itemFragment]="li" />
