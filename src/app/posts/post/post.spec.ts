@@ -262,9 +262,19 @@ describe('Post', () => {
     expect(postsMock.unvote).toHaveBeenCalledExactlyOnceWith(post.id);
   });
 
+  it('should have a list of comments', async () => {
+    await renderComponent({ inputs: { brief: false } });
+    for (const comment of post.comments) expect(screen.getByText(comment.content)).toBeVisible();
+  });
+
+  it('should not have a list of comments', async () => {
+    await renderComponent({ inputs: { brief: true } });
+    for (const comment of post.comments) expect(screen.queryByText(comment.content)).toBeNull();
+  });
+
   it('should have a button that toggles the post comments', async () => {
     const actor = userEvent.setup();
-    await renderComponent();
+    await renderComponent({ inputs: { brief: true } });
     for (const comment of post.comments) expect(screen.queryByText(comment.content)).toBeNull();
     await actor.click(screen.getByRole('button', { name: /comments?/i }));
     for (const comment of post.comments) expect(screen.getByText(comment.content)).toBeVisible();

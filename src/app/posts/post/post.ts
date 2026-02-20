@@ -1,4 +1,12 @@
-import { booleanAttribute, Component, DestroyRef, inject, input, signal } from '@angular/core';
+import {
+  input,
+  signal,
+  inject,
+  Component,
+  DestroyRef,
+  linkedSignal,
+  booleanAttribute,
+} from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonDirective, ButtonLabel } from 'primeng/button';
@@ -6,10 +14,10 @@ import { I18nPluralPipe } from '@angular/common';
 import { Post as PostT } from '../posts.types';
 import { MessageService } from 'primeng/api';
 import { PostHeader } from './post-header';
+import { CommentList } from './comments';
 import { Ripple } from 'primeng/ripple';
 import { Dialog } from 'primeng/dialog';
 import { filter, finalize } from 'rxjs';
-import { Comments } from './comments';
 import { Image } from '../../images';
 import { VoteList } from './votes';
 import { Posts } from '../posts';
@@ -22,9 +30,9 @@ const MODAL_KEY = 'modal';
     ButtonDirective,
     I18nPluralPipe,
     ButtonLabel,
-    RouterLink,
+    CommentList,
     PostHeader,
-    Comments,
+    RouterLink,
     VoteList,
     Ripple,
     Dialog,
@@ -40,9 +48,10 @@ export class Post {
   private readonly _router = inject(Router);
   private readonly _posts = inject(Posts);
 
+  protected readonly commentsOpened = linkedSignal(() => !this.brief());
+
   protected readonly modalType = signal<'' | 'Likes' | 'Dislikes'>('');
   protected readonly loading = signal<'' | 'upvote' | 'downvote'>('');
-  protected readonly commentsOpened = signal(false);
 
   readonly brief = input(false, { transform: booleanAttribute });
   readonly post = input.required<PostT>();

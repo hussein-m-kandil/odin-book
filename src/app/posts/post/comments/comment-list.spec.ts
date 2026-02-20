@@ -1,12 +1,12 @@
 import { render, RenderComponentOptions, screen } from '@testing-library/angular';
+import { CommentList } from './comment-list';
 import { post } from '../../posts.mock';
-import { Comments } from './comments';
 
-const renderComponent = ({ inputs, ...options }: RenderComponentOptions<Comments> = {}) => {
-  return render(Comments, { inputs: { comments: post.comments, ...inputs }, ...options });
+const renderComponent = ({ inputs, ...options }: RenderComponentOptions<CommentList> = {}) => {
+  return render(CommentList, { inputs: { comments: post.comments, ...inputs }, ...options });
 };
 
-describe('Comments', () => {
+describe('CommentList', () => {
   it('should display a list of comments', async () => {
     await renderComponent();
     expect(screen.getByRole('list')).toBeVisible();

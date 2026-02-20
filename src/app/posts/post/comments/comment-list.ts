@@ -3,11 +3,11 @@ import { PostHeader } from '../post-header';
 import { Comment } from '../../posts.types';
 
 @Component({
-  selector: 'app-comments',
+  selector: 'app-comment-list',
   imports: [PostHeader],
-  templateUrl: './comments.html',
+  templateUrl: './comment-list.html',
   styles: ``,
 })
-export class Comments {
+export class CommentList {
   readonly comments = input.required<Comment[]>();
 }
