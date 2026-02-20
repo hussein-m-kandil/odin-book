@@ -2,9 +2,12 @@ import { render, RenderComponentOptions, screen } from '@testing-library/angular
 import { userEvent } from '@testing-library/user-event';
 import { Observable, of, Subscriber } from 'rxjs';
 import { MessageService } from 'primeng/api';
+import { Router } from '@angular/router';
 import { post } from '../posts.mock';
 import { Posts } from '../posts';
 import { Post } from './post';
+
+const navigationSpy = vi.spyOn(Router.prototype, 'navigate');
 
 const toastMock = { add: vi.fn() };
 
@@ -71,10 +74,39 @@ describe('Post', () => {
 
   it('should display counts for likes, dislikes, and comments', async () => {
     await renderComponent();
-    expect(screen.getByText(new RegExp(`^${post._count.upvotes} likes?$`))).toBeVisible();
-    expect(screen.getByText(new RegExp(`^${post._count.comments} comments?$`))).toBeVisible();
-    expect(screen.getByText(new RegExp(`^${post._count.downvotes} dislikes?$`))).toBeVisible();
+    expect(
+      screen.getByRole('button', { name: new RegExp(`^${post._count.upvotes} likes?$`) }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole('button', { name: new RegExp(`^${post._count.comments} comments?$`) }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole('button', { name: new RegExp(`^${post._count.downvotes} dislikes?$`) }),
+    ).toBeVisible();
   });
+
+  for (const label of ['Likes', 'Dislikes']) {
+    const lowerLabel = label.toLowerCase();
+    it(`should display a list of ${lowerLabel} after clicking its button`, async () => {
+      const actor = userEvent.setup();
+      await renderComponent();
+      await actor.click(screen.getByRole('button', { name: new RegExp(`\\d+ ${lowerLabel}?`) }));
+      expect(screen.getByRole('dialog', { name: label })).toBeVisible();
+      expect(navigationSpy).toHaveBeenCalledTimes(1);
+      expect(navigationSpy.mock.calls[0][0]).toStrictEqual(['.']);
+      expect(navigationSpy.mock.calls[0][1]).toHaveProperty('relativeTo');
+      expect(navigationSpy.mock.calls[0][1]).not.toHaveProperty('replaceUrl');
+      expect(navigationSpy.mock.calls[0][1]).toHaveProperty('queryParams', { modal: label });
+      navigationSpy.mockClear();
+      await actor.click(screen.getByRole('button', { name: /close/i }));
+      expect(screen.queryByRole('dialog', { name: label })).toBeNull();
+      expect(navigationSpy).toHaveBeenCalledTimes(1);
+      expect(navigationSpy.mock.calls[0][0]).toStrictEqual(['.']);
+      expect(navigationSpy.mock.calls[0][1]).toHaveProperty('relativeTo');
+      expect(navigationSpy.mock.calls[0][1]).not.toHaveProperty('queryParams');
+      expect(navigationSpy.mock.calls[0][1]).toHaveProperty('replaceUrl', true);
+    });
+  }
 
   it('should have like and dislike buttons', async () => {
     await renderComponent({

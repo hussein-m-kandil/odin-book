@@ -8,6 +8,7 @@
     <header>
       <app-post-header emphasis [author]="_post.author" [date]="_post.createdAt" />
     </header>
+
     <main>
       <p class="my-4 tracking-wide leading-relaxed">
         @if (_brief) {
@@ -21,16 +22,22 @@
                  [width]="_image.width" [height]="_image.height" />
       }
     </main>
+
     <footer class="-mx-5 -mb-5">
       <div class="*:flex *:justify-between">
-        <div class="text-xs text-muted-color p-2">
-          <span>{{ _post._count.upvotes | i18nPlural: { '=1': '1 like', 'other': '# likes' } }}</span>
-          <button type="button" (click)="toggleComments()"
-                  class="cursor-pointer hover:underline underline-offset-2">
+        <div
+             class="text-xs text-muted-color p-2 *:cursor-pointer *:hover:underline *:underline-offset-2">
+          <button type="button" (click)="setModal('Likes')">
+            {{ _post._count.upvotes | i18nPlural: { '=1': '1 like', 'other': '# likes' } }}
+          </button>
+          <button type="button" (click)="toggleComments()">
             {{ _post._count.comments | i18nPlural: { '=1': '1 comment', 'other': '# comments' } }}
           </button>
-          <span>{{ _post._count.downvotes | i18nPlural: { '=1': '1 dislike', 'other': '# dislikes' } }}</span>
+          <button type="button" (click)="setModal('Dislikes')">
+            {{ _post._count.downvotes | i18nPlural: { '=1': '1 dislike', 'other': '# dislikes' } }}
+          </button>
         </div>
+
         <div class="*:grow border-surface border-t">
           @let _liking = _loading === 'upvote';
           @let _disliking = _loading === 'downvote';
@@ -49,6 +56,7 @@
           </button>
         </div>
       </div>
+
       @if (commentsOpened()) {
       <div class="border-surface border-t" [class]="_brief ? 'max-h-64 overflow-auto' : ''">
         <app-comments [comments]="_post.comments" />
@@ -57,3 +65,11 @@
     </footer>
   </div>
 </article>
+
+@if (modalType(); as _modalType) {
+<p-dialog modal maximizable [visible]="true" [resizable]="false" [draggable]="false"
+          closeAriaLabel="Close {{ _modalType }}" styleClass="h-full w-[calc(100%-2rem)]"
+          [header]="_modalType" (visibleChange)="setModal($event ? _modalType : '')">
+  <app-vote-list [postId]="_post.id" [type]="_modalType === 'Likes' ? 'upvote' : 'downvote'" />
+</p-dialog>
+}

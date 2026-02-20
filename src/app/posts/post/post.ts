@@ -1,16 +1,20 @@
 import { booleanAttribute, Component, DestroyRef, inject, input, signal } from '@angular/core';
+import { ActivatedRoute, NavigationEnd, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonDirective, ButtonLabel } from 'primeng/button';
 import { I18nPluralPipe } from '@angular/common';
 import { Post as PostT } from '../posts.types';
 import { MessageService } from 'primeng/api';
-import { RouterLink } from '@angular/router';
 import { PostHeader } from './post-header';
 import { Ripple } from 'primeng/ripple';
+import { Dialog } from 'primeng/dialog';
+import { filter, finalize } from 'rxjs';
 import { Comments } from './comments';
 import { Image } from '../../images';
+import { VoteList } from './votes';
 import { Posts } from '../posts';
-import { finalize } from 'rxjs';
+
+const MODAL_KEY = 'modal';
 
 @Component({
   selector: 'app-post',
@@ -21,17 +25,22 @@ import { finalize } from 'rxjs';
     RouterLink,
     PostHeader,
     Comments,
+    VoteList,
     Ripple,
+    Dialog,
     Image,
   ],
   templateUrl: './post.html',
   styles: ``,
 })
 export class Post {
+  private readonly _activeRoute = inject(ActivatedRoute);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _toast = inject(MessageService);
+  private readonly _router = inject(Router);
   private readonly _posts = inject(Posts);
 
+  protected readonly modalType = signal<'' | 'Likes' | 'Dislikes'>('');
   protected readonly loading = signal<'' | 'upvote' | 'downvote'>('');
   protected readonly commentsOpened = signal(false);
 
@@ -40,6 +49,23 @@ export class Post {
 
   protected toggleComments() {
     this.commentsOpened.update((opened) => !opened);
+  }
+
+  protected pushModalRoute() {
+    this._router.navigate(['.'], {
+      queryParams: { [MODAL_KEY]: this.modalType() },
+      relativeTo: this._activeRoute,
+    });
+  }
+
+  protected popModalRoute() {
+    this._router.navigate(['.'], { relativeTo: this._activeRoute, replaceUrl: true });
+  }
+
+  protected setModal(type: ReturnType<typeof this.modalType>) {
+    this.modalType.set(type);
+    if (type) this.pushModalRoute();
+    else this.popModalRoute();
   }
 
   protected vote(kind: 'upvote' | 'downvote') {
@@ -70,5 +96,16 @@ export class Post {
           },
         });
     }
+  }
+
+  constructor() {
+    this._router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        const modalType = this.modalType();
+        if (modalType && !event.urlAfterRedirects.includes(`${MODAL_KEY}=${modalType}`)) {
+          this.modalType.set('');
+        }
+      });
   }
 }
