@@ -9,6 +9,7 @@ import {
   Component,
   ElementRef,
   afterNextRender,
+  booleanAttribute,
 } from '@angular/core';
 import { ButtonDirective } from 'primeng/button';
 import { ErrorMessage } from '../error-message';
@@ -33,6 +34,7 @@ export class ListLoader implements OnChanges, OnDestroy {
     }
   });
 
+  readonly autoLoadMore = input(false, { transform: booleanAttribute });
   readonly pluralLabel = input.required<string>();
   readonly loadError = input.required<string>();
   readonly loading = input.required<boolean>();
@@ -44,10 +46,12 @@ export class ListLoader implements OnChanges, OnDestroy {
   ngOnChanges() {
     afterNextRender(
       () => {
-        const loadMoreBtn = this._loadMoreBtn()?.nativeElement;
-        if (loadMoreBtn) this._loadMoreObserver.observe(loadMoreBtn);
+        if (this.autoLoadMore()) {
+          const loadMoreBtn = this._loadMoreBtn()?.nativeElement;
+          if (loadMoreBtn) this._loadMoreObserver.observe(loadMoreBtn);
+        }
       },
-      { injector: this._injector }
+      { injector: this._injector },
     );
   }
 

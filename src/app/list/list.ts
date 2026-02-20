@@ -18,6 +18,7 @@ export class List {
   readonly singularLabel = input.required<string>();
   readonly pluralLabel = input.required<string>();
 
+  readonly autoLoadMore = input(false, { transform: booleanAttribute });
   readonly searchable = input(false, { transform: booleanAttribute });
   readonly searchValue = input('');
 

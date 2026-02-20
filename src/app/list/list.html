@@ -29,7 +29,8 @@
   }
   <app-list-loader [pluralLabel]="_pluralLabel" [listSize]="_storeList.length"
                    [loadError]="_store.loadError()" [loading]="_store.loading()"
-                   [hasMore]="_store.hasMore()" (loaded)="_store.load()">
+                   [hasMore]="_store.hasMore()" (loaded)="_store.load()"
+                   [autoLoadMore]="autoLoadMore()">
     @if (!_storeList.length) {
     <p class="text-muted-color">There are no {{ _pluralLabel.toLowerCase() }}.</p>
     }
