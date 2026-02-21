@@ -1,5 +1,5 @@
-@let _post = post();
 @let _brief = brief();
+@let _post = activePost();
 @let _loading = loading();
 @let _labelId = `post-label-${_post.id}`;
 <article aria-labelledby="{{ _labelId }}" class="mx-auto p-4"

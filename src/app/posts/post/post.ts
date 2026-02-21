@@ -49,6 +49,7 @@ export class Post {
   private readonly _posts = inject(Posts);
 
   protected readonly commentsOpened = linkedSignal(() => !this.brief());
+  protected readonly activePost = linkedSignal(() => this.post());
 
   protected readonly modalType = signal<'' | 'Likes' | 'Dislikes'>('');
   protected readonly loading = signal<'' | 'upvote' | 'downvote'>('');
@@ -79,7 +80,7 @@ export class Post {
 
   protected vote(kind: 'upvote' | 'downvote') {
     if (!this.loading()) {
-      const post = this.post();
+      const post = this.activePost();
       const operation =
         (kind === 'upvote' && post.upvotedByCurrentUser) ||
         (kind === 'downvote' && post.downvotedByCurrentUser)
@@ -94,6 +95,7 @@ export class Post {
           finalize(() => this.loading.set('')),
         )
         .subscribe({
+          next: (updatedPost) => this.activePost.set(updatedPost),
           error: () => {
             this._toast.add({
               severity: 'error',

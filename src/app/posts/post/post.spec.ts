@@ -2,6 +2,7 @@ import { render, RenderComponentOptions, screen } from '@testing-library/angular
 import { userEvent } from '@testing-library/user-event';
 import { environment } from '../../../environments';
 import { Observable, of, Subscriber } from 'rxjs';
+import { Post as PostT } from '../posts.types';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { Comments } from './comments';
@@ -171,7 +172,7 @@ describe('Post', () => {
   });
 
   it('should like the post', async () => {
-    let sub!: Subscriber<void>;
+    let sub!: Subscriber<PostT>;
     postsMock.upvote.mockImplementation(() => new Observable((s) => (sub = s)));
     const actor = userEvent.setup();
     const { detectChanges } = await renderComponent({
@@ -181,7 +182,7 @@ describe('Post', () => {
     await actor.click(likeBtn);
     expect(likeBtn).toBeVisible();
     expect(likeBtn).toHaveClass('p-disabled', 'p-button-loading');
-    sub.next();
+    sub.next({ ...post, upvotedByCurrentUser: true, downvotedByCurrentUser: false });
     sub.complete();
     detectChanges();
     expect(likeBtn).toBeVisible();
@@ -190,7 +191,7 @@ describe('Post', () => {
   });
 
   it('should like a disliked post', async () => {
-    let sub!: Subscriber<void>;
+    let sub!: Subscriber<PostT>;
     postsMock.upvote.mockImplementation(() => new Observable((s) => (sub = s)));
     const actor = userEvent.setup();
     const { detectChanges } = await renderComponent({
@@ -200,7 +201,7 @@ describe('Post', () => {
     await actor.click(likeBtn);
     expect(likeBtn).toBeVisible();
     expect(likeBtn).toHaveClass('p-disabled', 'p-button-loading');
-    sub.next();
+    sub.next({ ...post, upvotedByCurrentUser: true, downvotedByCurrentUser: true });
     sub.complete();
     detectChanges();
     expect(likeBtn).toBeVisible();
@@ -209,7 +210,7 @@ describe('Post', () => {
   });
 
   it('should dislike the post', async () => {
-    let sub!: Subscriber<void>;
+    let sub!: Subscriber<PostT>;
     postsMock.downvote.mockImplementation(() => new Observable((s) => (sub = s)));
     const actor = userEvent.setup();
     const { detectChanges } = await renderComponent({
@@ -219,7 +220,7 @@ describe('Post', () => {
     await actor.click(dislikeBtn);
     expect(dislikeBtn).toBeVisible();
     expect(dislikeBtn).toHaveClass('p-disabled', 'p-button-loading');
-    sub.next();
+    sub.next({ ...post, upvotedByCurrentUser: false, downvotedByCurrentUser: true });
     sub.complete();
     detectChanges();
     expect(dislikeBtn).toBeVisible();
@@ -228,7 +229,7 @@ describe('Post', () => {
   });
 
   it('should dislike a liked post', async () => {
-    let sub!: Subscriber<void>;
+    let sub!: Subscriber<PostT>;
     postsMock.downvote.mockImplementation(() => new Observable((s) => (sub = s)));
     const actor = userEvent.setup();
     const { detectChanges } = await renderComponent({
@@ -238,7 +239,7 @@ describe('Post', () => {
     await actor.click(dislikeBtn);
     expect(dislikeBtn).toBeVisible();
     expect(dislikeBtn).toHaveClass('p-disabled', 'p-button-loading');
-    sub.next();
+    sub.next({ ...post, upvotedByCurrentUser: true, downvotedByCurrentUser: true });
     sub.complete();
     detectChanges();
     expect(dislikeBtn).toBeVisible();
@@ -247,7 +248,7 @@ describe('Post', () => {
   });
 
   it('should remove a like from the post', async () => {
-    let sub!: Subscriber<void>;
+    let sub!: Subscriber<PostT>;
     postsMock.unvote.mockImplementation(() => new Observable((s) => (sub = s)));
     const actor = userEvent.setup();
     const { detectChanges } = await renderComponent({
@@ -257,7 +258,7 @@ describe('Post', () => {
     await actor.click(likeBtn);
     expect(likeBtn).toBeVisible();
     expect(likeBtn).toHaveClass('p-disabled', 'p-button-loading');
-    sub.next();
+    sub.next({ ...post, upvotedByCurrentUser: false, downvotedByCurrentUser: false });
     sub.complete();
     detectChanges();
     expect(likeBtn).toBeVisible();
@@ -266,7 +267,7 @@ describe('Post', () => {
   });
 
   it('should remove a dislike from the post', async () => {
-    let sub!: Subscriber<void>;
+    let sub!: Subscriber<PostT>;
     postsMock.unvote.mockImplementation(() => new Observable((s) => (sub = s)));
     const actor = userEvent.setup();
     const { detectChanges } = await renderComponent({
@@ -276,7 +277,7 @@ describe('Post', () => {
     await actor.click(likeBtn);
     expect(likeBtn).toBeVisible();
     expect(likeBtn).toHaveClass('p-disabled', 'p-button-loading');
-    sub.next();
+    sub.next({ ...post, upvotedByCurrentUser: false, downvotedByCurrentUser: false });
     sub.complete();
     detectChanges();
     expect(likeBtn).toBeVisible();
