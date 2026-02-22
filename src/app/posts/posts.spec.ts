@@ -1,7 +1,8 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { HttpParams, provideHttpClient } from '@angular/common/http';
+import { HttpParams, HttpResponse, provideHttpClient } from '@angular/common/http';
 import { environment } from '../../environments';
 import { TestBed } from '@angular/core/testing';
+import { NewPostData } from './posts.types';
 import { posts } from './posts.mock';
 import { Posts } from './posts';
 
@@ -115,6 +116,81 @@ describe('Posts', () => {
     req.flush(posts[1]);
     expect(resData).toEqual(posts[1]);
     expect(resError).toBeUndefined();
+    httpTesting.verify();
+  });
+
+  it('should create a text-only, public post', async () => {
+    const { service, httpTesting } = setup();
+    service.list.set(posts);
+    const newPostData: NewPostData = { content: 'Blah blah', published: true };
+    const post$ = service.createPost(newPostData);
+    let resData, resError;
+    post$.subscribe({ next: (d) => (resData = d), error: (e) => (resError = e) });
+    const reqInfo = { method: 'POST', url: postsUrl };
+    const req = httpTesting.expectOne(reqInfo, 'Request to upvote a post');
+    const reqBody = req.request.body as FormData;
+    const createdPost = { ...posts[0], id: crypto.randomUUID() };
+    req.flush(createdPost);
+    expect(reqBody.get('image')).toBeNull();
+    expect(reqBody.get('imagedata')).toBeNull();
+    expect(reqBody.get('content')).toBe(newPostData.content);
+    expect(reqBody.get('published')).toBe(`${newPostData.published}`);
+    expect(service.list()).toStrictEqual([createdPost, ...posts]);
+    expect(resError).toBeUndefined();
+    expect(resData).toBeInstanceOf(HttpResponse);
+    expect(resData).toHaveProperty('body', createdPost);
+    httpTesting.verify();
+  });
+
+  it('should create a text-only, private post', async () => {
+    const { service, httpTesting } = setup();
+    service.list.set(posts);
+    const newPostData: NewPostData = { content: 'Blah blah', published: false };
+    const post$ = service.createPost(newPostData);
+    let resData, resError;
+    post$.subscribe({ next: (d) => (resData = d), error: (e) => (resError = e) });
+    const reqInfo = { method: 'POST', url: postsUrl };
+    const req = httpTesting.expectOne(reqInfo, 'Request to upvote a post');
+    const reqBody = req.request.body as FormData;
+    const createdPost = { ...posts[0], id: crypto.randomUUID() };
+    req.flush(createdPost);
+    expect(reqBody.get('image')).toBeNull();
+    expect(reqBody.get('imagedata')).toBeNull();
+    expect(reqBody.get('content')).toBe(newPostData.content);
+    expect(reqBody.get('published')).toBe(`${newPostData.published}`);
+    expect(service.list()).toStrictEqual([createdPost, ...posts]);
+    expect(resError).toBeUndefined();
+    expect(resData).toBeInstanceOf(HttpResponse);
+    expect(resData).toHaveProperty('body', createdPost);
+    httpTesting.verify();
+  });
+
+  it('should create a post with an image', async () => {
+    const { service, httpTesting } = setup();
+    service.list.set(posts);
+    const newPostData: NewPostData = {
+      image: new File([], 'img.png', { type: 'image/png' }),
+      imagedata: { xPos: 7, yPos: 7 },
+      content: 'Blah blah',
+      published: true,
+    };
+    const post$ = service.createPost(newPostData);
+    let resData, resError;
+    post$.subscribe({ next: (d) => (resData = d), error: (e) => (resError = e) });
+    const reqInfo = { method: 'POST', url: postsUrl };
+    const req = httpTesting.expectOne(reqInfo, 'Request to upvote a post');
+    const reqBody = req.request.body as FormData;
+    const createdPost = { ...posts[0], id: crypto.randomUUID() };
+    req.flush(createdPost);
+    expect(reqBody.get('content')).toBe(newPostData.content);
+    expect(reqBody.get('image')).toStrictEqual(newPostData.image);
+    expect(reqBody.get('published')).toBe(`${newPostData.published}`);
+    expect(reqBody.get('imagedata[xPos]')).toBe(`${newPostData.imagedata!.xPos}`);
+    expect(reqBody.get('imagedata[yPos]')).toBe(`${newPostData.imagedata!.yPos}`);
+    expect(service.list()).toStrictEqual([createdPost, ...posts]);
+    expect(resError).toBeUndefined();
+    expect(resData).toBeInstanceOf(HttpResponse);
+    expect(resData).toHaveProperty('body', createdPost);
     httpTesting.verify();
   });
 

@@ -1,16 +1,14 @@
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DestroyRef, inject, Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpParams } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { NewPostData, Post } from './posts.types';
 import { environment } from '../../environments';
 import { ListStore } from '../list/list-store';
-import { Post } from './posts.types';
 import { defer, of, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Posts extends ListStore<Post> {
-  private readonly _destroyRef = inject(DestroyRef);
   private readonly _http = inject(HttpClient);
 
   private _params = new HttpParams();
@@ -29,15 +27,17 @@ export class Posts extends ListStore<Post> {
     const posts = this.list();
     const cursor = posts[posts.length - 1]?.order;
     if (typeof cursor !== 'undefined') params = params.append('cursor', cursor);
-    return this._http
-      .get<ReturnType<typeof this.list>>(this.baseUrl, { params })
-      .pipe(takeUntilDestroyed(this._destroyRef));
+    return this._http.get<ReturnType<typeof this.list>>(this.baseUrl, { params });
   }
 
   private _updatePostIfExist(updatedPost: Post) {
     this.list.update((posts) =>
       posts.map((post) => (post.id === updatedPost.id ? updatedPost : post)),
     );
+  }
+
+  setParams(params: HttpParams) {
+    this._params = params;
   }
 
   getPost(id: Post['id']) {
@@ -48,8 +48,25 @@ export class Posts extends ListStore<Post> {
     });
   }
 
-  setParams(params: HttpParams) {
-    this._params = params;
+  createPost(data: NewPostData) {
+    const body = new FormData();
+    body.set('content', data.content);
+    body.set('published', `${data.published}`);
+    body.set('title', data.content.split(' ')[0]);
+    if (data.image) body.set('image', data.image);
+    if (data.imagedata) {
+      Object.entries(data.imagedata).forEach(([k, v]) => body.set(`imagedata[${k}]`, `${v}`));
+    }
+    return this._http
+      .post<Post>(this.baseUrl, body, { reportProgress: true, observe: 'events' })
+      .pipe(
+        tap((event) => {
+          if (event.type === HttpEventType.Response && event.body) {
+            const createdPost = event.body;
+            this.list.update((posts) => [createdPost, ...posts]);
+          }
+        }),
+      );
   }
 
   unvote(id: Post['id']) {
