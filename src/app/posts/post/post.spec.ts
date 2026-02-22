@@ -16,8 +16,6 @@ const postsUrl = `${environment.apiUrl}/posts`;
 
 const navigationSpy = vi.spyOn(Router.prototype, 'navigate');
 
-const toastMock = { add: vi.fn() };
-
 const postsMock = {
   baseUrl: postsUrl,
   upvote: vi.fn(() => of()),
@@ -42,7 +40,7 @@ const commentsMock = {
 const renderComponent = ({ providers, inputs, ...options }: RenderComponentOptions<Post> = {}) => {
   return render(Post, {
     providers: [
-      { provide: MessageService, useValue: toastMock },
+      { provide: MessageService, useValue: { add: vi.fn() } },
       { provide: Comments, useValue: commentsMock },
       { provide: Posts, useValue: postsMock },
       ...(providers || []),
@@ -299,9 +297,9 @@ describe('Post', () => {
     const actor = userEvent.setup();
     await renderComponent({ inputs: { brief: true } });
     for (const comment of comments) expect(screen.queryByText(comment.content)).toBeNull();
-    await actor.click(screen.getByRole('button', { name: /comments?/i }));
+    await actor.click(screen.getByRole('button', { name: /comments?/ }));
     for (const comment of comments) expect(screen.getByText(comment.content)).toBeVisible();
-    await actor.click(screen.getByRole('button', { name: /comments?/i }));
+    await actor.click(screen.getByRole('button', { name: /comments?/ }));
     for (const comment of comments) expect(screen.queryByText(comment.content)).toBeNull();
   });
 });

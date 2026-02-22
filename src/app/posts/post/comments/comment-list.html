@@ -1,6 +1,6 @@
 <ng-template #li let-_comment>
   @let _labelId = `comment-label-${_comment.id}`;
-  <article [aria-labelledby]="_labelId" class="p-4 space-y-2 border-surface border-b">
+  <article [aria-labelledby]="_labelId" class="p-4 space-y-2 border-surface border-t">
     <header>
       <app-post-header [author]="_comment.author" [date]="_comment.createdAt" />
     </header>
@@ -13,3 +13,4 @@
 </ng-template>
 
 <app-list [store]="comments" singularLabel="Comment" pluralLabel="Comments" [itemFragment]="li" />
+<app-content-form class="block p-4" [commentPostId]="postId()" />

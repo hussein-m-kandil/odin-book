@@ -1,4 +1,5 @@
 import { Component, inject, input, OnChanges } from '@angular/core';
+import { ContentForm } from '../content-form';
 import { PostHeader } from '../post-header';
 import { Post } from '../../posts.types';
 import { Comments } from './comments';
@@ -6,7 +7,7 @@ import { List } from '../../../list';
 
 @Component({
   selector: 'app-comment-list',
-  imports: [PostHeader, List],
+  imports: [PostHeader, ContentForm, List],
   templateUrl: './comment-list.html',
   styles: ``,
 })

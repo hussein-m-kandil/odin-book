@@ -5,6 +5,7 @@ import { Comment } from '../../posts.types';
 import { post } from '../../posts.mock';
 import { Comments } from '../comments';
 import { Posts } from '../../posts';
+import { MessageService } from 'primeng/api';
 
 const postsUrl = `${environment.apiUrl}/posts`;
 
@@ -26,13 +27,19 @@ const commentsMock = {
   path: { set: vi.fn() },
 };
 
-const renderComponent = ({ providers, ...options }: RenderComponentOptions<CommentList> = {}) => {
+const renderComponent = ({
+  providers,
+  inputs,
+  ...options
+}: RenderComponentOptions<CommentList> = {}) => {
   return render(CommentList, {
     providers: [
+      { provide: MessageService, useValue: { add: vi.fn() } },
       { provide: Comments, useValue: commentsMock },
       { provide: Posts, useValue: postsMock },
       ...(providers || []),
     ],
+    inputs: { postId: post.id, ...inputs },
     autoDetectChanges: false,
     ...options,
   });
@@ -48,17 +55,19 @@ describe('CommentList', () => {
     expect(commentsMock.config).toHaveBeenCalledExactlyOnceWith(inputs);
   });
 
-  it('should render no-comments message', async () => {
+  it('should render no-comments message, and have a comment form', async () => {
     commentsMock.list.mockImplementation(() => []);
     await renderComponent();
+    expect(screen.getByRole('form', { name: /comment/i })).toBeVisible();
     expect(screen.getByText(/there are no comments/i)).toBeVisible();
     expect(screen.queryByRole('listitem')).toBeNull();
     expect(screen.queryByRole('list')).toBeNull();
   });
 
-  it('should display a list of comments', async () => {
+  it('should display a list of comments, and have a comment form', async () => {
     commentsMock.list.mockImplementation(() => comments);
     await renderComponent();
+    expect(screen.getByRole('form', { name: /comment/i })).toBeVisible();
     expect(screen.getByRole('list')).toBeVisible();
     expect(screen.getAllByRole('listitem')).toHaveLength(comments.length);
     expect(screen.getAllByRole('article')).toHaveLength(comments.length);

@@ -1,4 +1,5 @@
 import { input, inject, Component, OnChanges, SimpleChanges } from '@angular/core';
+import { ContentForm } from '../post/content-form';
 import { HttpParams } from '@angular/common/http';
 import { List } from '../../list';
 import { Posts } from '../posts';
@@ -6,7 +7,7 @@ import { Post } from '../post';
 
 @Component({
   selector: 'app-post-list',
-  imports: [List, Post],
+  imports: [List, Post, ContentForm],
   templateUrl: './post-list.html',
 })
 export class PostList implements OnChanges {

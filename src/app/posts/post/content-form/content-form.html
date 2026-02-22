@@ -1,0 +1,54 @@
+@let _picking = picking();
+@let _posting = !commentPostId();
+@let _pickingImage = _picking === 'image';
+@let _pickingEmoji = _picking === 'emoji';
+@let _label = _posting ? { cap: 'Post', low: 'post' } : { cap: 'Comment', low: 'comment' };
+@let _selectedColorScheme = colorScheme.selectedScheme().value;
+@let _theme = _selectedColorScheme === 'system' ? 'auto' : _selectedColorScheme;
+<form [formGroup]="form" (ngSubmit)="submit()" aria-label="{{ _label.cap }} form">
+  <div class="bg-(--p-content-background) space-x-1 flex"
+       [class]="_posting ? 'items-start' : 'items-end'">
+    @if (_posting) {
+    <p-button outlined rounded size="small" type="button" icon="pi pi-camera" severity="secondary"
+              ariaLabel="Toggle image picker" [disabled]="form.disabled"
+              (click)="togglePicker('image', $event)" />
+    }
+    <p-button outlined rounded size="small" type="button" icon="pi pi-face-smile"
+              severity="secondary" ariaLabel="Toggle emoji picker" [disabled]="form.disabled"
+              (click)="togglePicker('emoji', $event)" />
+    <textarea #content pTextarea rows="1" pSize="small" variant="filled" [autoResize]="true"
+              id="{{ _label.low }}-content" (onResize)="showScrollbarAsNeeded()"
+              aria-label="{{ _label.cap }}" formControlName="content"
+              placeholder="{{ _posting ? 'Thoughts' : 'Reflection' }}..."
+              class="grow align-middle max-h-[30vh] rounded-2xl tracking-wide">
+    </textarea>
+    <p-button rounded size="small" type="submit" [disabled]="form.disabled" severity="primary"
+              [loading]="!!form.disabled" [label]="_label.cap" class="leading-snug" />
+    @if (_posting) {
+    @let _privacy = privacyOptions[privacyIndex()];
+    <p-button outlined rounded size="small" type="button" severity="secondary"
+              [disabled]="form.disabled" [icon]="_privacy.icon" [ariaLabel]="_privacy.label"
+              (onClick)="privacyMenu.toggle($event)" />
+    <p-menu #privacyMenu ariaLabel="Privacy Menu" [popup]="true" [model]="privacyOptions"
+            [pt]="{ root: 'min-w-auto mt-0.5', itemLink: 'p-2' }" />
+    }
+  </div>
+  <div aria-live="polite" aria-atomic="true">
+    <p-popover #picker [unstyled]="true" [dismissable]="false" (onHide)="hidePicker()">
+      <div class="w-screen max-w-sm p-0.5 overflow-auto">
+        <div
+             class="bg-(--p-content-background) max-h-screen border border-surface rounded-lg overflow-auto">
+          @if (_pickingImage) {
+          <app-image-picker [progress]="progress()" [disabled]="form.disabled"
+                            (unpicked)="unpickImage()" (canceled)="togglePicker('image')"
+                            (picked)="pickedImage.set($event)" />
+          }
+          @else if (_pickingEmoji) {
+          <app-emoji-picker closeableOnEscapeKey [theme]="_theme"
+                            (picked)="insertPickedEmoji($event)" (closed)="togglePicker('emoji')" />
+          }
+        </div>
+      </div>
+    </p-popover>
+  </div>
+</form>
