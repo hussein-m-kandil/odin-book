@@ -1,8 +1,8 @@
+import { Comment, NewCommentData, Post } from '../../posts.types';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ListStore } from '../../../list/list-store';
 import { inject, Injectable } from '@angular/core';
-import { Comment, Post } from '../../posts.types';
-import { Observable, of } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
 import { Posts } from '../../posts';
 
 @Injectable({
@@ -21,7 +21,7 @@ export class Comments extends ListStore<Comment> {
   protected override getMore(): Observable<Comment[]> {
     const postId = this._postId;
     if (postId) {
-      let params = new HttpParams();
+      let params = new HttpParams({ fromObject: { sort: 'asc' } });
       const comments = this.list();
       const cursor = comments[comments.length - 1]?.order;
       if (cursor) params = params.append('cursor', cursor);
@@ -38,5 +38,15 @@ export class Comments extends ListStore<Comment> {
   config({ postId }: { postId: Post['id'] }) {
     this.reset();
     this._postId = postId;
+  }
+
+  createComment(id: Post['id'], data: NewCommentData) {
+    return this._http.post<Comment>(`${this._postsUrl}/${id}/comments`, data).pipe(
+      tap((createdComment) => {
+        if (createdComment.postId === this._postId) {
+          this.list.update((comments) => comments.concat(createdComment));
+        }
+      }),
+    );
   }
 }
