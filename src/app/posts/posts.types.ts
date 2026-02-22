@@ -1,4 +1,4 @@
-import { User, Image } from '../app.types';
+import { User, Image, NewImageData } from '../app.types';
 
 export interface Tag {
   id: string;
@@ -46,4 +46,13 @@ export interface Post {
   upvotedByCurrentUser: boolean;
   downvotedByCurrentUser: boolean;
   _count: { votes: number; comments: number; downvotes: number; upvotes: number };
+}
+
+export interface NewCommentData {
+  content: string;
+}
+export interface NewPostData extends NewCommentData {
+  imagedata?: NewImageData;
+  image?: File | null;
+  published: boolean;
 }
