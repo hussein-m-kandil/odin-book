@@ -1,9 +1,9 @@
 @let _kind = kind(); @let _singularKind = `${_kind === 'picture' ? 'a' : 'an'} ${_kind}`;
 @let _loading = progress(); @let _disabled = _loading || disabled();
-<div class="relative max-w-svh mx-auto">
+<div class="relative">
   <p-fileupload [customUpload]="true" [disabled]="_disabled" (onClear)="cancel()"
                 (onRemove)="unpick()" (onSelect)="pick($event)"
-                styleClass="max-h-[calc(100vh-132px)] overflow-auto"
+                styleClass="max-h-full overflow-auto border-none rounded-none"
                 accept="image/png, image/jpeg, image/webp" fileLimit="1">
     <ng-template #header let-files let-clearCallback="clearCallback"
                  let-chooseCallback="chooseCallback">
