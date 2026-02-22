@@ -34,6 +34,7 @@ export class App {
 
   constructor() {
     afterNextRender(() => {
+      import('@emoji-mart/data').catch();
       this.disclaimed.set(!!this.storage.getItem(this.DISCLAIMER_KEY));
     });
 
