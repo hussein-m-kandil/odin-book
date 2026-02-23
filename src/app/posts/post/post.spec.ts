@@ -4,7 +4,6 @@ import { environment } from '../../../environments';
 import { Observable, of, Subscriber } from 'rxjs';
 import { Post as PostT } from '../posts.types';
 import { MessageService } from 'primeng/api';
-import { Router } from '@angular/router';
 import { Comments } from './comments';
 import { post } from '../posts.mock';
 import { Posts } from '../posts';
@@ -13,8 +12,6 @@ import { Post } from './post';
 const { comments } = post;
 
 const postsUrl = `${environment.apiUrl}/posts`;
-
-const navigationSpy = vi.spyOn(Router.prototype, 'navigate');
 
 const postsMock = {
   baseUrl: postsUrl,
@@ -124,19 +121,8 @@ describe('Post', () => {
       await renderComponent();
       await actor.click(screen.getByRole('button', { name: new RegExp(`\\d+ ${lowerLabel}?`) }));
       expect(screen.getByRole('dialog', { name: label })).toBeVisible();
-      expect(navigationSpy).toHaveBeenCalledTimes(1);
-      expect(navigationSpy.mock.calls[0][0]).toStrictEqual(['.']);
-      expect(navigationSpy.mock.calls[0][1]).toHaveProperty('relativeTo');
-      expect(navigationSpy.mock.calls[0][1]).not.toHaveProperty('replaceUrl');
-      expect(navigationSpy.mock.calls[0][1]).toHaveProperty('queryParams', { modal: label });
-      navigationSpy.mockClear();
       await actor.click(screen.getByRole('button', { name: /close/i }));
       expect(screen.queryByRole('dialog', { name: label })).toBeNull();
-      expect(navigationSpy).toHaveBeenCalledTimes(1);
-      expect(navigationSpy.mock.calls[0][0]).toStrictEqual(['.']);
-      expect(navigationSpy.mock.calls[0][1]).toHaveProperty('relativeTo');
-      expect(navigationSpy.mock.calls[0][1]).not.toHaveProperty('queryParams');
-      expect(navigationSpy.mock.calls[0][1]).toHaveProperty('replaceUrl', true);
     });
   }
 

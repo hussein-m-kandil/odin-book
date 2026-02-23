@@ -27,13 +27,13 @@
       <div class="*:flex *:justify-between">
         <div
              class="text-xs text-muted-color p-2 *:cursor-pointer *:hover:underline *:underline-offset-2">
-          <button type="button" (click)="setModal('Likes')">
+          <button type="button" (click)="modal.set('Likes')">
             {{ _post._count.upvotes | i18nPlural: { '=1': '1 like', 'other': '# likes' } }}
           </button>
           <button type="button" (click)="toggleComments()">
             {{ _post._count.comments | i18nPlural: { '=1': '1 comment', 'other': '# comments' } }}
           </button>
-          <button type="button" (click)="setModal('Dislikes')">
+          <button type="button" (click)="modal.set('Dislikes')">
             {{ _post._count.downvotes | i18nPlural: { '=1': '1 dislike', 'other': '# dislikes' } }}
           </button>
         </div>
@@ -66,10 +66,8 @@
   </div>
 </article>
 
-@if (modalType(); as _modalType) {
-<p-dialog modal maximizable [visible]="true" [resizable]="false" [draggable]="false"
-          closeAriaLabel="Close {{ _modalType }}" styleClass="h-full w-[calc(100%-2rem)]"
-          [header]="_modalType" (visibleChange)="setModal($event ? _modalType : '')">
-  <app-vote-list [postId]="_post.id" [type]="_modalType === 'Likes' ? 'upvote' : 'downvote'" />
-</p-dialog>
+@if (modal(); as _modal) {
+<app-modal [header]="_modal" [closeAriaLabel]="`Close ${_modal}`" (hidden)="modal.set('')">
+  <app-vote-list [postId]="_post.id" [type]="_modal === 'Likes' ? 'upvote' : 'downvote'" />
+</app-modal>
 }

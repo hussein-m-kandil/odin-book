@@ -7,22 +7,20 @@ import {
   linkedSignal,
   booleanAttribute,
 } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonDirective, ButtonLabel } from 'primeng/button';
 import { I18nPluralPipe } from '@angular/common';
 import { Post as PostT } from '../posts.types';
 import { MessageService } from 'primeng/api';
+import { RouterLink } from '@angular/router';
 import { PostHeader } from './post-header';
 import { CommentList } from './comments';
 import { Ripple } from 'primeng/ripple';
-import { Dialog } from 'primeng/dialog';
-import { filter, finalize } from 'rxjs';
 import { Image } from '../../images';
+import { Modal } from '../../modal';
 import { VoteList } from './votes';
 import { Posts } from '../posts';
-
-const MODAL_KEY = 'modal';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-post',
@@ -35,47 +33,28 @@ const MODAL_KEY = 'modal';
     RouterLink,
     VoteList,
     Ripple,
-    Dialog,
     Image,
+    Modal,
   ],
   templateUrl: './post.html',
   styles: ``,
 })
 export class Post {
-  private readonly _activeRoute = inject(ActivatedRoute);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _toast = inject(MessageService);
-  private readonly _router = inject(Router);
   private readonly _posts = inject(Posts);
 
   protected readonly commentsOpened = linkedSignal(() => !this.brief());
   protected readonly activePost = linkedSignal(() => this.post());
 
-  protected readonly modalType = signal<'' | 'Likes' | 'Dislikes'>('');
   protected readonly loading = signal<'' | 'upvote' | 'downvote'>('');
+  protected readonly modal = signal<'' | 'Likes' | 'Dislikes'>('');
 
   readonly brief = input(false, { transform: booleanAttribute });
   readonly post = input.required<PostT>();
 
   protected toggleComments() {
     this.commentsOpened.update((opened) => !opened);
-  }
-
-  protected pushModalRoute() {
-    this._router.navigate(['.'], {
-      queryParams: { [MODAL_KEY]: this.modalType() },
-      relativeTo: this._activeRoute,
-    });
-  }
-
-  protected popModalRoute() {
-    this._router.navigate(['.'], { relativeTo: this._activeRoute, replaceUrl: true });
-  }
-
-  protected setModal(type: ReturnType<typeof this.modalType>) {
-    this.modalType.set(type);
-    if (type) this.pushModalRoute();
-    else this.popModalRoute();
   }
 
   protected vote(kind: 'upvote' | 'downvote') {
@@ -107,16 +86,5 @@ export class Post {
           },
         });
     }
-  }
-
-  constructor() {
-    this._router.events
-      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
-      .subscribe((event) => {
-        const modalType = this.modalType();
-        if (modalType && !event.urlAfterRedirects.includes(`${MODAL_KEY}=${modalType}`)) {
-          this.modalType.set('');
-        }
-      });
   }
 }
