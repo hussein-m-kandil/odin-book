@@ -13,6 +13,7 @@ import { DatePipe } from '@angular/common';
 export class PostHeader {
   readonly date = input.required<Post['createdAt'] | Comment['createdAt']>();
   readonly author = input.required<Post['author'] | Comment['author']>();
+  readonly public = input(undefined, { transform: booleanAttribute });
   readonly emphasis = input(false, { transform: booleanAttribute });
 
   protected getDistanceDays(date: Date | string) {

@@ -5,7 +5,8 @@
 <article aria-labelledby="{{ _labelId }}" class="mx-auto" [class]="_brief ? '' : 'max-w-3xl my-4'">
   <div class="bg-(--p-content-background) p-5 border-surface border rounded-2xl overflow-hidden">
     <header>
-      <app-post-header emphasis [author]="_post.author" [date]="_post.createdAt" />
+      <app-post-header emphasis [author]="_post.author" [date]="_post.createdAt"
+                       [public]="_post.published" />
     </header>
 
     <main>

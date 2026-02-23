@@ -61,6 +61,17 @@ describe('Post', () => {
     expect(authorLink).toBeVisible();
   });
 
+  it('should display a privacy indicator', async () => {
+    await renderComponent();
+    if (post.published) {
+      expect(screen.queryByLabelText(/private/i)).toBeNull();
+      expect(screen.getByLabelText(/public/i)).toBeVisible();
+    } else {
+      expect(screen.getByLabelText(/private/i)).toBeVisible();
+      expect(screen.queryByLabelText(/public/i)).toBeNull();
+    }
+  });
+
   it('should display the author avatar', async () => {
     await renderComponent();
     const authorAvatar = screen.getByRole('img', {

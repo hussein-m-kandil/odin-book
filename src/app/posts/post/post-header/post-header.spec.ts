@@ -32,4 +32,22 @@ describe('PostHeader', () => {
     expect(authorLink).toHaveAttribute('datetime', post.createdAt);
     expect(authorLink).toBeVisible();
   });
+
+  it('should not have a privacy indicator', async () => {
+    await renderComponent();
+    expect(screen.queryByLabelText(/private/i)).toBeNull();
+    expect(screen.queryByLabelText(/public/i)).toBeNull();
+  });
+
+  it('should have a private indicator', async () => {
+    await renderComponent({ inputs: { public: false } });
+    expect(screen.getByLabelText(/private/i)).toBeVisible();
+    expect(screen.queryByLabelText(/public/i)).toBeNull();
+  });
+
+  it('should have a public indicator', async () => {
+    await renderComponent({ inputs: { public: true } });
+    expect(screen.queryByLabelText(/private/i)).toBeNull();
+    expect(screen.getByLabelText(/public/i)).toBeVisible();
+  });
 });
