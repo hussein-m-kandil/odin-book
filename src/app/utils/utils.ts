@@ -2,10 +2,10 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 const NETWORK_ERR_MSG = 'Failed! Check your internet connection.';
 
-export function getResErrMsg(res: unknown, statusCodes = [400]): string | null {
+export function getResErrMsg(res: unknown): string | null {
   if (res instanceof HttpErrorResponse) {
     if (res.error instanceof ProgressEvent && res.status === 0) return NETWORK_ERR_MSG;
-    else if (statusCodes.includes(res.status)) {
+    else if (res.error) {
       const { error } = res;
       if (error.error) {
         if (typeof error.error === 'string') return error.error;
