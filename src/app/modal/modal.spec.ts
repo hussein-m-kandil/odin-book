@@ -37,32 +37,39 @@ describe('Modal', () => {
 
   it('should emit lifecycle/interaction events', async () => {
     const visibilityChanged = vi.fn();
-    const maximized = vi.fn();
+    const maximizeToggled = vi.fn();
     const hidden = vi.fn();
     const shown = vi.fn();
     const closeAriaLabel = 'Close modal';
     const actor = userEvent.setup();
     await renderComponent({
-      on: { shown, hidden, maximized, visibilityChanged },
+      on: { shown, hidden, maximizeToggled, visibilityChanged },
       inputs: { closeAriaLabel },
     });
     expect(shown).toHaveBeenCalledTimes(1);
     expect(hidden).toHaveBeenCalledTimes(0);
-    expect(maximized).toHaveBeenCalledTimes(0);
+    expect(maximizeToggled).toHaveBeenCalledTimes(0);
     expect(visibilityChanged).toHaveBeenCalledTimes(0);
     await actor.click(screen.getByRole('button', { name: /maximize/i }));
-    expect(maximized).toHaveBeenCalledTimes(1);
+    expect(maximizeToggled).toHaveBeenCalledTimes(1);
     expect(shown).toHaveBeenCalledTimes(1);
     expect(hidden).toHaveBeenCalledTimes(0);
     expect(visibilityChanged).toHaveBeenCalledTimes(0);
     await actor.click(screen.getByRole('button', { name: closeAriaLabel }));
     expect(visibilityChanged).toHaveBeenCalledTimes(1);
-    expect(maximized).toHaveBeenCalledTimes(1);
+    expect(maximizeToggled).toHaveBeenCalledTimes(1);
     expect(hidden).toHaveBeenCalledTimes(1);
     expect(shown).toHaveBeenCalledTimes(1);
   });
 
   it('should add URL query parameter when shown', async () => {
+    // Should remove the URL query parameter when previous test destroyed
+    expect(navigationSpy).toHaveBeenCalledTimes(1);
+    expect(navigationSpy.mock.calls[0][0]).toStrictEqual(['.']);
+    expect(navigationSpy.mock.calls[0][1]).toHaveProperty('relativeTo');
+    expect(navigationSpy.mock.calls[0][1]).toHaveProperty('replaceUrl');
+    expect(navigationSpy.mock.calls[0][1]).toHaveProperty('queryParams', {});
+    navigationSpy.mockClear();
     await renderComponent();
     expect(screen.getByRole('dialog')).toBeVisible();
     expect(navigationSpy).toHaveBeenCalledTimes(1);
@@ -84,7 +91,7 @@ describe('Modal', () => {
     expect(navigationSpy).toHaveBeenCalledTimes(1);
     expect(navigationSpy.mock.calls[0][0]).toStrictEqual(['.']);
     expect(navigationSpy.mock.calls[0][1]).toHaveProperty('relativeTo');
-    expect(navigationSpy.mock.calls[0][1]).not.toHaveProperty('queryParams');
+    expect(navigationSpy.mock.calls[0][1]).toHaveProperty('queryParams');
     expect(navigationSpy.mock.calls[0][1]).toHaveProperty('replaceUrl', true);
   });
 
