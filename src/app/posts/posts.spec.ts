@@ -5,17 +5,40 @@ import { TestBed } from '@angular/core/testing';
 import { NewPostData } from './posts.types';
 import { posts } from './posts.mock';
 import { Posts } from './posts';
+import { Auth } from '../auth';
 
 const postsUrl = `${environment.apiUrl}/posts`;
 
+const authMock = { user: vi.fn() };
+
 const setup = () => {
-  TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+  TestBed.configureTestingModule({
+    providers: [
+      provideHttpClient(),
+      provideHttpClientTesting(),
+      { provide: Auth, useValue: authMock },
+    ],
+  });
   const httpTesting = TestBed.inject(HttpTestingController);
   const service = TestBed.inject(Posts);
   return { service, httpTesting };
 };
 
 describe('Posts', () => {
+  it('should post be authored by the current user', () => {
+    authMock.user.mockImplementationOnce(() => ({ id: posts[0].authorId }));
+    const { service, httpTesting } = setup();
+    expect(service.isAuthoredByCurrentUser(posts[0])).toBe(true);
+    httpTesting.verify();
+  });
+
+  it('should post not be authored by the current user', () => {
+    authMock.user.mockImplementationOnce(() => ({ id: crypto.randomUUID() }));
+    const { service, httpTesting } = setup();
+    expect(service.isAuthoredByCurrentUser(posts[0])).toBe(false);
+    httpTesting.verify();
+  });
+
   it('should load posts', () => {
     const { service, httpTesting } = setup();
     service.load();
@@ -242,6 +265,39 @@ describe('Posts', () => {
     expect(service.list()).toStrictEqual([unvotedPost, ...posts.slice(1)]);
     expect(resData).toEqual(unvotedPost);
     expect(resError).toBeUndefined();
+    httpTesting.verify();
+  });
+
+  it('should delete a post that exists in the list', async () => {
+    const { service, httpTesting } = setup();
+    const testPost = posts[0];
+    service.list.set(posts);
+    const post$ = service.deletePost(testPost.id);
+    let resData, resError;
+    post$.subscribe({ next: (d) => (resData = d), error: (e) => (resError = e) });
+    const reqInfo = { method: 'DELETE', url: `${postsUrl}/${testPost.id}` };
+    const req = httpTesting.expectOne(reqInfo, 'Request to delete a post');
+    req.flush('', { status: 204, statusText: 'No content' });
+    expect(service.list()).toStrictEqual(posts.slice(1));
+    expect(resError).toBeUndefined();
+    expect(resData).toEqual('');
+    httpTesting.verify();
+  });
+
+  it('should delete a post that does not exist in the list', async () => {
+    const { service, httpTesting } = setup();
+    const postList = posts.slice(1);
+    const testPost = posts[0];
+    service.list.set(postList);
+    const post$ = service.deletePost(testPost.id);
+    let resData, resError;
+    post$.subscribe({ next: (d) => (resData = d), error: (e) => (resError = e) });
+    const reqInfo = { method: 'DELETE', url: `${postsUrl}/${testPost.id}` };
+    const req = httpTesting.expectOne(reqInfo, 'Request to delete a post');
+    req.flush('', { status: 204, statusText: 'No content' });
+    expect(service.list()).toStrictEqual(postList);
+    expect(resError).toBeUndefined();
+    expect(resData).toEqual('');
     httpTesting.verify();
   });
 });

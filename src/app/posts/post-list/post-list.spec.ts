@@ -13,6 +13,7 @@ const postsMock = {
   loadError: vi.fn(() => ''),
   loading: vi.fn(() => false),
   hasMore: vi.fn(() => false),
+  isAuthoredByCurrentUser: vi.fn(() => false),
 };
 
 const renderComponent = ({

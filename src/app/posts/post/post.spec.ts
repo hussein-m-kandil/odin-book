@@ -1,9 +1,11 @@
 import { render, RenderComponentOptions, screen } from '@testing-library/angular';
+import { HttpErrorResponse } from '@angular/common/http';
 import { userEvent } from '@testing-library/user-event';
 import { environment } from '../../../environments';
 import { Observable, of, Subscriber } from 'rxjs';
 import { Post as PostT } from '../posts.types';
 import { MessageService } from 'primeng/api';
+import { Router } from '@angular/router';
 import { Comments } from './comments';
 import { post } from '../posts.mock';
 import { Posts } from '../posts';
@@ -13,11 +15,17 @@ const { comments } = post;
 
 const postsUrl = `${environment.apiUrl}/posts`;
 
+const navigationSpy = vi.spyOn(Router.prototype, 'navigate');
+
+const toastMock = { add: vi.fn() };
+
 const postsMock = {
   baseUrl: postsUrl,
   upvote: vi.fn(() => of()),
   unvote: vi.fn(() => of()),
   downvote: vi.fn(() => of()),
+  deletePost: vi.fn(() => of()),
+  isAuthoredByCurrentUser: vi.fn(),
 };
 
 const commentsMock = {
@@ -28,16 +36,12 @@ const commentsMock = {
   loading: vi.fn(() => false),
   hasMore: vi.fn(() => false),
   list: vi.fn(() => comments),
-  isCurrentProfile: vi.fn(() => false),
-  profileUpdated: { subscribe: vi.fn() },
-  searchValue: { set: vi.fn() },
-  path: { set: vi.fn() },
 };
 
 const renderComponent = ({ providers, inputs, ...options }: RenderComponentOptions<Post> = {}) => {
   return render(Post, {
     providers: [
-      { provide: MessageService, useValue: { add: vi.fn() } },
+      { provide: MessageService, useValue: toastMock },
       { provide: Comments, useValue: commentsMock },
       { provide: Posts, useValue: postsMock },
       ...(providers || []),
@@ -176,12 +180,12 @@ describe('Post', () => {
     const likeBtn = screen.getByRole('button', { name: 'Like' });
     await actor.click(likeBtn);
     expect(likeBtn).toBeVisible();
-    expect(likeBtn).toHaveClass('p-disabled', 'p-button-loading');
+    expect(likeBtn).toHaveClass('p-button-loading');
     sub.next({ ...post, upvotedByCurrentUser: true, downvotedByCurrentUser: false });
     sub.complete();
     detectChanges();
     expect(likeBtn).toBeVisible();
-    expect(likeBtn).not.toHaveClass('p-disabled', 'p-button-loading');
+    expect(likeBtn).not.toHaveClass('p-button-loading');
     expect(postsMock.upvote).toHaveBeenCalledExactlyOnceWith(post.id);
   });
 
@@ -195,12 +199,12 @@ describe('Post', () => {
     const likeBtn = screen.getByRole('button', { name: 'Like' });
     await actor.click(likeBtn);
     expect(likeBtn).toBeVisible();
-    expect(likeBtn).toHaveClass('p-disabled', 'p-button-loading');
+    expect(likeBtn).toHaveClass('p-button-loading');
     sub.next({ ...post, upvotedByCurrentUser: true, downvotedByCurrentUser: true });
     sub.complete();
     detectChanges();
     expect(likeBtn).toBeVisible();
-    expect(likeBtn).not.toHaveClass('p-disabled', 'p-button-loading');
+    expect(likeBtn).not.toHaveClass('p-button-loading');
     expect(postsMock.upvote).toHaveBeenCalledExactlyOnceWith(post.id);
   });
 
@@ -214,12 +218,12 @@ describe('Post', () => {
     const dislikeBtn = screen.getByRole('button', { name: 'Dislike' });
     await actor.click(dislikeBtn);
     expect(dislikeBtn).toBeVisible();
-    expect(dislikeBtn).toHaveClass('p-disabled', 'p-button-loading');
+    expect(dislikeBtn).toHaveClass('p-button-loading');
     sub.next({ ...post, upvotedByCurrentUser: false, downvotedByCurrentUser: true });
     sub.complete();
     detectChanges();
     expect(dislikeBtn).toBeVisible();
-    expect(dislikeBtn).not.toHaveClass('p-disabled', 'p-button-loading');
+    expect(dislikeBtn).not.toHaveClass('p-button-loading');
     expect(postsMock.downvote).toHaveBeenCalledExactlyOnceWith(post.id);
   });
 
@@ -233,12 +237,12 @@ describe('Post', () => {
     const dislikeBtn = screen.getByRole('button', { name: 'Dislike' });
     await actor.click(dislikeBtn);
     expect(dislikeBtn).toBeVisible();
-    expect(dislikeBtn).toHaveClass('p-disabled', 'p-button-loading');
+    expect(dislikeBtn).toHaveClass('p-button-loading');
     sub.next({ ...post, upvotedByCurrentUser: true, downvotedByCurrentUser: true });
     sub.complete();
     detectChanges();
     expect(dislikeBtn).toBeVisible();
-    expect(dislikeBtn).not.toHaveClass('p-disabled', 'p-button-loading');
+    expect(dislikeBtn).not.toHaveClass('p-button-loading');
     expect(postsMock.downvote).toHaveBeenCalledExactlyOnceWith(post.id);
   });
 
@@ -252,12 +256,12 @@ describe('Post', () => {
     const likeBtn = screen.getByRole('button', { name: 'Liked' });
     await actor.click(likeBtn);
     expect(likeBtn).toBeVisible();
-    expect(likeBtn).toHaveClass('p-disabled', 'p-button-loading');
+    expect(likeBtn).toHaveClass('p-button-loading');
     sub.next({ ...post, upvotedByCurrentUser: false, downvotedByCurrentUser: false });
     sub.complete();
     detectChanges();
     expect(likeBtn).toBeVisible();
-    expect(likeBtn).not.toHaveClass('p-disabled', 'p-button-loading');
+    expect(likeBtn).not.toHaveClass('p-button-loading');
     expect(postsMock.unvote).toHaveBeenCalledExactlyOnceWith(post.id);
   });
 
@@ -271,12 +275,12 @@ describe('Post', () => {
     const likeBtn = screen.getByRole('button', { name: 'Disliked' });
     await actor.click(likeBtn);
     expect(likeBtn).toBeVisible();
-    expect(likeBtn).toHaveClass('p-disabled', 'p-button-loading');
+    expect(likeBtn).toHaveClass('p-button-loading');
     sub.next({ ...post, upvotedByCurrentUser: false, downvotedByCurrentUser: false });
     sub.complete();
     detectChanges();
     expect(likeBtn).toBeVisible();
-    expect(likeBtn).not.toHaveClass('p-disabled', 'p-button-loading');
+    expect(likeBtn).not.toHaveClass('p-button-loading');
     expect(postsMock.unvote).toHaveBeenCalledExactlyOnceWith(post.id);
   });
 
@@ -298,5 +302,79 @@ describe('Post', () => {
     for (const comment of comments) expect(screen.getByText(comment.content)).toBeVisible();
     await actor.click(screen.getByRole('button', { name: /comments?/ }));
     for (const comment of comments) expect(screen.queryByText(comment.content)).toBeNull();
+  });
+
+  it('should not have a delete button', async () => {
+    postsMock.isAuthoredByCurrentUser.mockImplementation(() => false);
+    await renderComponent();
+    expect(screen.queryByRole('button', { name: /delete/i })).toBeNull();
+  });
+
+  it('should have a delete button', async () => {
+    postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
+    await renderComponent();
+    expect(screen.getByRole('button', { name: /delete/i })).toBeVisible();
+  });
+
+  it('should delete the post, and navigate to the home page', async () => {
+    let sub!: Subscriber<void>;
+    postsMock.deletePost.mockImplementation(() => new Observable((s) => (sub = s)));
+    postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
+    const actor = userEvent.setup();
+    const { detectChanges } = await renderComponent({ inputs: { brief: false } });
+    const delBtn = screen.getByRole('button', { name: /delete/i });
+    await actor.click(delBtn);
+    expect(delBtn).toHaveClass('p-button-loading');
+    expect(navigationSpy).toHaveBeenCalledTimes(0);
+    expect(postsMock.deletePost).toHaveBeenCalledTimes(1);
+    sub.next();
+    sub.complete();
+    detectChanges();
+    expect(delBtn).not.toHaveClass('p-button-loading');
+    expect(postsMock.deletePost).toHaveBeenCalledTimes(1);
+    expect(navigationSpy).toHaveBeenCalledExactlyOnceWith(['/']);
+  });
+
+  it('should delete the post, but not navigate to the home page', async () => {
+    let sub!: Subscriber<void>;
+    postsMock.deletePost.mockImplementation(() => new Observable((s) => (sub = s)));
+    postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
+    const actor = userEvent.setup();
+    const { detectChanges } = await renderComponent({ inputs: { brief: true } });
+    const delBtn = screen.getByRole('button', { name: /delete/i });
+    await actor.click(delBtn);
+    expect(delBtn).toHaveClass('p-button-loading');
+    expect(navigationSpy).toHaveBeenCalledTimes(0);
+    expect(postsMock.deletePost).toHaveBeenCalledTimes(1);
+    sub.next();
+    sub.complete();
+    detectChanges();
+    expect(delBtn).not.toHaveClass('p-button-loading');
+    expect(postsMock.deletePost).toHaveBeenCalledTimes(1);
+    expect(navigationSpy).toHaveBeenCalledTimes(0);
+  });
+
+  it('should fail to delete the post', async () => {
+    let sub!: Subscriber<void>;
+    postsMock.deletePost.mockImplementation(() => new Observable((s) => (sub = s)));
+    postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
+    const actor = userEvent.setup();
+    const error = { message: 'Test error.' };
+    const { detectChanges } = await renderComponent({ inputs: { brief: true } });
+    const delBtn = screen.getByRole('button', { name: /delete/i });
+    await actor.click(delBtn);
+    expect(delBtn).toHaveClass('p-button-loading');
+    expect(navigationSpy).toHaveBeenCalledTimes(0);
+    expect(postsMock.deletePost).toHaveBeenCalledTimes(1);
+    sub.error(new HttpErrorResponse({ status: 400, error }));
+    detectChanges();
+    expect(delBtn).not.toHaveClass('p-button-loading');
+    expect(postsMock.deletePost).toHaveBeenCalledTimes(1);
+    expect(navigationSpy).toHaveBeenCalledTimes(0);
+    expect(toastMock.add).toHaveBeenCalledExactlyOnceWith({
+      summary: 'Deletion failed',
+      detail: error.message,
+      severity: 'error',
+    });
   });
 });

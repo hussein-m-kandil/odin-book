@@ -4,12 +4,14 @@ import { NewPostData, Post } from './posts.types';
 import { environment } from '../../environments';
 import { ListStore } from '../list/list-store';
 import { defer, of, tap } from 'rxjs';
+import { Auth } from '../auth';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Posts extends ListStore<Post> {
   private readonly _http = inject(HttpClient);
+  private readonly _auth = inject(Auth);
 
   private _params = new HttpParams();
 
@@ -40,6 +42,11 @@ export class Posts extends ListStore<Post> {
     this._params = params;
   }
 
+  isAuthoredByCurrentUser(post: Post) {
+    const user = this._auth.user();
+    return !!user && user.id === post.authorId;
+  }
+
   getPost(id: Post['id']) {
     return defer(() => {
       const foundPost = this.list().find((p) => p.id === id);
@@ -67,6 +74,12 @@ export class Posts extends ListStore<Post> {
           }
         }),
       );
+  }
+
+  deletePost(id: Post['id']) {
+    return this._http
+      .delete(`${this.baseUrl}/${id}`)
+      .pipe(tap(() => this.list.update((posts) => posts.filter((post) => post.id !== id))));
   }
 
   unvote(id: Post['id']) {
