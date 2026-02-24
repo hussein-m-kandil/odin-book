@@ -76,7 +76,7 @@ export const user2: User = {
 export const post: Post = {
   id: 'c25d007b-55b3-47ce-bcf4-c3fb51fdebeb',
   order: 10,
-  authorId: '6a18bed2-d3b4-4c96-8114-658fcd952184',
+  authorId: 'a9826180-945a-4062-bce2-9257f7f8c5e2',
   published: true,
   createdAt: '2025-11-26T05:22:41.336Z',
   updatedAt: '2025-11-26T05:22:41.336Z',
@@ -128,7 +128,7 @@ export const post: Post = {
   image: {
     id: '57d3df29-55ae-4890-8954-f621da04746c',
     order: 10,
-    ownerId: '6a18bed2-d3b4-4c96-8114-658fcd952184',
+    ownerId: 'a9826180-945a-4062-bce2-9257f7f8c5e2',
     createdAt: '2025-11-26T05:22:40.336Z',
     updatedAt: '2025-11-26T05:22:40.336Z',
     info: '',
@@ -152,7 +152,7 @@ export const post: Post = {
 export const post2 = {
   id: '59e92560-d27b-46ce-aa25-753dad89ce6f',
   order: 9,
-  authorId: 'a9826180-945a-4062-bce2-9257f7f8c5e2',
+  authorId: '400d7f7b-34bd-47b9-9c84-c83c8b321ae7',
   published: true,
   createdAt: '2025-11-21T09:56:06.798Z',
   updatedAt: '2025-11-21T09:56:06.798Z',
@@ -170,7 +170,7 @@ export const post2 = {
     {
       id: 'cf8bf8d8-f37d-4452-9766-afe297827497',
       order: 17,
-      userId: '6a18bed2-d3b4-4c96-8114-658fcd952184',
+      userId: '400d7f7b-34bd-47b9-9c84-c83c8b321ae7',
       postId: '59e92560-d27b-46ce-aa25-753dad89ce6f',
       isUpvote: true,
       createdAt: '2025-11-21T09:56:07.798Z',
@@ -192,7 +192,7 @@ export const post2 = {
     {
       id: '5468800e-535d-4ca4-a531-71a8f7511cfb',
       order: 27,
-      authorId: '6a18bed2-d3b4-4c96-8114-658fcd952184',
+      authorId: 'a9826180-945a-4062-bce2-9257f7f8c5e2',
       postId: '59e92560-d27b-46ce-aa25-753dad89ce6f',
       createdAt: '2025-11-21T09:56:07.798Z',
       updatedAt: '2025-11-21T09:56:07.798Z',
@@ -203,7 +203,7 @@ export const post2 = {
   image: {
     id: '22d894d4-6a5a-4520-835f-205dc6c19011',
     order: 9,
-    ownerId: 'a9826180-945a-4062-bce2-9257f7f8c5e2',
+    ownerId: '400d7f7b-34bd-47b9-9c84-c83c8b321ae7',
     createdAt: '2025-11-21T09:56:05.798Z',
     updatedAt: '2025-11-21T09:56:05.798Z',
     info: '',
