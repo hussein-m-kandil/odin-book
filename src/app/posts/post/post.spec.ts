@@ -315,6 +315,7 @@ describe('Post', () => {
     }));
     await renderComponent();
     expect(screen.queryByRole('button', { name: /delete post/i })).toBeNull();
+    expect(screen.queryAllByRole('button', { name: /delete comment/i })).toHaveLength(0);
   });
 
   it('should have a delete button if the current user is not the post author, but it is an admin', async () => {
@@ -325,6 +326,9 @@ describe('Post', () => {
     }));
     await renderComponent();
     expect(screen.getByRole('button', { name: /delete post/i })).toBeVisible();
+    expect(screen.getAllByRole('button', { name: /delete comment/i })).toHaveLength(
+      post.comments.length,
+    );
   });
 
   it('should have a delete button if the current user is not an admin, but it is the post author', async () => {
@@ -334,6 +338,9 @@ describe('Post', () => {
     }));
     await renderComponent();
     expect(screen.getByRole('button', { name: /delete post/i })).toBeVisible();
+    expect(screen.getAllByRole('button', { name: /delete comment/i })).toHaveLength(
+      post.comments.length,
+    );
   });
 
   it('should display a confirmation form when click delete', async () => {

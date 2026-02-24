@@ -62,7 +62,7 @@
 
       @if (commentsVisible()) {
       <div class="border-surface border-t" [class]="_brief ? 'max-h-64 overflow-auto' : ''">
-        <app-comment-list [postId]="_post.id" />
+        <app-comment-list [postId]="_post.id" [mutable]="_mutable" />
       </div>
       }
     </footer>

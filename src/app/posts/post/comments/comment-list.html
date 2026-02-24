@@ -1,8 +1,14 @@
+@let _modal = modal();
+@let _loading = loading();
+
 <ng-template #li let-_comment>
   @let _labelId = `comment-label-${_comment.id}`;
+  @let _deleting = _modal === 'Delete Confirmation' && commentId() === _comment.id;
+  @let _deleteLabel = mutable() || auth.user()?.id === _comment.authorId ? 'Delete Comment' : '';
   <article [aria-labelledby]="_labelId" class="p-4 space-y-2 border-surface border-t">
     <header>
-      <app-post-header [author]="_comment.author" [date]="_comment.createdAt" />
+      <app-post-header [author]="_comment.author" [date]="_comment.createdAt" [deleting]="_deleting"
+                       [deleteLabel]="_deleteLabel" (deleted)="showDeleteModal(_comment.id)" />
     </header>
     <main>
       <p class="text-muted-color-emphasis tracking-wide leading-snug">
@@ -14,3 +20,17 @@
 
 <app-list [store]="comments" singularLabel="Comment" pluralLabel="Comments" [itemFragment]="li" />
 <app-content-form class="block p-4" [commentPostId]="postId()" />
+
+@if (_modal) {
+<app-modal [header]="_modal" [closeAriaLabel]="`Close ${_modal}`" (hidden)="modal.set('')">
+  <div class="mb-12">
+    <app-confirmation [ariaLabel]="_modal"
+                      [accept]="{ severity: 'danger', label: 'Delete', loading: _loading === 'delete' }"
+                      (accepted)="deleteComment()">
+      <p class="my-6 tracking-wide leading-relaxed font-semibold">
+        Are you really want to delete this comment?
+      </p>
+    </app-confirmation>
+  </div>
+</app-modal>
+}
