@@ -1,0 +1,18 @@
+@let _accept = accept();
+@let _reject = reject();
+@let _ariaLabelledBy = ariaLabelledBy();
+<form [aria-label]="ariaLabel() || (_ariaLabelledBy ? undefined : 'Confirmation')"
+      [aria-labelledby]="_ariaLabelledBy" (submit)="submit($event)"
+      class="max-w-sm mx-auto text-center">
+  <ng-content />
+  @if(_reject) {
+  <p-button type="button" [severity]="_reject.severity" [icon]="_reject.icon"
+            [disabled]="_reject.disabled || _accept?.loading" [loading]="_reject.loading"
+            [label]="_reject.label" [ariaLabel]="_reject.ariaLabel" (onClick)="cancel()" />
+  }
+  @if (_accept) {
+  <p-button type="submit" [severity]="_accept.severity" [icon]="_accept.icon"
+            [disabled]="_accept.disabled || _reject?.loading" [loading]="_accept.loading"
+            [label]="_accept.label" [ariaLabel]="_accept.ariaLabel" [class]="{'ms-4': !!_reject}" />
+  }
+</form>
