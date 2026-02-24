@@ -349,8 +349,6 @@ describe('Post', () => {
     expect(screen.getByRole('form', { name: /delete confirmation/i })).toBeVisible();
     expect(screen.getByText('Are you really want to delete this post?')).toBeVisible();
     expect(screen.getByRole('button', { name: 'Delete' })).toBeVisible();
-    await actor.click(screen.getByRole('button', { name: /close delete confirmation/i }));
-    await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 
   it('should cancel the deletion', async () => {
@@ -388,7 +386,7 @@ describe('Post', () => {
     sub.next();
     sub.complete();
     detectChanges();
-    expect(delBtn).toHaveClass('p-button-loading');
+    expect(delBtn).not.toHaveClass('p-button-loading');
     expect(postsMock.deletePost).toHaveBeenCalledTimes(1);
     expect(navigationSpy).toHaveBeenCalledExactlyOnceWith(['/']);
   });
@@ -411,7 +409,7 @@ describe('Post', () => {
     detectChanges();
     expect(delBtn).not.toHaveClass('p-button-loading');
     expect(postsMock.deletePost).toHaveBeenCalledTimes(1);
-    expect(navigationSpy).toHaveBeenCalledTimes(1);
+    expect(navigationSpy).toHaveBeenCalledTimes(0);
     expect(navigationSpy).not.toHaveBeenNthCalledWith(1, ['/']);
   });
 

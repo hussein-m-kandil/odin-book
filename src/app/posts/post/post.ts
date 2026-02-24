@@ -105,11 +105,8 @@ export class Post {
         )
         .subscribe({
           next: () => {
-            if (!this.brief()) {
-              this._router.navigate(['/']);
-            } else {
-              this.modal.set('');
-            }
+            this.modal.set('');
+            if (!this.brief()) this._router.navigate(['/']);
           },
           error: (res) => {
             this._toast.add({

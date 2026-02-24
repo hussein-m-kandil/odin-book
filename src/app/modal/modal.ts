@@ -4,10 +4,8 @@ import {
   signal,
   inject,
   Component,
-  OnDestroy,
   DestroyRef,
   booleanAttribute,
-  computed,
 } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -23,12 +21,10 @@ export const Query_VALUE = 'okay';
   templateUrl: './modal.html',
   styles: ``,
 })
-export class Modal implements OnDestroy {
+export class Modal {
   private readonly _activeRoute = inject(ActivatedRoute);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _router = inject(Router);
-
-  private readonly _navigating = computed(() => !!this._router.currentNavigation());
 
   protected readonly maximum = signal(false);
   protected readonly visible = signal(true);
@@ -84,9 +80,5 @@ export class Modal implements OnDestroy {
           this.visible.set(false);
         }
       });
-  }
-
-  ngOnDestroy() {
-    if (!this._navigating()) this._popModalQueryParam();
   }
 }

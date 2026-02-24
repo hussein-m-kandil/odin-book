@@ -63,13 +63,6 @@ describe('Modal', () => {
   });
 
   it('should add URL query parameter when shown', async () => {
-    // Should remove the URL query parameter when previous test destroyed
-    expect(navigationSpy).toHaveBeenCalledTimes(1);
-    expect(navigationSpy.mock.calls[0][0]).toStrictEqual(['.']);
-    expect(navigationSpy.mock.calls[0][1]).toHaveProperty('relativeTo');
-    expect(navigationSpy.mock.calls[0][1]).toHaveProperty('replaceUrl');
-    expect(navigationSpy.mock.calls[0][1]).toHaveProperty('queryParams', {});
-    navigationSpy.mockClear();
     await renderComponent();
     expect(screen.getByRole('dialog')).toBeVisible();
     expect(navigationSpy).toHaveBeenCalledTimes(1);
