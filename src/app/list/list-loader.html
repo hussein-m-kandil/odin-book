@@ -1,13 +1,14 @@
 <!-- prettier-ignore -->
 @let _suffix = listSize() ? ' more' : '';
-<div class="*:block *:w-full *:my-2 *:p-1 text-center">
+<div class="*:block *:w-full text-center">
   @if(loading()) {
   <app-spinner [ariaLabel]="`Loading${_suffix} ${pluralLabel().toLowerCase()}...`" />
   } @else if (loadError(); as _loadError) {
   <app-error-message [message]="_loadError" (retry)="loaded.emit()" />
   } @else if (hasMore()) {
   <div class="text-center">
-    <button text outlined pButton pRipple #loadMoreBtn type="button" (click)="loaded.emit()">
+    <button text outlined pButton pRipple #loadMoreBtn type="button" size="small"
+            (click)="loaded.emit()" class="py-0 px-1 underline underline-offset-2">
       Load{{ _suffix }}
     </button>
   </div>
