@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
+import { Confirmation } from '../../confirmation';
 import { I18nPluralPipe } from '@angular/common';
 import { Post as PostT } from '../posts.types';
 import { MessageService } from 'primeng/api';
@@ -24,7 +25,17 @@ import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-post',
-  imports: [I18nPluralPipe, CommentList, PostHeader, RouterLink, VoteList, Button, Image, Modal],
+  imports: [
+    I18nPluralPipe,
+    Confirmation,
+    CommentList,
+    PostHeader,
+    RouterLink,
+    VoteList,
+    Button,
+    Image,
+    Modal,
+  ],
   templateUrl: './post.html',
   styles: ``,
 })
@@ -35,17 +46,17 @@ export class Post {
 
   protected readonly posts = inject(Posts);
 
-  protected readonly commentsOpened = linkedSignal(() => !this.brief());
+  protected readonly commentsVisible = linkedSignal(() => !this.brief());
   protected readonly activePost = linkedSignal(() => this.post());
 
+  protected readonly modal = signal<'' | 'Likes' | 'Dislikes' | 'Delete Confirmation'>('');
   protected readonly loading = signal<'' | 'upvote' | 'downvote' | 'delete'>('');
-  protected readonly modal = signal<'' | 'Likes' | 'Dislikes'>('');
 
   readonly brief = input(false, { transform: booleanAttribute });
   readonly post = input.required<PostT>();
 
   protected toggleComments() {
-    this.commentsOpened.update((opened) => !opened);
+    this.commentsVisible.update((visible) => !visible);
   }
 
   protected vote(kind: 'upvote' | 'downvote') {
@@ -94,6 +105,8 @@ export class Post {
           next: () => {
             if (!this.brief()) {
               this._router.navigate(['/']);
+            } else {
+              this.modal.set('');
             }
           },
           error: (res) => {

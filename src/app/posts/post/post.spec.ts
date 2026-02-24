@@ -316,6 +316,40 @@ describe('Post', () => {
     expect(screen.getByRole('button', { name: /delete/i })).toBeVisible();
   });
 
+  it('should display a confirmation form when click delete', async () => {
+    postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
+    const actor = userEvent.setup();
+    await renderComponent({ inputs: { brief: false } });
+    const delBtn = screen.getByRole('button', { name: /delete/i });
+    await actor.click(delBtn);
+    expect(navigationSpy).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('dialog')).toBeVisible();
+    expect(delBtn).toHaveClass('p-button-loading');
+    expect(postsMock.deletePost).toHaveBeenCalledTimes(0);
+    expect(screen.getByRole('form', { name: /delete confirmation/i })).toBeVisible();
+    expect(screen.getByText('Are you really want to delete this post?')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeVisible();
+    await actor.click(screen.getByRole('button', { name: /close delete confirmation/i }));
+    await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('should cancel the deletion', async () => {
+    postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
+    const actor = userEvent.setup();
+    await renderComponent({ inputs: { brief: false } });
+    await actor.click(screen.getByRole('button', { name: /delete/i }));
+    await actor.click(screen.getByRole('button', { name: /close delete confirmation/i }));
+    expect(navigationSpy).toHaveBeenCalledTimes(2);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(postsMock.deletePost).toHaveBeenCalledTimes(0);
+    expect(screen.getByRole('button', { name: /delete/i })).not.toHaveClass('p-button-loading');
+    expect(screen.queryByRole('button', { name: /close delete confirmation/i })).toBeNull();
+    expect(screen.queryByText('Are you really want to delete this post?')).toBeNull();
+    expect(screen.queryByRole('form', { name: /delete confirmation/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Delete' })).toBeNull();
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
   it('should delete the post, and navigate to the home page', async () => {
     let sub!: Subscriber<void>;
     postsMock.deletePost.mockImplementation(() => new Observable((s) => (sub = s)));
@@ -324,13 +358,15 @@ describe('Post', () => {
     const { detectChanges } = await renderComponent({ inputs: { brief: false } });
     const delBtn = screen.getByRole('button', { name: /delete/i });
     await actor.click(delBtn);
+    await actor.click(screen.getByRole('button', { name: 'Delete' }));
+    navigationSpy.mockClear(); // The modal changes the URL query on show/hide
     expect(delBtn).toHaveClass('p-button-loading');
     expect(navigationSpy).toHaveBeenCalledTimes(0);
     expect(postsMock.deletePost).toHaveBeenCalledTimes(1);
     sub.next();
     sub.complete();
     detectChanges();
-    expect(delBtn).not.toHaveClass('p-button-loading');
+    expect(delBtn).toHaveClass('p-button-loading');
     expect(postsMock.deletePost).toHaveBeenCalledTimes(1);
     expect(navigationSpy).toHaveBeenCalledExactlyOnceWith(['/']);
   });
@@ -343,6 +379,8 @@ describe('Post', () => {
     const { detectChanges } = await renderComponent({ inputs: { brief: true } });
     const delBtn = screen.getByRole('button', { name: /delete/i });
     await actor.click(delBtn);
+    await actor.click(screen.getByRole('button', { name: 'Delete' }));
+    navigationSpy.mockClear(); // The modal changes the URL query on show/hide
     expect(delBtn).toHaveClass('p-button-loading');
     expect(navigationSpy).toHaveBeenCalledTimes(0);
     expect(postsMock.deletePost).toHaveBeenCalledTimes(1);
@@ -351,7 +389,8 @@ describe('Post', () => {
     detectChanges();
     expect(delBtn).not.toHaveClass('p-button-loading');
     expect(postsMock.deletePost).toHaveBeenCalledTimes(1);
-    expect(navigationSpy).toHaveBeenCalledTimes(0);
+    expect(navigationSpy).toHaveBeenCalledTimes(1);
+    expect(navigationSpy).not.toHaveBeenNthCalledWith(1, ['/']);
   });
 
   it('should fail to delete the post', async () => {
@@ -363,12 +402,14 @@ describe('Post', () => {
     const { detectChanges } = await renderComponent({ inputs: { brief: true } });
     const delBtn = screen.getByRole('button', { name: /delete/i });
     await actor.click(delBtn);
+    await actor.click(screen.getByRole('button', { name: 'Delete' }));
+    navigationSpy.mockClear(); // The modal changes the URL query on show/hide
     expect(delBtn).toHaveClass('p-button-loading');
     expect(navigationSpy).toHaveBeenCalledTimes(0);
     expect(postsMock.deletePost).toHaveBeenCalledTimes(1);
     sub.error(new HttpErrorResponse({ status: 400, error }));
     detectChanges();
-    expect(delBtn).not.toHaveClass('p-button-loading');
+    expect(delBtn).toHaveClass('p-button-loading');
     expect(postsMock.deletePost).toHaveBeenCalledTimes(1);
     expect(navigationSpy).toHaveBeenCalledTimes(0);
     expect(toastMock.add).toHaveBeenCalledExactlyOnceWith({
