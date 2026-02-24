@@ -3,33 +3,40 @@
 @let _author = author();
 @let _emphasis = emphasis();
 @let _labelId = `article-header-label-${_author.id}-${_date}`;
-<div class="**:align-middle space-x-2 flex items-center">
-  <app-avatar [user]="_author" [profile]="_author.profile" size="sm" />
-  <h3 id="{{ _labelId }}" class="inline">
-    <a [routerLink]="['/profiles', _author.username]" class="inline-block leading-5 *:leading-0">
-      <span class="text-lg"
-            [class]="_emphasis ? 'text-primary-emphasis font-bold' : 'text-primary-emphasis-alt font-medium'">
-        {{ _author.username }}
-      </span>
-      <br />
-      @if(_public !== undefined) {
-      @let _privacy = _public
-      ? { label: 'Public', icon: 'pi pi-globe' }
-      : { label: 'Private', icon: 'pi pi-lock' };
-      <span [aria-label]="_privacy.label" class="me-0.5 text-xs text-muted-color"
-            [class]="_privacy.icon"></span>
-      }
-      <time [attr.datetime]="_date" class="text-xs"
-            [class]="_emphasis ? 'text-muted-color-emphasis' : 'text-muted-color'">
-        @let _distanceDays = getDistanceDays(_date);
-        {{
-              _distanceDays === 1
-                ? 'Yesterday'
-                : _distanceDays === 0
-                ? (_date | date : 'shortTime')
-                : (_date | date : 'mediumDate')
-            }}
-      </time>
-    </a>
-  </h3>
+<div class="relative">
+  <div class="**:align-middle space-x-2 flex items-center">
+    <app-avatar [user]="_author" [profile]="_author.profile" size="sm" />
+    <h3 id="{{ _labelId }}" class="inline">
+      <a [routerLink]="['/profiles', _author.username]" class="inline-block leading-5 *:leading-0">
+        <span class="text-lg"
+              [class]="_emphasis ? 'text-primary-emphasis font-bold' : 'text-primary-emphasis-alt font-medium'">
+          {{ _author.username }}
+        </span>
+        <br />
+        @if(_public !== undefined) {
+        @let _privacy = _public
+        ? { label: 'Public', icon: 'pi pi-globe' }
+        : { label: 'Private', icon: 'pi pi-lock' };
+        <span [aria-label]="_privacy.label" class="me-0.5 text-xs text-muted-color"
+              [class]="_privacy.icon"></span>
+        }
+        <time [attr.datetime]="_date" class="text-xs"
+              [class]="_emphasis ? 'text-muted-color-emphasis' : 'text-muted-color'">
+          @let _distanceDays = getDistanceDays(_date);
+          {{
+                _distanceDays === 1
+                  ? 'Yesterday'
+                  : _distanceDays === 0
+                  ? (_date | date : 'shortTime')
+                  : (_date | date : 'mediumDate')
+              }}
+        </time>
+      </a>
+    </h3>
+  </div>
+  @if (deleteLabel(); as _deleteLabel) {
+  <p-button text rounded type="button" size="small" severity="secondary" icon="pi pi-trash"
+            [ariaLabel]="_deleteLabel" class="absolute -top-1.5 -right-2.5" [loading]="deleting()"
+            (click)="deleted.emit()" />
+  }
 </div>

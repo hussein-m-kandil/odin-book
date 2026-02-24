@@ -8,6 +8,7 @@ import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { Comments } from './comments';
 import { post } from '../posts.mock';
+import { Auth } from '../../auth';
 import { Posts } from '../posts';
 import { Post } from './post';
 
@@ -18,6 +19,8 @@ const postsUrl = `${environment.apiUrl}/posts`;
 const navigationSpy = vi.spyOn(Router.prototype, 'navigate');
 
 const toastMock = { add: vi.fn() };
+
+const authMock = { user: vi.fn(), userUpdated: { subscribe: vi.fn() } };
 
 const postsMock = {
   baseUrl: postsUrl,
@@ -44,6 +47,7 @@ const renderComponent = ({ providers, inputs, ...options }: RenderComponentOptio
       { provide: MessageService, useValue: toastMock },
       { provide: Comments, useValue: commentsMock },
       { provide: Posts, useValue: postsMock },
+      { provide: Auth, useValue: authMock },
       ...(providers || []),
     ],
     inputs: { post, ...inputs },
@@ -307,20 +311,20 @@ describe('Post', () => {
   it('should not have a delete button', async () => {
     postsMock.isAuthoredByCurrentUser.mockImplementation(() => false);
     await renderComponent();
-    expect(screen.queryByRole('button', { name: /delete/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /delete post/i })).toBeNull();
   });
 
   it('should have a delete button', async () => {
     postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
     await renderComponent();
-    expect(screen.getByRole('button', { name: /delete/i })).toBeVisible();
+    expect(screen.getByRole('button', { name: /delete post/i })).toBeVisible();
   });
 
   it('should display a confirmation form when click delete', async () => {
     postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
     const actor = userEvent.setup();
     await renderComponent({ inputs: { brief: false } });
-    const delBtn = screen.getByRole('button', { name: /delete/i });
+    const delBtn = screen.getByRole('button', { name: /delete post/i });
     await actor.click(delBtn);
     expect(navigationSpy).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('dialog')).toBeVisible();
@@ -337,12 +341,14 @@ describe('Post', () => {
     postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
     const actor = userEvent.setup();
     await renderComponent({ inputs: { brief: false } });
-    await actor.click(screen.getByRole('button', { name: /delete/i }));
+    await actor.click(screen.getByRole('button', { name: /delete post/i }));
     await actor.click(screen.getByRole('button', { name: /close delete confirmation/i }));
     expect(navigationSpy).toHaveBeenCalledTimes(2);
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(postsMock.deletePost).toHaveBeenCalledTimes(0);
-    expect(screen.getByRole('button', { name: /delete/i })).not.toHaveClass('p-button-loading');
+    expect(screen.getByRole('button', { name: /delete post/i })).not.toHaveClass(
+      'p-button-loading',
+    );
     expect(screen.queryByRole('button', { name: /close delete confirmation/i })).toBeNull();
     expect(screen.queryByText('Are you really want to delete this post?')).toBeNull();
     expect(screen.queryByRole('form', { name: /delete confirmation/i })).toBeNull();
@@ -356,7 +362,7 @@ describe('Post', () => {
     postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
     const actor = userEvent.setup();
     const { detectChanges } = await renderComponent({ inputs: { brief: false } });
-    const delBtn = screen.getByRole('button', { name: /delete/i });
+    const delBtn = screen.getByRole('button', { name: /delete post/i });
     await actor.click(delBtn);
     await actor.click(screen.getByRole('button', { name: 'Delete' }));
     navigationSpy.mockClear(); // The modal changes the URL query on show/hide
@@ -377,7 +383,7 @@ describe('Post', () => {
     postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
     const actor = userEvent.setup();
     const { detectChanges } = await renderComponent({ inputs: { brief: true } });
-    const delBtn = screen.getByRole('button', { name: /delete/i });
+    const delBtn = screen.getByRole('button', { name: /delete post/i });
     await actor.click(delBtn);
     await actor.click(screen.getByRole('button', { name: 'Delete' }));
     navigationSpy.mockClear(); // The modal changes the URL query on show/hide
@@ -400,7 +406,7 @@ describe('Post', () => {
     const actor = userEvent.setup();
     const error = { message: 'Test error.' };
     const { detectChanges } = await renderComponent({ inputs: { brief: true } });
-    const delBtn = screen.getByRole('button', { name: /delete/i });
+    const delBtn = screen.getByRole('button', { name: /delete post/i });
     await actor.click(delBtn);
     await actor.click(screen.getByRole('button', { name: 'Delete' }));
     navigationSpy.mockClear(); // The modal changes the URL query on show/hide

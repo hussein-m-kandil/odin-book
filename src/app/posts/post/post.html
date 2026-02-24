@@ -6,17 +6,15 @@
 @let _deleting = _loading === 'delete';
 @let _disliking = _loading === 'downvote';
 @let _labelId = `post-label-${_post.id}`;
+@let _authoredByCurrentUser = posts.isAuthoredByCurrentUser(_post);
 <article aria-labelledby="{{ _labelId }}" class="mx-auto" [class]="_brief ? '' : 'max-w-3xl p-4'">
   <div class="bg-(--p-content-background) p-5 border-surface border rounded-2xl overflow-hidden">
-    <header class="relative">
-      <app-post-header emphasis [author]="_post.author" [date]="_post.createdAt"
-                       [public]="_post.published" />
-      @if (posts.isAuthoredByCurrentUser(_post)) {
-      <p-button text rounded type="button" size="small" severity="secondary" icon="pi pi-trash"
-                ariaLabel="Delete Post" class="absolute -top-1.5 -right-2.5"
-                [loading]="_deleting || _modal === 'Delete Confirmation'"
-                (click)="modal.set('Delete Confirmation')" />
-      }
+    <header>
+      <app-post-header emphasis [public]="_post.published" [date]="_post.createdAt"
+                       [author]="_post.author"
+                       [deleteLabel]="_authoredByCurrentUser ? 'Delete Post': ''"
+                       [deleting]="_deleting || _modal === 'Delete Confirmation'"
+                       (deleted)="modal.set('Delete Confirmation')" />
     </header>
 
     <main>

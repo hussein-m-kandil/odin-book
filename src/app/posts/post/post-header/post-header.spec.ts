@@ -1,4 +1,5 @@
 import { render, RenderComponentOptions, screen } from '@testing-library/angular';
+import { userEvent } from '@testing-library/user-event';
 import { PostHeader } from './post-header';
 import { post } from '../../posts.mock';
 
@@ -49,5 +50,32 @@ describe('PostHeader', () => {
     await renderComponent({ inputs: { public: true } });
     expect(screen.queryByLabelText(/private/i)).toBeNull();
     expect(screen.getByLabelText(/public/i)).toBeVisible();
+  });
+
+  it('should not have a delete button', async () => {
+    await renderComponent();
+    expect(screen.queryByRole('button', { name: /delete/i })).toBeNull();
+  });
+
+  it('should have a delete button', async () => {
+    await renderComponent({ inputs: { deleteLabel: 'Delete' } });
+    const delBtn = screen.getByRole('button', { name: /delete/i });
+    expect(delBtn).toBeVisible();
+    expect(delBtn).not.toHaveClass('p-button-loading');
+  });
+
+  it('should have a delete button in the loading stating', async () => {
+    await renderComponent({ inputs: { deleteLabel: 'Delete', deleting: true } });
+    const delBtn = screen.getByRole('button', { name: /delete/i });
+    expect(delBtn).toBeVisible();
+    expect(delBtn).toHaveClass('p-button-loading');
+  });
+
+  it('should emit `deleted` event', async () => {
+    const deleted = vi.fn();
+    const actor = userEvent.setup();
+    await renderComponent({ inputs: { deleteLabel: 'Delete' }, on: { deleted } });
+    await actor.click(screen.getByRole('button', { name: /delete/i }));
+    expect(deleted).toHaveBeenCalledExactlyOnceWith(undefined);
   });
 });
