@@ -28,7 +28,6 @@ const postsMock = {
   unvote: vi.fn(() => of()),
   downvote: vi.fn(() => of()),
   deletePost: vi.fn(() => of()),
-  isAuthoredByCurrentUser: vi.fn(),
 };
 
 const commentsMock = {
@@ -308,20 +307,37 @@ describe('Post', () => {
     for (const comment of comments) expect(screen.queryByText(comment.content)).toBeNull();
   });
 
-  it('should not have a delete button', async () => {
-    postsMock.isAuthoredByCurrentUser.mockImplementation(() => false);
+  it('should not have a delete button if the current user is not the post author, nor an admin', async () => {
+    authMock.user.mockImplementation(() => ({
+      ...post.author,
+      isAdmin: false,
+      id: crypto.randomUUID(),
+    }));
     await renderComponent();
     expect(screen.queryByRole('button', { name: /delete post/i })).toBeNull();
   });
 
-  it('should have a delete button', async () => {
-    postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
+  it('should have a delete button if the current user is not the post author, but it is an admin', async () => {
+    authMock.user.mockImplementation(() => ({
+      ...post.author,
+      isAdmin: true,
+      id: crypto.randomUUID(),
+    }));
+    await renderComponent();
+    expect(screen.getByRole('button', { name: /delete post/i })).toBeVisible();
+  });
+
+  it('should have a delete button if the current user is not an admin, but it is the post author', async () => {
+    authMock.user.mockImplementation(() => ({
+      ...post.author,
+      isAdmin: false,
+    }));
     await renderComponent();
     expect(screen.getByRole('button', { name: /delete post/i })).toBeVisible();
   });
 
   it('should display a confirmation form when click delete', async () => {
-    postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
+    authMock.user.mockImplementation(() => post.author);
     const actor = userEvent.setup();
     await renderComponent({ inputs: { brief: false } });
     const delBtn = screen.getByRole('button', { name: /delete post/i });
@@ -338,7 +354,7 @@ describe('Post', () => {
   });
 
   it('should cancel the deletion', async () => {
-    postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
+    authMock.user.mockImplementation(() => post.author);
     const actor = userEvent.setup();
     await renderComponent({ inputs: { brief: false } });
     await actor.click(screen.getByRole('button', { name: /delete post/i }));
@@ -359,7 +375,7 @@ describe('Post', () => {
   it('should delete the post, and navigate to the home page', async () => {
     let sub!: Subscriber<void>;
     postsMock.deletePost.mockImplementation(() => new Observable((s) => (sub = s)));
-    postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
+    authMock.user.mockImplementation(() => post.author);
     const actor = userEvent.setup();
     const { detectChanges } = await renderComponent({ inputs: { brief: false } });
     const delBtn = screen.getByRole('button', { name: /delete post/i });
@@ -380,7 +396,7 @@ describe('Post', () => {
   it('should delete the post, but not navigate to the home page', async () => {
     let sub!: Subscriber<void>;
     postsMock.deletePost.mockImplementation(() => new Observable((s) => (sub = s)));
-    postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
+    authMock.user.mockImplementation(() => post.author);
     const actor = userEvent.setup();
     const { detectChanges } = await renderComponent({ inputs: { brief: true } });
     const delBtn = screen.getByRole('button', { name: /delete post/i });
@@ -402,7 +418,7 @@ describe('Post', () => {
   it('should fail to delete the post', async () => {
     let sub!: Subscriber<void>;
     postsMock.deletePost.mockImplementation(() => new Observable((s) => (sub = s)));
-    postsMock.isAuthoredByCurrentUser.mockImplementation(() => true);
+    authMock.user.mockImplementation(() => post.author);
     const actor = userEvent.setup();
     const error = { message: 'Test error.' };
     const { detectChanges } = await renderComponent({ inputs: { brief: true } });

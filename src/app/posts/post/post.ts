@@ -20,6 +20,7 @@ import { Button } from 'primeng/button';
 import { Image } from '../../images';
 import { Modal } from '../../modal';
 import { VoteList } from './votes';
+import { Auth } from '../../auth';
 import { Posts } from '../posts';
 import { finalize } from 'rxjs';
 
@@ -45,6 +46,7 @@ export class Post {
   private readonly _router = inject(Router);
 
   protected readonly posts = inject(Posts);
+  protected readonly auth = inject(Auth);
 
   protected readonly commentsVisible = linkedSignal(() => !this.brief());
   protected readonly activePost = linkedSignal(() => this.post());
