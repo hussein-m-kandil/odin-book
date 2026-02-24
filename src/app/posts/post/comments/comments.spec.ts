@@ -120,4 +120,37 @@ describe('Comments', () => {
     expect(resError).toBeUndefined();
     httpTesting.verify();
   });
+
+  it('should delete a comment that exists in the list', async () => {
+    const { service, httpTesting } = setup();
+    const testComment = post.comments[0];
+    service.list.set(post.comments);
+    const req$ = service.deleteComment(post.id, testComment.id);
+    let resData, resError;
+    req$.subscribe({ next: (d) => (resData = d), error: (e) => (resError = e) });
+    const reqInfo = { method: 'DELETE', url: `${postsUrl}/${post.id}/comments/${testComment.id}` };
+    const req = httpTesting.expectOne(reqInfo, 'Request to delete a comment');
+    req.flush('', { status: 204, statusText: 'No content' });
+    expect(service.list()).toStrictEqual(post.comments.slice(1));
+    expect(resError).toBeUndefined();
+    expect(resData).toEqual('');
+    httpTesting.verify();
+  });
+
+  it('should delete a comment that does not exist in the list', async () => {
+    const { service, httpTesting } = setup();
+    const commentList = post.comments.slice(1);
+    const testComment = post.comments[0];
+    service.list.set(commentList);
+    const req$ = service.deleteComment(post.id, testComment.id);
+    let resData, resError;
+    req$.subscribe({ next: (d) => (resData = d), error: (e) => (resError = e) });
+    const reqInfo = { method: 'DELETE', url: `${postsUrl}/${post.id}/comments/${testComment.id}` };
+    const req = httpTesting.expectOne(reqInfo, 'Request to delete a comment');
+    req.flush('', { status: 204, statusText: 'No content' });
+    expect(service.list()).toStrictEqual(commentList);
+    expect(resError).toBeUndefined();
+    expect(resData).toEqual('');
+    httpTesting.verify();
+  });
 });

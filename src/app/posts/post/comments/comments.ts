@@ -12,8 +12,6 @@ export class Comments extends ListStore<Comment> {
   private readonly _http = inject(HttpClient);
   private readonly _posts = inject(Posts);
 
-  private readonly _postsUrl = this._posts.baseUrl;
-
   private _postId: Post['id'] | null = null;
 
   protected override loadErrorMessage = 'Load failed';
@@ -25,7 +23,7 @@ export class Comments extends ListStore<Comment> {
       const comments = this.list();
       const cursor = comments[comments.length - 1]?.order;
       if (cursor) params = params.append('cursor', cursor);
-      return this._http.get<Comment[]>(`${this._postsUrl}/${postId}/comments`, { params });
+      return this._http.get<Comment[]>(`${this._posts.baseUrl}/${postId}/comments`, { params });
     }
     return of([]);
   }
@@ -41,12 +39,18 @@ export class Comments extends ListStore<Comment> {
   }
 
   createComment(id: Post['id'], data: NewCommentData) {
-    return this._http.post<Comment>(`${this._postsUrl}/${id}/comments`, data).pipe(
+    return this._http.post<Comment>(`${this._posts.baseUrl}/${id}/comments`, data).pipe(
       tap((createdComment) => {
         if (createdComment.postId === this._postId) {
           this.list.update((comments) => comments.concat(createdComment));
         }
       }),
     );
+  }
+
+  deleteComment(postId: Post['id'], commentId: Comment['id']) {
+    return this._http
+      .delete(`${this._posts.baseUrl}/${postId}/comments/${commentId}`)
+      .pipe(tap(() => this.list.update((comments) => comments.filter((c) => c.id !== commentId))));
   }
 }
