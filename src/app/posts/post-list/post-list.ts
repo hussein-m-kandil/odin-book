@@ -1,6 +1,7 @@
 import { input, inject, Component, OnChanges, SimpleChanges } from '@angular/core';
 import { ContentForm } from '../post/content-form';
 import { HttpParams } from '@angular/common/http';
+import { Comments } from '../post/comments';
 import { List } from '../../list';
 import { Posts } from '../posts';
 import { Post } from '../post';
@@ -9,6 +10,7 @@ import { Post } from '../post';
   selector: 'app-post-list',
   imports: [List, Post, ContentForm],
   templateUrl: './post-list.html',
+  providers: [Comments],
 })
 export class PostList implements OnChanges {
   protected readonly posts = inject(Posts);

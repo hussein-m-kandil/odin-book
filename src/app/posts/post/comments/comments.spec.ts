@@ -5,19 +5,12 @@ import { NewCommentData } from '../../posts.types';
 import { TestBed } from '@angular/core/testing';
 import { post } from '../../posts.mock';
 import { Comments } from './comments';
-import { Posts } from '../../posts';
 
 const postsUrl = `${environment.apiUrl}/posts`;
 
-const postsMock = { baseUrl: postsUrl };
-
 const setup = () => {
   TestBed.configureTestingModule({
-    providers: [
-      provideHttpClient(),
-      provideHttpClientTesting(),
-      { provide: Posts, useValue: postsMock },
-    ],
+    providers: [Comments, provideHttpClient(), provideHttpClientTesting()],
   });
   const httpTesting = TestBed.inject(HttpTestingController);
   const service = TestBed.inject(Comments);

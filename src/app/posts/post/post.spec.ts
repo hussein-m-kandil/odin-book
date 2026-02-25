@@ -44,11 +44,11 @@ const renderComponent = ({ providers, inputs, ...options }: RenderComponentOptio
   return render(Post, {
     providers: [
       { provide: MessageService, useValue: toastMock },
-      { provide: Comments, useValue: commentsMock },
       { provide: Posts, useValue: postsMock },
       { provide: Auth, useValue: authMock },
       ...(providers || []),
     ],
+    componentProviders: [{ provide: Comments, useValue: commentsMock }],
     inputs: { post, ...inputs },
     autoDetectChanges: false,
     ...options,

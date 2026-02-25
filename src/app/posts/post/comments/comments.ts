@@ -5,9 +5,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, of, tap } from 'rxjs';
 import { Posts } from '../../posts';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class Comments extends ListStore<Comment> {
   private readonly _http = inject(HttpClient);
   private readonly _posts = inject(Posts);

@@ -9,13 +9,13 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
+import { CommentList, Comments } from './comments';
 import { Confirmation } from '../../confirmation';
 import { I18nPluralPipe } from '@angular/common';
 import { Post as PostT } from '../posts.types';
 import { MessageService } from 'primeng/api';
 import { getResErrMsg } from '../../utils';
 import { PostHeader } from './post-header';
-import { CommentList } from './comments';
 import { Button } from 'primeng/button';
 import { Image } from '../../images';
 import { Modal } from '../../modal';
@@ -38,7 +38,7 @@ import { finalize } from 'rxjs';
     Modal,
   ],
   templateUrl: './post.html',
-  styles: ``,
+  providers: [Comments],
 })
 export class Post {
   private readonly _destroyRef = inject(DestroyRef);
