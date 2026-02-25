@@ -1,16 +1,16 @@
 @let _profile = profile();
-<div pRipple pButton text severity="secondary"
-     class="flex justify-between items-center p-4 *:align-middle" tabindex="0"
-     (click)="link.click()" (keydown.enter)="link.click()">
-  <app-avatar [user]="_profile.user" [profile]="_profile" size="sm" />
-  <a #link ariaCurrentWhenActive="page" routerLinkActive="bg-highlight"
-     [routerLinkActiveOptions]="{ exact: true }" [title]="_profile.user.username"
-     [routerLink]="['/profiles', _profile.user.username]"
-     class="grow inline-block w-[calc(100%-8rem)] px-2 font-bold tracking-wide truncate">
-    <span class="text-primary-emphasis-alt">
-      {{ _profile.user.username || 'Anonymous' }}
-    </span>
-  </a>
-  <app-follow-toggle [profile]="_profile" (click)="$event.stopPropagation()" />
+<div class="bg-zinc-100 dark:bg-zinc-800/75 m-4 rounded-xl">
+  <div pRipple pButton text class="flex justify-between items-center p-4 *:align-middle"
+       tabindex="0" (click)="link.click()" (keydown.enter)="link.click()">
+    <app-avatar [user]="_profile.user" [profile]="_profile" size="sm" />
+    <a #link ariaCurrentWhenActive="page" routerLinkActive="bg-highlight"
+       [routerLinkActiveOptions]="{ exact: true }" [title]="_profile.user.username"
+       [routerLink]="['/profiles', _profile.user.username]"
+       class="grow inline-block w-[calc(100%-8rem)] px-2 font-bold tracking-wide truncate">
+      <span class="text-primary-emphasis-alt">
+        {{ _profile.user.username || 'Anonymous' }}
+      </span>
+    </a>
+    <app-follow-toggle [profile]="_profile" (click)="$event.stopPropagation()" />
+  </div>
 </div>
-<div class="border-surface border-b"></div>
