@@ -15,6 +15,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Profile as ProfileT } from '../../app.types';
 import { ToggleSwitch } from 'primeng/toggleswitch';
+import { PostList } from '../../posts/post-list/';
 import { FollowToggle } from './follow-toggle';
 import { Button } from 'primeng/button';
 import { Profiles } from '../profiles';
@@ -24,7 +25,16 @@ import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
-  imports: [ReactiveFormsModule, ToggleSwitch, FollowToggle, RouterLink, Button, Avatar, Menu],
+  imports: [
+    ReactiveFormsModule,
+    ToggleSwitch,
+    FollowToggle,
+    RouterLink,
+    PostList,
+    Button,
+    Avatar,
+    Menu,
+  ],
   templateUrl: './profile.html',
   styles: ``,
 })

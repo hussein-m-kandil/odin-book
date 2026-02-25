@@ -77,6 +77,7 @@ describe('Profile', () => {
     expect(screen.queryByRole('button', { name: /^follow/i })).toBeNull();
     expect(screen.queryByRole('link', { name: /followers/i })).toBeNull();
     expect(screen.queryByRole('link', { name: /following/i })).toBeNull();
+    expect(screen.getByRole('form', { name: /post/i })).toBeVisible();
   });
 
   it('should render non-current, non-followed profile', async () => {
@@ -93,6 +94,7 @@ describe('Profile', () => {
     expect(screen.queryByRole('button', { name: /^unfollow/i })).toBeNull();
     expect(screen.queryByRole('link', { name: /followers/i })).toBeNull();
     expect(screen.queryByRole('link', { name: /following/i })).toBeNull();
+    expect(screen.getByRole('form', { name: /post/i })).toBeVisible();
   });
 
   it('should render the current profile data', async () => {
@@ -111,6 +113,7 @@ describe('Profile', () => {
     expect(screen.getByRole('link', { name: /following/i })).toBeVisible();
     expect(screen.getByRole('link', { name: /followers/i })).toHaveAttribute('href', '/followers');
     expect(screen.getByRole('link', { name: /following/i })).toHaveAttribute('href', '/following');
+    expect(screen.getByRole('form', { name: /post/i })).toBeVisible();
   });
 
   it('should render a button that toggles the current profile options menu', async () => {
