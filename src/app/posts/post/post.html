@@ -9,7 +9,7 @@
 @let _user = auth.user();
 @let _mutable = _user && (_user.isAdmin || _user.id === _post.authorId);
 <article aria-labelledby="{{ _labelId }}" class="mx-auto" [class]="_brief ? '' : 'max-w-3xl p-4'">
-  <div class="bg-(--p-content-background) p-5 border-surface border rounded-2xl overflow-hidden">
+  <div class="bg-zinc-50 dark:bg-zinc-800 p-5 border-surface border rounded-2xl overflow-hidden">
     <header>
       <app-post-header emphasis [public]="_post.published" [date]="_post.createdAt"
                        [author]="_post.author" [deleteLabel]="_mutable ? 'Delete Post': ''"
@@ -61,7 +61,8 @@
       </div>
 
       @if (commentsVisible()) {
-      <div class="border-surface border-t" [class]="_brief ? 'max-h-64 overflow-auto' : ''">
+      <div class="border-surface border-t bg-zinc-100 dark:bg-zinc-900"
+           [class]="_brief ? 'max-h-64 overflow-auto' : ''">
         <app-comment-list [postId]="_post.id" [mutable]="_mutable" />
       </div>
       }
