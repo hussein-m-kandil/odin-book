@@ -1,7 +1,7 @@
 import { input, Component, booleanAttribute, output } from '@angular/core';
-import { Comment, Post } from '../../posts.types';
+import { Avatar } from '../../../profiles/profile/avatar';
+import type { Comment, Post } from '../../posts.types';
 import { RouterLink } from '@angular/router';
-import { Avatar } from '../../../profiles';
 import { DatePipe } from '@angular/common';
 import { Button } from 'primeng/button';
 
