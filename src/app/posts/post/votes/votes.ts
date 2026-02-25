@@ -7,9 +7,7 @@ import { Posts } from '../../posts';
 
 export type VoteType = 'all' | 'upvote' | 'downvote';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class Votes extends ListStore<Vote> {
   private readonly _http = inject(HttpClient);
   private readonly _posts = inject(Posts);

@@ -3,20 +3,13 @@ import { provideHttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments';
 import { TestBed } from '@angular/core/testing';
 import { post } from '../../posts.mock';
-import { Posts } from '../../posts';
 import { Votes } from './votes';
 
 const postsUrl = `${environment.apiUrl}/posts`;
 
-const postsMock = { baseUrl: postsUrl };
-
 const setup = () => {
   TestBed.configureTestingModule({
-    providers: [
-      provideHttpClient(),
-      provideHttpClientTesting(),
-      { provide: Posts, useValue: postsMock },
-    ],
+    providers: [Votes, provideHttpClient(), provideHttpClientTesting()],
   });
   const httpTesting = TestBed.inject(HttpTestingController);
   const service = TestBed.inject(Votes);

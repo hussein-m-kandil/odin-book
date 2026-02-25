@@ -1,14 +1,9 @@
 import { render, RenderComponentOptions, screen } from '@testing-library/angular';
-import { environment } from '../../../../environments';
 import { MessageService } from 'primeng/api';
 import { Votes, VoteType } from './votes';
 import { post } from '../../posts.mock';
 import { VoteList } from './vote-list';
-import { Posts } from '../../posts';
 
-const postsUrl = `${environment.apiUrl}/posts`;
-
-const postsMock = { baseUrl: postsUrl };
 const votesMock = {
   config: vi.fn(),
   load: vi.fn(),
@@ -25,12 +20,8 @@ const votesMock = {
 
 const renderComponent = ({ providers, ...options }: RenderComponentOptions<VoteList> = {}) => {
   return render(VoteList, {
-    providers: [
-      { provide: MessageService, useValue: { add: vi.fn() } },
-      { provide: Posts, useValue: postsMock },
-      { provide: Votes, useValue: votesMock },
-      ...(providers || []),
-    ],
+    providers: [{ provide: MessageService, useValue: { add: vi.fn() } }, ...(providers || [])],
+    componentProviders: [{ provide: Votes, useValue: votesMock }],
     autoDetectChanges: false,
     ...options,
   });
@@ -51,7 +42,7 @@ describe('VoteList', () => {
 
   it('should render no-votes message', async () => {
     votesMock.list.mockImplementation(() => []);
-    await renderComponent();
+    await renderComponent({ inputs: { postId: post.id } });
     expect(screen.getByText(/there are no votes/i)).toBeVisible();
     expect(screen.queryByRole('listitem')).toBeNull();
     expect(screen.queryByRole('list')).toBeNull();
@@ -59,7 +50,7 @@ describe('VoteList', () => {
 
   it('should render the votes', async () => {
     votesMock.list.mockImplementation(() => post.votes);
-    await renderComponent();
+    await renderComponent({ inputs: { postId: post.id } });
     const lists = screen.getAllByRole('list');
     const listitems = screen.getAllByRole('listitem');
     expect(lists).toHaveLength(1);
