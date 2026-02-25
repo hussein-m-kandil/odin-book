@@ -78,7 +78,6 @@ export const routes: Routes = [
           {
             path: ':profileId',
             title: 'Profile',
-            runGuardsAndResolvers: 'always',
             resolve: { profile: profileResolver },
             loadComponent: loadProfile,
           },
