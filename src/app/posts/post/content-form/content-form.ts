@@ -1,4 +1,14 @@
-import { input, signal, inject, Component, viewChild, DestroyRef, ElementRef } from '@angular/core';
+import {
+  input,
+  signal,
+  inject,
+  Injector,
+  Component,
+  viewChild,
+  DestroyRef,
+  ElementRef,
+  afterNextRender,
+} from '@angular/core';
 import { HttpEventType, HttpUploadProgressEvent } from '@angular/common/http';
 import { FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { EmojiPicker, PickedEmoji } from '../../../emoji-picker';
@@ -26,6 +36,7 @@ export class ContentForm {
   private readonly _contentInput = viewChild.required<ElementRef<HTMLTextAreaElement>>('content');
   private readonly _pickerPopover = viewChild.required<Popover>('picker');
   private readonly _destroyRef = inject(DestroyRef);
+  private readonly _injector = inject(Injector);
 
   private readonly _toast = inject(MessageService);
   private readonly _comments = inject(Comments);
@@ -88,6 +99,27 @@ export class ContentForm {
     this.form.reset();
   }
 
+  protected handleSuccess() {
+    this.reset();
+    afterNextRender(
+      () => {
+        const contentInput = this._contentInput().nativeElement;
+        contentInput.focus();
+        contentInput.blur();
+      },
+      { injector: this._injector },
+    );
+  }
+
+  protected handleFailure(action: 'Post' | 'Comment', res: unknown) {
+    this._toast.add({
+      detail: getResErrMsg(res) || `Failed to create your ${action.toLowerCase()}.`,
+      summary: `${action} failed`,
+      severity: 'error',
+    });
+    afterNextRender(() => this._contentInput().nativeElement.focus(), { injector: this._injector });
+  }
+
   protected submit() {
     this.form.markAllAsDirty();
     const image = this.pickedImage();
@@ -101,14 +133,8 @@ export class ContentForm {
           .createComment(postId, { content })
           .pipe(takeUntilDestroyed(this._destroyRef), finalize(finalizeSubmission))
           .subscribe({
-            next: () => this.reset(),
-            error: (res) => {
-              this._toast.add({
-                severity: 'error',
-                summary: 'Comment failed',
-                detail: getResErrMsg(res) || 'Failed to add your comment.',
-              });
-            },
+            next: () => this.handleSuccess(),
+            error: (res) => this.handleFailure('Comment', res),
           });
       } else {
         this._posts
@@ -121,17 +147,11 @@ export class ContentForm {
                   this.progress.set(event);
                   break;
                 case HttpEventType.Response:
-                  this.reset();
+                  this.handleSuccess();
                   break;
               }
             },
-            error: (res) => {
-              this._toast.add({
-                severity: 'error',
-                summary: 'Post failed',
-                detail: getResErrMsg(res) || 'Failed to create your post.',
-              });
-            },
+            error: (res) => this.handleFailure('Post', res),
           });
       }
     }

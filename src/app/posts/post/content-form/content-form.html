@@ -6,8 +6,7 @@
 @let _selectedColorScheme = colorScheme.selectedScheme().value;
 @let _theme = _selectedColorScheme === 'system' ? 'auto' : _selectedColorScheme;
 <form [formGroup]="form" (ngSubmit)="submit()" aria-label="{{ _label.cap }} form">
-  <div class="bg-(--p-content-background) space-x-1 flex"
-       [class]="_posting ? 'items-start' : 'items-end'">
+  <div class="space-x-1 flex" [class]="_posting ? 'items-start' : 'items-end'">
     @if (_posting) {
     <p-button outlined rounded size="small" type="button" icon="pi pi-camera" severity="secondary"
               ariaLabel="Toggle image picker" [disabled]="form.disabled"
