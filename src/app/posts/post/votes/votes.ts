@@ -1,4 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { Profiles } from '../../../profiles/profiles';
 import { ListStore } from '../../../list/list-store';
 import { inject, Injectable } from '@angular/core';
 import { Post, Vote } from '../../posts.types';
@@ -9,6 +10,7 @@ export type VoteType = 'all' | 'upvote' | 'downvote';
 
 @Injectable()
 export class Votes extends ListStore<Vote> {
+  private readonly _profiles = inject(Profiles);
   private readonly _http = inject(HttpClient);
   private readonly _posts = inject(Posts);
 
@@ -32,6 +34,19 @@ export class Votes extends ListStore<Vote> {
       return this._http.get<Vote[]>(`${this._postsUrl}/${postId}/votes`, { params });
     }
     return of([]);
+  }
+
+  constructor() {
+    super();
+    this._profiles.profileUpdated.subscribe((updatedProfile) => {
+      this.list.update((votes) =>
+        votes.map((vote) => {
+          if (vote.user.profile.id !== updatedProfile.id) return vote;
+          const { user, ...profile } = { ...vote.user.profile, ...updatedProfile };
+          return { ...vote, user: { ...vote.user, ...user, profile } };
+        }),
+      );
+    });
   }
 
   override reset(): void {
