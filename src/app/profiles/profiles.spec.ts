@@ -257,10 +257,12 @@ describe('Profiles', () => {
     expect(service.isCurrentProfile(profile.id)).toBe(false);
   });
 
-  it('should follow a profile that exist in the profile list', () => {
-    const { service, httpTesting } = setup();
+  it('should follow a profile that exist in the profile list, and publish the update', () => {
     let res, err;
+    const updateHandlerMock = vi.fn();
+    const { service, httpTesting } = setup();
     const testProfile = { ...profile, followedByCurrentUser: false };
+    service.profileUpdated.subscribe(updateHandlerMock);
     service.list.set([testProfile]);
     service
       .toggleFollowing(testProfile)
@@ -272,14 +274,17 @@ describe('Profiles', () => {
     req.flush('', { status: 201, statusText: 'Created' });
     expect(service.list()[0]).toHaveProperty('followedByCurrentUser', true);
     expect(res).toStrictEqual({ ...profile, followedByCurrentUser: true });
+    expect(updateHandlerMock).toHaveBeenCalledExactlyOnceWith(res);
     expect(req.request.body).toBeNull();
     expect(err).toBeUndefined();
     httpTesting.verify();
   });
 
-  it('should follow a profile that is not exist in the profile list', () => {
-    const { service, httpTesting } = setup();
+  it('should follow a profile that is not exist in the profile list, and publish the update', () => {
     let res, err;
+    const updateHandlerMock = vi.fn();
+    const { service, httpTesting } = setup();
+    service.profileUpdated.subscribe(updateHandlerMock);
     const testProfile = { ...profile, followedByCurrentUser: false };
     service.list.set([profile2]);
     service
@@ -291,6 +296,7 @@ describe('Profiles', () => {
     );
     req.flush('', { status: 201, statusText: 'Created' });
     expect(res).toStrictEqual({ ...profile, followedByCurrentUser: true });
+    expect(updateHandlerMock).toHaveBeenCalledExactlyOnceWith(res);
     expect(service.list()).toStrictEqual([profile2]);
     expect(req.request.body).toBeNull();
     expect(err).toBeUndefined();
@@ -341,10 +347,12 @@ describe('Profiles', () => {
     httpTesting.verify();
   });
 
-  it('should unfollow a profile that exist in the profile list', () => {
-    const { service, httpTesting } = setup();
+  it('should unfollow a profile that exist in the profile list, and publish the update', () => {
     let res, err;
+    const updateHandlerMock = vi.fn();
+    const { service, httpTesting } = setup();
     const testProfile = { ...profile, followedByCurrentUser: true };
+    service.profileUpdated.subscribe(updateHandlerMock);
     service.list.set([testProfile]);
     service
       .toggleFollowing(testProfile)
@@ -356,15 +364,18 @@ describe('Profiles', () => {
     req.flush('', { status: 204, statusText: 'No content' });
     expect(service.list()[0]).toHaveProperty('followedByCurrentUser', false);
     expect(res).toStrictEqual({ ...profile, followedByCurrentUser: false });
+    expect(updateHandlerMock).toHaveBeenCalledExactlyOnceWith(res);
     expect(req.request.body).toBeNull();
     expect(err).toBeUndefined();
     httpTesting.verify();
   });
 
-  it('should unfollow a profile that is not exist in the profile list', () => {
-    const { service, httpTesting } = setup();
+  it('should unfollow a profile that is not exist in the profile list, and publish the update', () => {
     let res, err;
+    const updateHandlerMock = vi.fn();
+    const { service, httpTesting } = setup();
     const testProfile = { ...profile, followedByCurrentUser: true };
+    service.profileUpdated.subscribe(updateHandlerMock);
     service.list.set([profile2]);
     service
       .toggleFollowing(testProfile)
@@ -375,6 +386,7 @@ describe('Profiles', () => {
     );
     req.flush('', { status: 204, statusText: 'No content' });
     expect(res).toStrictEqual({ ...profile, followedByCurrentUser: false });
+    expect(updateHandlerMock).toHaveBeenCalledExactlyOnceWith(res);
     expect(service.list()).toStrictEqual([profile2]);
     expect(req.request.body).toBeNull();
     expect(err).toBeUndefined();
@@ -425,10 +437,12 @@ describe('Profiles', () => {
     httpTesting.verify();
   });
 
-  it('should update the current profile that exist in the profile list', () => {
-    const { service, httpTesting } = setup();
+  it('should update the current profile that exist in the profile list, and publish the update', () => {
     let res, err;
+    const updateHandlerMock = vi.fn();
+    const { service, httpTesting } = setup();
     const updates = { visible: !profile.visible, tangible: !profile.tangible };
+    service.profileUpdated.subscribe(updateHandlerMock);
     service.list.set([profile]);
     service
       .updateCurrentProfile(updates)
@@ -439,6 +453,7 @@ describe('Profiles', () => {
     );
     const updatedProfile = { ...profile, ...updates };
     req.flush(updatedProfile, { status: 200, statusText: 'OK' });
+    expect(updateHandlerMock).toHaveBeenCalledExactlyOnceWith(updatedProfile);
     expect(service.list()).toStrictEqual([updatedProfile]);
     expect(req.request.body).toStrictEqual(updates);
     expect(res).toStrictEqual(updatedProfile);
@@ -446,10 +461,12 @@ describe('Profiles', () => {
     httpTesting.verify();
   });
 
-  it('should update the current profile that is not exist in the profile list', () => {
-    const { service, httpTesting } = setup();
+  it('should update the current profile that is not exist in the profile list, and publish the update', () => {
     let res, err;
+    const updateHandlerMock = vi.fn();
+    const { service, httpTesting } = setup();
     const updates = { visible: !profile.visible, tangible: !profile.tangible };
+    service.profileUpdated.subscribe(updateHandlerMock);
     service.list.set([profile2]);
     service
       .updateCurrentProfile(updates)
@@ -460,6 +477,7 @@ describe('Profiles', () => {
     );
     const updatedProfile = { ...profile, ...updates };
     req.flush(updatedProfile, { status: 200, statusText: 'OK' });
+    expect(updateHandlerMock).toHaveBeenCalledExactlyOnceWith(updatedProfile);
     expect(service.list()).toStrictEqual([profile2]);
     expect(req.request.body).toStrictEqual(updates);
     expect(res).toStrictEqual(updatedProfile);

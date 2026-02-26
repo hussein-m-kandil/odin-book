@@ -91,9 +91,12 @@ export class Profiles extends ListStore<Profile> {
 
   updateCurrentProfile(updates: { visible?: boolean; tangible?: boolean }) {
     return this._http.patch<Profile>(this.baseUrl, updates).pipe(
-      map((profile) => {
-        this.list.update((profiles) => profiles.map((p) => (p.id === profile.id ? profile : p)));
-        return profile;
+      map((updatedProfile) => {
+        this.list.update((profiles) =>
+          profiles.map((profile) => (profile.id === updatedProfile.id ? updatedProfile : profile)),
+        );
+        this.profileUpdated.next(updatedProfile);
+        return updatedProfile;
       }),
     );
   }
@@ -115,6 +118,7 @@ export class Profiles extends ListStore<Profile> {
             return profile;
           }),
         );
+        this.profileUpdated.next(updatedProfile);
         return updatedProfile;
       }),
     );
