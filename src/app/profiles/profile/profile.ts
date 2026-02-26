@@ -16,6 +16,7 @@ import { MenuItem, MessageService } from 'primeng/api';
 import { Profile as ProfileT } from '../../app.types';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { PostList } from '../../posts/post-list/';
+import { Title } from '@angular/platform-browser';
 import { FollowToggle } from './follow-toggle';
 import { Button } from 'primeng/button';
 import { Profiles } from '../profiles';
@@ -43,6 +44,7 @@ export class Profile {
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _toast = inject(MessageService);
   private readonly _router = inject(Router);
+  private readonly _title = inject(Title);
 
   protected readonly optionsMenuItems = computed<MenuItem[]>(() => {
     const profile = this.activeProfile();
@@ -82,6 +84,14 @@ export class Profile {
 
   protected readonly switchingVisibility = signal(false);
 
+  private _updatePageTitle(profile: ProfileT) {
+    const username = profile.user.username;
+    if (username) {
+      const suffix = this._title.getTitle().split('|').slice(1).join('|');
+      this._title.setTitle(username + (suffix ? ' |' + suffix : ''));
+    }
+  }
+
   protected switchVisibility() {
     const profile = this.activeProfile();
     if (!this.switchingVisibility() && this.profiles.isCurrentProfile(profile.id)) {
@@ -112,7 +122,10 @@ export class Profile {
   constructor() {
     effect(() => {
       const activeProfile = this.activeProfile();
-      untracked(() => this.visible.setValue(activeProfile.visible));
+      untracked(() => {
+        this.visible.setValue(activeProfile.visible);
+        this._updatePageTitle(activeProfile);
+      });
     });
 
     this.profiles.profileUpdated.subscribe((updatedProfile) =>
