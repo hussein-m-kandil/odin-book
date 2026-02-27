@@ -33,17 +33,16 @@
 
     <footer class="-mx-5 -mb-5">
       <div class="*:flex *:justify-between">
-        <div
-             class="text-xs text-muted-color p-2 *:cursor-pointer *:hover:underline *:underline-offset-2">
-          <button type="button" (click)="modal.set('Likes')">
-            {{ _post._count.upvotes | i18nPlural: { '=1': '1 like', 'other': '# likes' } }}
-          </button>
-          <button type="button" (click)="toggleComments()">
-            {{ _post._count.comments | i18nPlural: { '=1': '1 comment', 'other': '# comments' } }}
-          </button>
-          <button type="button" (click)="modal.set('Dislikes')">
-            {{ _post._count.downvotes | i18nPlural: { '=1': '1 dislike', 'other': '# dislikes' } }}
-          </button>
+        <div class="**:text-xs **:text-muted-color **:font-normal">
+          <p-button link size="small" severity="secondary" type="button"
+                    (onClick)="modal.set('Likes')"
+                    [label]="_post._count.upvotes | i18nPlural: { '=1': '1 like', 'other': '# likes' }" />
+          <p-button link size="small" severity="secondary" type="button"
+                    (onClick)="toggleComments()"
+                    [label]="_post._count.comments | i18nPlural: { '=1': '1 comment', 'other': '# comments' }" />
+          <p-button link size="small" severity="secondary" type="button"
+                    (onClick)="modal.set('Dislikes')"
+                    [label]="_post._count.downvotes | i18nPlural: { '=1': '1 dislike', 'other': '# dislikes' }" />
         </div>
 
         <div
