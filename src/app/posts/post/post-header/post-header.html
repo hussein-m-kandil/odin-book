@@ -7,9 +7,10 @@
   <div class="**:align-middle space-x-2 flex items-center">
     <app-avatar [user]="_author" [profile]="_author.profile" size="sm" />
     <h3 id="{{ _labelId }}" class="inline">
-      <a [routerLink]="['/profiles', _author.username]" class="inline-block leading-5 *:leading-0">
-        <span class="text-lg"
-              [class]="_emphasis ? 'text-primary-emphasis font-bold' : 'text-primary-emphasis-alt font-medium'">
+      <a [routerLink]="['/profiles', _author.username]" class="inline-block *:leading-0"
+         [class]="_emphasis ? 'leading-5' : 'leading-4.5'">
+        <span
+              [class]="_emphasis ? 'text-xl text-primary-emphasis font-bold' : 'text-lg text-primary-emphasis-alt font-medium'">
           {{ _author.username }}
         </span>
         <br />
@@ -20,8 +21,7 @@
         <span [aria-label]="_privacy.label" class="me-0.5 text-xs text-muted-color"
               [class]="_privacy.icon"></span>
         }
-        <time [attr.datetime]="_date" class="text-xs"
-              [class]="_emphasis ? 'text-muted-color-emphasis' : 'text-muted-color'">
+        <time [attr.datetime]="_date" class="text-muted-color text-xs">
           @let _distanceDays = getDistanceDays(_date);
           {{
                 _distanceDays === 1
