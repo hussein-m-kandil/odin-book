@@ -55,11 +55,6 @@ const renderComponent = ({
   });
 };
 
-const assertBtnsEnabled = (...extraNodes: Node[]) => {
-  expect(screen.getByRole('button', { name: /back/i })).toBeEnabled();
-  for (const node of extraNodes) expect(node).toBeEnabled();
-};
-
 describe('Profile', () => {
   afterEach(vi.resetAllMocks);
 
@@ -70,8 +65,6 @@ describe('Profile', () => {
     expect(screen.getByText(profile.user.username[0].toUpperCase())).toBeVisible();
     expect(screen.getByText(new RegExp(profile.user.username))).toBeVisible();
     expect(screen.getByText(new RegExp(profile.user.bio))).toBeVisible();
-    expect(screen.getByRole('button', { name: /back/i })).toBeVisible();
-    expect(screen.queryByRole('button', { name: /toggle profile options/i })).toBeNull();
     expect(screen.queryByRole('switch', { name: /active status/i })).toBeNull();
     expect(screen.queryByRole('button', { name: /^unfollow/i })).toBeVisible();
     expect(screen.queryByRole('button', { name: /^follow/i })).toBeNull();
@@ -87,8 +80,6 @@ describe('Profile', () => {
     expect(screen.getByText(profile.user.username[0].toUpperCase())).toBeVisible();
     expect(screen.getByText(new RegExp(profile.user.username))).toBeVisible();
     expect(screen.getByText(new RegExp(profile.user.bio))).toBeVisible();
-    expect(screen.getByRole('button', { name: /back/i })).toBeVisible();
-    expect(screen.queryByRole('button', { name: /toggle profile options/i })).toBeNull();
     expect(screen.queryByRole('switch', { name: /active status/i })).toBeNull();
     expect(screen.queryByRole('button', { name: /^follow/i })).toBeVisible();
     expect(screen.queryByRole('button', { name: /^unfollow/i })).toBeNull();
@@ -104,8 +95,16 @@ describe('Profile', () => {
     expect(screen.getByText(profile.user.username[0].toUpperCase())).toBeVisible();
     expect(screen.getByText(new RegExp(profile.user.username))).toBeVisible();
     expect(screen.getByText(new RegExp(profile.user.bio))).toBeVisible();
-    expect(screen.getByRole('button', { name: /back/i })).toBeVisible();
-    expect(screen.getByRole('button', { name: /toggle profile options/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: /edit profile/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: /edit profile/i })).toHaveAttribute('href', '/edit');
+    expect(screen.getByRole('link', { name: /upload picture/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: /upload picture/i })).toHaveAttribute('href', '/pic');
+    expect(screen.getByRole('link', { name: /delete profile/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: /delete profile/i })).toHaveAttribute(
+      'href',
+      '/delete',
+    );
+    expect(screen.queryByRole('link', { name: /delete picture/i })).toBeNull();
     expect(screen.queryByRole('switch', { name: /active status/i })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^unfollow/i })).toBeNull();
     expect(screen.queryByRole('button', { name: /^follow/i })).toBeNull();
@@ -116,68 +115,26 @@ describe('Profile', () => {
     expect(screen.getByRole('form', { name: /post/i })).toBeVisible();
   });
 
-  it('should render a button that toggles the current profile options menu', async () => {
-    profilesMock.isCurrentProfile.mockImplementation(() => true);
-    const actor = userEvent.setup();
-    await renderComponent();
-    await actor.click(screen.getByRole('button', { name: /toggle profile options/i }));
-    await vi.waitFor(() =>
-      expect(screen.getByRole('menu', { name: /profile options/i })).toBeVisible(),
-    );
-    expect(screen.getByRole('link', { name: /edit profile/i })).toBeVisible();
-    expect(screen.getByRole('link', { name: /edit profile/i })).toHaveAttribute('href', '/edit');
-    expect(screen.getByRole('link', { name: /upload picture/i })).toBeVisible();
-    expect(screen.getByRole('link', { name: /upload picture/i })).toHaveAttribute('href', '/pic');
-    expect(screen.getByRole('link', { name: /delete profile/i })).toBeVisible();
-    expect(screen.getByRole('link', { name: /delete profile/i })).toHaveAttribute(
-      'href',
-      '/delete',
-    );
-    expect(screen.queryByRole('link', { name: /delete picture/i })).toBeNull();
-    await actor.click(screen.getByRole('button', { name: /toggle profile options/i }));
-    await vi.waitFor(() =>
-      expect(screen.queryByRole('menu', { name: /profile options/i })).toBeNull(),
-    );
-    expect(screen.queryByRole('link', { name: /edit profile/i })).toBeNull();
-    expect(screen.queryByRole('link', { name: /upload picture/i })).toBeNull();
-    expect(screen.queryByRole('link', { name: /delete profile/i })).toBeNull();
-    expect(screen.queryByRole('link', { name: /delete picture/i })).toBeNull();
-  });
-
   it('should render a delete-picture option', async () => {
     profilesMock.isCurrentProfile.mockImplementation(() => true);
-    const actor = userEvent.setup();
     const testProfile = {
       ...profile,
       user: { ...user, avatar: { image: { id: crypto.randomUUID() } } },
     } as unknown as typeof profile;
     await renderComponent({ inputs: { profile: testProfile } });
-    await actor.click(screen.getByRole('button', { name: /toggle profile options/i }));
-    await vi.waitFor(() =>
-      expect(screen.getByRole('menu', { name: /profile options/i })).toBeVisible(),
-    );
     expect(screen.getByRole('link', { name: /edit profile/i })).toBeVisible();
     expect(screen.getByRole('link', { name: /edit profile/i })).toHaveAttribute('href', '/edit');
-    expect(screen.getByRole('link', { name: /upload picture/i })).toBeVisible();
-    expect(screen.getByRole('link', { name: /upload picture/i })).toHaveAttribute('href', '/pic');
-    expect(screen.getByRole('link', { name: /delete profile/i })).toBeVisible();
-    expect(screen.getByRole('link', { name: /delete profile/i })).toHaveAttribute(
-      'href',
-      '/delete',
-    );
     expect(screen.getByRole('link', { name: /delete picture/i })).toBeVisible();
     expect(screen.getByRole('link', { name: /delete picture/i })).toHaveAttribute(
       'href',
       `/pic/${testProfile.user.avatar!.image.id}/delete`,
     );
-    await actor.click(screen.getByRole('button', { name: /toggle profile options/i }));
-    await vi.waitFor(() =>
-      expect(screen.queryByRole('menu', { name: /profile options/i })).toBeNull(),
-    );
-    expect(screen.queryByRole('link', { name: /edit profile/i })).toBeNull();
     expect(screen.queryByRole('link', { name: /upload picture/i })).toBeNull();
-    expect(screen.queryByRole('link', { name: /delete profile/i })).toBeNull();
-    expect(screen.queryByRole('link', { name: /delete picture/i })).toBeNull();
+    expect(screen.getByRole('link', { name: /delete profile/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: /delete profile/i })).toHaveAttribute(
+      'href',
+      '/delete',
+    );
   });
 
   it('should toggle active status', async () => {
@@ -187,13 +144,13 @@ describe('Profile', () => {
     profilesMock.updateCurrentProfile.mockImplementation(() => new Observable((s) => (sub = s)));
     const { detectChanges } = await renderComponent();
     const propertySwitch = screen.getByRole('switch', { name: /active status/i });
-    assertBtnsEnabled(propertySwitch);
+    expect(propertySwitch).toBeEnabled();
     await actor.click(propertySwitch);
-    assertBtnsEnabled(propertySwitch);
+    expect(propertySwitch).toBeEnabled();
     sub.next(profile);
     sub.complete();
     detectChanges();
-    assertBtnsEnabled(propertySwitch);
+    expect(propertySwitch).toBeEnabled();
     expect(navigationSpy).toHaveBeenCalledTimes(0);
     expect(profilesMock.updateCurrentProfile).toHaveBeenCalledExactlyOnceWith({
       visible: !profile.visible,
@@ -207,12 +164,12 @@ describe('Profile', () => {
     profilesMock.updateCurrentProfile.mockImplementation(() => new Observable((s) => (sub = s)));
     const { detectChanges } = await renderComponent();
     const propertySwitch = screen.getByRole('switch', { name: /active status/i });
-    assertBtnsEnabled(propertySwitch);
+    expect(propertySwitch).toBeEnabled();
     await actor.click(propertySwitch);
-    assertBtnsEnabled(propertySwitch);
+    expect(propertySwitch).toBeEnabled();
     sub.error(new ProgressEvent('Network error'));
     detectChanges();
-    assertBtnsEnabled(propertySwitch);
+    expect(propertySwitch).toBeEnabled();
     expect(navigationSpy).toHaveBeenCalledTimes(0);
     expect(profilesMock.updateCurrentProfile).toHaveBeenCalledExactlyOnceWith({
       visible: !profile.visible,

@@ -1,24 +1,17 @@
 @let _profile = activeProfile(); @let _currentUserProfile = profiles.isCurrentProfile(_profile.id);
-<section class="size-full overflow-auto flex flex-col">
-  <ul class="flex justify-between">
-    <li>
-      <p-button text rounded outlined type="button" size="small" ariaLabel="Go back"
-                (click)="goBack()" icon="pi pi-arrow-left"></p-button>
-    </li>
-    @if(_currentUserProfile) {
-    <li>
-      <p-button text rounded outlined size="small" type="button" icon="pi pi-ellipsis-v"
-                ariaLabel="Toggle profile options" (click)="optionsMenu.toggle($event)"></p-button>
-      <p-menu #optionsMenu [model]="optionsMenuItems()" ariaLabel="Profile options menu"
-              [popup]="true" />
-    </li>
-    }
-  </ul>
-  <div class="max-w-sm m-auto p-4 text-center space-y-4">
+<section class="size-full overflow-auto">
+  <div class="max-w-xl m-auto p-4 mt-4 text-center space-y-4">
     <div>
-      <app-avatar preview [user]="_profile.user" [profile]="_profile" size="lg" />
+      <app-avatar preview [user]="_profile.user" [profile]="_profile" size="lg"
+                  class="align-middle" />
       @if (_currentUserProfile) {
-      <div class="text-xs text-muted-color-emphasis">
+      <div class="my-1 *:align-middle">
+        @for (_option of options(); track _option.routerLink) {
+        <a pButton pRipple text rounded size="small" severity="secondary"
+           [aria-label]="_option.label" [icon]="_option.icon" [routerLink]="_option.routerLink"></a>
+        }
+      </div>
+      <div class="text-xs text-muted-color-emphasis leading-2">
         <a routerLink="/followers">Followers</a>
         <span class="text-md text-muted-color font-light mx-1">|</span>
         <a routerLink="/following">Following</a>
@@ -26,16 +19,16 @@
       }
     </div>
     <div class="**:leading-tight">
-      <h2 class="text-xl font-bold">
+      <h2 class="text-primary-emphasis text-xl font-black">
         {{ _profile.user.fullname }}
       </h2>
       <p class="text-sm text-muted-color font-light">@{{ _profile.user.username }}</p>
     </div>
-    <p class="text-muted-color-emphasis tracking-wider">
+    <p class="tracking-wider">
       {{ _profile.user.bio }}
     </p>
     @if (_currentUserProfile) {
-    <div class="text-sm **:align-middle">
+    <div class="text-muted-color-emphasis text-sm **:align-middle">
       <span class="inline-block w-[0.75em]"></span>
       <label for="active-status-toggler">
         Active Status

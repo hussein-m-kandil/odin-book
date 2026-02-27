@@ -12,15 +12,15 @@ import {
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MenuItem, MessageService } from 'primeng/api';
 import { Profile as ProfileT } from '../../app.types';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { PostList } from '../../posts/post-list/';
 import { Title } from '@angular/platform-browser';
+import { ButtonDirective } from 'primeng/button';
 import { FollowToggle } from './follow-toggle';
-import { Button } from 'primeng/button';
+import { MessageService } from 'primeng/api';
+import { Ripple } from 'primeng/ripple';
 import { Profiles } from '../profiles';
-import { Menu } from 'primeng/menu';
 import { Avatar } from './avatar';
 import { finalize } from 'rxjs';
 
@@ -28,13 +28,13 @@ import { finalize } from 'rxjs';
   selector: 'app-profile',
   imports: [
     ReactiveFormsModule,
+    ButtonDirective,
     ToggleSwitch,
     FollowToggle,
     RouterLink,
     PostList,
-    Button,
+    Ripple,
     Avatar,
-    Menu,
   ],
   templateUrl: './profile.html',
   styles: ``,
@@ -46,29 +46,22 @@ export class Profile {
   private readonly _router = inject(Router);
   private readonly _title = inject(Title);
 
-  protected readonly optionsMenuItems = computed<MenuItem[]>(() => {
+  protected readonly options = computed(() => {
     const profile = this.activeProfile();
     const imageId = profile.user.avatar?.image.id;
-    if (!this.switchingVisibility() && this.profiles.isCurrentProfile(profile.id)) {
+    if (this.profiles.isCurrentProfile(profile.id)) {
       return [
-        { icon: 'pi pi-pencil', routerLink: './edit', label: 'Edit profile' },
-        { icon: 'pi pi-camera', routerLink: './pic', label: 'Upload picture' },
+        { icon: 'pi pi-user-edit', routerLink: './edit', label: 'Edit Profile' },
         ...(imageId
           ? [
               {
-                icon: 'pi pi-trash',
+                icon: 'pi pi-camera',
+                label: 'Delete Picture',
                 routerLink: `./pic/${imageId}/delete`,
-                label: 'Delete picture',
-                labelClass: 'text-(--p-button-text-danger-color)',
               },
             ]
-          : []),
-        {
-          icon: 'pi pi-trash',
-          routerLink: './delete',
-          label: 'Delete profile',
-          labelClass: 'text-(--p-button-text-danger-color)',
-        },
+          : [{ icon: 'pi pi-camera', routerLink: './pic', label: 'Upload Picture' }]),
+        { icon: 'pi pi-user-minus', routerLink: './delete', label: 'Delete Profile' },
       ];
     }
     return [];
