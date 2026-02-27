@@ -26,14 +26,19 @@ export class PostList implements OnChanges {
   readonly following = input(false, { transform: booleanAttribute });
   readonly authorId = input<PostT['author']['id']>();
 
-  ngOnChanges(changes: SimpleChanges<PostList>) {
+  protected load(following: boolean, author?: ReturnType<typeof this.authorId>) {
     this.posts.reset();
-    const author = changes.authorId?.currentValue;
     if (author) {
       this.posts.setParams(new HttpParams({ fromObject: { author } }));
-    } else if (booleanAttribute(changes.following?.currentValue)) {
+    } else if (following) {
       this.posts.setParams(new HttpParams({ fromObject: { following: true } }));
     }
     this.posts.load();
+  }
+
+  ngOnChanges(changes: SimpleChanges<PostList>) {
+    const following = booleanAttribute(changes.following?.currentValue);
+    const author = changes.authorId?.currentValue;
+    this.load(following, author);
   }
 }
