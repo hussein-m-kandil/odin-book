@@ -23,8 +23,8 @@ import { Spinner } from '../spinner';
 })
 export class ListLoader implements OnChanges, OnDestroy {
   private readonly _injector = inject(Injector);
-  private readonly _loadMoreBtn = viewChild<ElementRef<HTMLButtonElement>>('loadMoreBtn');
-  private readonly _loadMoreObserver = new IntersectionObserver((entries, observer) => {
+  private readonly _intersector = viewChild<ElementRef<HTMLElement>>('intersector');
+  private readonly _intersectionObserver = new IntersectionObserver((entries, observer) => {
     for (const entry of entries) {
       if (entry.isIntersecting) {
         this.loaded.emit();
@@ -46,8 +46,8 @@ export class ListLoader implements OnChanges, OnDestroy {
     afterNextRender(
       () => {
         if (this.autoLoadMore()) {
-          const loadMoreBtn = this._loadMoreBtn()?.nativeElement;
-          if (loadMoreBtn) this._loadMoreObserver.observe(loadMoreBtn);
+          const intersector = this._intersector()?.nativeElement;
+          if (intersector) this._intersectionObserver.observe(intersector);
         }
       },
       { injector: this._injector },
@@ -55,6 +55,6 @@ export class ListLoader implements OnChanges, OnDestroy {
   }
 
   ngOnDestroy() {
-    this._loadMoreObserver.disconnect();
+    this._intersectionObserver.disconnect();
   }
 }

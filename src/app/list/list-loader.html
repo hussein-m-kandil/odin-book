@@ -6,9 +6,9 @@
   } @else if (loadError(); as _loadError) {
   <app-error-message [message]="_loadError" (retry)="loaded.emit()" />
   } @else if (hasMore()) {
-  <div class="text-center **:font-normal">
-    <p-button #loadMoreBtn link type="button" size="small" label="Load{{ _suffix }}"
-              (onClick)="loaded.emit()" styleClass="py-0 px-1" />
+  <div #intersector class="text-center **:font-normal">
+    <p-button link type="button" size="small" label="Load{{ _suffix }}" (onClick)="loaded.emit()"
+              styleClass="py-0 px-1" />
   </div>
   } @else {
   <ng-content />
