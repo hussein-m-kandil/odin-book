@@ -11,14 +11,13 @@ import {
   afterNextRender,
   booleanAttribute,
 } from '@angular/core';
-import { ButtonDirective } from 'primeng/button';
 import { ErrorMessage } from '../error-message';
-import { Ripple } from 'primeng/ripple';
+import { Button } from 'primeng/button';
 import { Spinner } from '../spinner';
 
 @Component({
   selector: 'app-list-loader',
-  imports: [ButtonDirective, ErrorMessage, Spinner, Ripple],
+  imports: [ErrorMessage, Spinner, Button],
   templateUrl: './list-loader.html',
   styles: ``,
 })
