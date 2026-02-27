@@ -85,7 +85,7 @@ export class Auth {
   );
 
   readonly userUpdated = new Subject<AuthData['user'] & { socket: Socket }>();
-  readonly userSignedOut = new Subject<null>();
+  readonly userSignedOut = new Subject<void>();
 
   get socket() {
     return this._socket;
@@ -139,7 +139,7 @@ export class Auth {
 
   signOut() {
     this._setAuthData(null);
-    this.userSignedOut.next(null);
+    this.userSignedOut.next();
     this._closeSocket();
   }
 
