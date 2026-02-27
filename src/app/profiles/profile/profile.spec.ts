@@ -65,7 +65,7 @@ describe('Profile', () => {
     expect(screen.getByText(profile.user.username[0].toUpperCase())).toBeVisible();
     expect(screen.getByText(new RegExp(profile.user.username))).toBeVisible();
     expect(screen.getByText(new RegExp(profile.user.bio))).toBeVisible();
-    expect(screen.queryByRole('switch', { name: /active status/i })).toBeNull();
+    expect(screen.queryByRole('switch', { name: /online/i })).toBeNull();
     expect(screen.queryByRole('button', { name: /^unfollow/i })).toBeVisible();
     expect(screen.queryByRole('button', { name: /^follow/i })).toBeNull();
     expect(screen.queryByRole('link', { name: /followers/i })).toBeNull();
@@ -80,7 +80,7 @@ describe('Profile', () => {
     expect(screen.getByText(profile.user.username[0].toUpperCase())).toBeVisible();
     expect(screen.getByText(new RegExp(profile.user.username))).toBeVisible();
     expect(screen.getByText(new RegExp(profile.user.bio))).toBeVisible();
-    expect(screen.queryByRole('switch', { name: /active status/i })).toBeNull();
+    expect(screen.queryByRole('switch', { name: /online/i })).toBeNull();
     expect(screen.queryByRole('button', { name: /^follow/i })).toBeVisible();
     expect(screen.queryByRole('button', { name: /^unfollow/i })).toBeNull();
     expect(screen.queryByRole('link', { name: /followers/i })).toBeNull();
@@ -105,7 +105,7 @@ describe('Profile', () => {
       '/delete',
     );
     expect(screen.queryByRole('link', { name: /delete picture/i })).toBeNull();
-    expect(screen.queryByRole('switch', { name: /active status/i })).toBeInTheDocument();
+    expect(screen.queryByRole('switch', { name: /online/i })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^unfollow/i })).toBeNull();
     expect(screen.queryByRole('button', { name: /^follow/i })).toBeNull();
     expect(screen.getByRole('link', { name: /followers/i })).toBeVisible();
@@ -137,13 +137,13 @@ describe('Profile', () => {
     );
   });
 
-  it('should toggle active status', async () => {
+  it('should toggle online status', async () => {
     let sub!: Subscriber<unknown>;
     const actor = userEvent.setup();
     profilesMock.isCurrentProfile.mockImplementation(() => true);
     profilesMock.updateCurrentProfile.mockImplementation(() => new Observable((s) => (sub = s)));
     const { detectChanges } = await renderComponent();
-    const propertySwitch = screen.getByRole('switch', { name: /active status/i });
+    const propertySwitch = screen.getByRole('switch', { name: /online/i });
     expect(propertySwitch).toBeEnabled();
     await actor.click(propertySwitch);
     expect(propertySwitch).toBeEnabled();
@@ -157,13 +157,13 @@ describe('Profile', () => {
     });
   });
 
-  it('should fail to toggle active status', async () => {
+  it('should fail to toggle online status', async () => {
     let sub!: Subscriber<unknown>;
     const actor = userEvent.setup();
     profilesMock.isCurrentProfile.mockImplementation(() => true);
     profilesMock.updateCurrentProfile.mockImplementation(() => new Observable((s) => (sub = s)));
     const { detectChanges } = await renderComponent();
-    const propertySwitch = screen.getByRole('switch', { name: /active status/i });
+    const propertySwitch = screen.getByRole('switch', { name: /online/i });
     expect(propertySwitch).toBeEnabled();
     await actor.click(propertySwitch);
     expect(propertySwitch).toBeEnabled();

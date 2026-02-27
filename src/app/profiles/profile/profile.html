@@ -23,26 +23,31 @@
         {{ _profile.user.fullname }}
       </h2>
       <p class="text-sm text-muted-color font-light">@{{ _profile.user.username }}</p>
+      @if (_currentUserProfile) {
+      <div class="mt-1 text-muted-color text-sm font-bold **:align-middle">
+        <span class="inline-block w-[0.75em]"></span>
+        <label for="online-status-toggler">
+          @if (_profile.visible) {
+          <span class="text-primary-emphasis">Online</span>
+          } @else {
+          <span>Offline</span>
+          }
+        </label>
+        <p-toggle-switch inputId="online-status-toggler" class="mx-1"
+                         (onChange)="switchVisibility()" [formControl]="visible"
+                         [dt]="{ root: { width: '1.5rem', height: '0.9rem' }, handle: { size: '0.5rem' } }" />
+        <span class="inline-block w-[0.75em] **:text-[0.75em]">
+          @if (switchingVisibility()) {
+          <span aria-label="Toggling online status..." class="pi pi-spinner pi-spin"></span>
+          }
+        </span>
+      </div>
+      }
     </div>
     <p class="tracking-wider">
       {{ _profile.user.bio }}
     </p>
-    @if (_currentUserProfile) {
-    <div class="text-muted-color-emphasis text-sm **:align-middle">
-      <span class="inline-block w-[0.75em]"></span>
-      <label for="active-status-toggler">
-        Active Status
-      </label>
-      <p-toggle-switch inputId="active-status-toggler" class="mx-1" (onChange)="switchVisibility()"
-                       [formControl]="visible"
-                       [dt]="{ root: { width: '1.5rem', height: '0.9rem' }, handle: { size: '0.5rem' } }" />
-      <span class="inline-block w-[0.75em] **:text-[0.75em]">
-        @if (switchingVisibility()) {
-        <span aria-label="Toggling active status..." class="pi pi-spinner pi-spin"></span>
-        }
-      </span>
-    </div>
-    } @else {
+    @if (!_currentUserProfile) {
     <div class="*:align-middle *:inline-block space-x-2 flex flex-wrap justify-center">
       <app-follow-toggle [profile]="_profile" />
     </div>
