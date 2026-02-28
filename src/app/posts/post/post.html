@@ -8,66 +8,68 @@
 @let _liking = _loading === 'upvote';
 @let _user = auth.user();
 @let _mutable = _user && (_user.isAdmin || _user.id === _post.authorId);
-<article aria-labelledby="{{ _labelId }}" class="mx-auto" [class]="_brief ? '' : 'max-w-3xl p-4'">
-  <div class="bg-zinc-50 dark:bg-zinc-800 p-5 border-surface border rounded-2xl overflow-hidden">
-    <header>
-      <app-post-header emphasis [public]="_post.published" [date]="_post.createdAt"
-                       [author]="_post.author" [deleteLabel]="_mutable ? 'Delete Post': ''"
-                       [deleting]="_deleting || _modal === 'Delete Confirmation'"
-                       (deleted)="modal.set('Delete Confirmation')" />
-    </header>
+<div class="w-full min-h-full flex flex-col justify-center">
+  <article aria-labelledby="{{ _labelId }}" class="mx-auto" [class]="_brief ? '' : 'max-w-3xl p-4'">
+    <div class="bg-zinc-50 dark:bg-zinc-800 p-5 border-surface border rounded-2xl overflow-hidden">
+      <header>
+        <app-post-header emphasis [public]="_post.published" [date]="_post.createdAt"
+                         [author]="_post.author" [deleteLabel]="_mutable ? 'Delete Post': ''"
+                         [deleting]="_deleting || _modal === 'Delete Confirmation'"
+                         (deleted)="modal.set('Delete Confirmation')" />
+      </header>
 
-    <main>
-      <p class="my-4 tracking-wide leading-relaxed">
-        @if (_brief) {
-        <a [routerLink]="['/posts', _post.id]" class="line-clamp-3"> {{ _post.content }} </a>
-        } @else {
-        <span> {{ _post.content }} </span>
+      <main>
+        <p class="my-4 tracking-wide leading-relaxed">
+          @if (_brief) {
+          <a [routerLink]="['/posts', _post.id]" class="line-clamp-3"> {{ _post.content }} </a>
+          } @else {
+          <span> {{ _post.content }} </span>
+          }
+        </p>
+        @if (_post.image; as _image) {
+        <app-image preview class="block -mx-5" [src]="_image.src" [alt]="_image.alt"
+                   [width]="_image.width" [height]="_image.height" />
         }
-      </p>
-      @if (_post.image; as _image) {
-      <app-image preview class="block -mx-5" [src]="_image.src" [alt]="_image.alt"
-                 [width]="_image.width" [height]="_image.height" />
-      }
-    </main>
+      </main>
 
-    <footer class="-mx-5 -mb-5">
-      <div class="*:flex *:justify-between">
-        <div class="**:text-xs **:text-muted-color **:font-normal">
-          <p-button link size="small" severity="secondary" type="button"
-                    (onClick)="modal.set('Likes')"
-                    [label]="_post._count.upvotes | i18nPlural: { '=1': '1 like', 'other': '# likes' }" />
-          <p-button link size="small" severity="secondary" type="button"
-                    (onClick)="toggleComments()"
-                    [label]="_post._count.comments | i18nPlural: { '=1': '1 comment', 'other': '# comments' }" />
-          <p-button link size="small" severity="secondary" type="button"
-                    (onClick)="modal.set('Dislikes')"
-                    [label]="_post._count.downvotes | i18nPlural: { '=1': '1 dislike', 'other': '# dislikes' }" />
+      <footer class="-mx-5 -mb-5">
+        <div class="*:flex *:justify-between">
+          <div class="**:text-xs **:text-muted-color **:font-normal">
+            <p-button link size="small" severity="secondary" type="button"
+                      (onClick)="modal.set('Likes')"
+                      [label]="_post._count.upvotes | i18nPlural: { '=1': '1 like', 'other': '# likes' }" />
+            <p-button link size="small" severity="secondary" type="button"
+                      (onClick)="toggleComments()"
+                      [label]="_post._count.comments | i18nPlural: { '=1': '1 comment', 'other': '# comments' }" />
+            <p-button link size="small" severity="secondary" type="button"
+                      (onClick)="modal.set('Dislikes')"
+                      [label]="_post._count.downvotes | i18nPlural: { '=1': '1 dislike', 'other': '# dislikes' }" />
+          </div>
+
+          <div
+               class="*:block *:grow **:text-center **:justify-center **:rounded-none border-surface border-t">
+            @let _liked = _post.upvotedByCurrentUser && !_post.downvotedByCurrentUser;
+            @let _disliked = _post.downvotedByCurrentUser && !_post.upvotedByCurrentUser;
+            <p-button text fluid type="button" size="small" [loading]="_liking"
+                      [severity]="_liked ? 'primary' : 'secondary'" icon="pi pi-thumbs-up"
+                      [label]="`Like${_liked ? 'd' : ''}`" (click)="vote('upvote')" />
+            <span class="grow-0! border-surface border-r"></span>
+            <p-button text fluid type="button" size="small" [loading]="_disliking"
+                      [severity]="_disliked ? 'primary' : 'secondary'" icon="pi pi-thumbs-down"
+                      [label]="`Dislike${_disliked ? 'd' : ''}`" (click)="vote('downvote')" />
+          </div>
         </div>
 
-        <div
-             class="*:block *:grow **:text-center **:justify-center **:rounded-none border-surface border-t">
-          @let _liked = _post.upvotedByCurrentUser && !_post.downvotedByCurrentUser;
-          @let _disliked = _post.downvotedByCurrentUser && !_post.upvotedByCurrentUser;
-          <p-button text fluid type="button" size="small" [loading]="_liking"
-                    [severity]="_liked ? 'primary' : 'secondary'" icon="pi pi-thumbs-up"
-                    [label]="`Like${_liked ? 'd' : ''}`" (click)="vote('upvote')" />
-          <span class="grow-0! border-surface border-r"></span>
-          <p-button text fluid type="button" size="small" [loading]="_disliking"
-                    [severity]="_disliked ? 'primary' : 'secondary'" icon="pi pi-thumbs-down"
-                    [label]="`Dislike${_disliked ? 'd' : ''}`" (click)="vote('downvote')" />
+        @if (commentsVisible()) {
+        <div class="border-surface border-t bg-zinc-100 dark:bg-zinc-900"
+             [class]="_brief ? 'max-h-64 overflow-auto' : ''">
+          <app-comment-list [postId]="_post.id" [mutable]="_mutable" />
         </div>
-      </div>
-
-      @if (commentsVisible()) {
-      <div class="border-surface border-t bg-zinc-100 dark:bg-zinc-900"
-           [class]="_brief ? 'max-h-64 overflow-auto' : ''">
-        <app-comment-list [postId]="_post.id" [mutable]="_mutable" />
-      </div>
-      }
-    </footer>
-  </div>
-</article>
+        }
+      </footer>
+    </div>
+  </article>
+</div>
 
 @if (_modal) {
 <app-modal [header]="_modal" [closeAriaLabel]="`Close ${_modal}`" (hidden)="modal.set('')">
