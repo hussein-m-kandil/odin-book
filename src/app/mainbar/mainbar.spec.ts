@@ -8,6 +8,7 @@ import { Profiles } from '../profiles';
 import { Mainbar } from './mainbar';
 import { Auth } from '../auth';
 import { of } from 'rxjs';
+import { Notifications } from '../notifications';
 
 const navigationSpy = vi.spyOn(Router.prototype, 'navigateByUrl');
 
@@ -19,7 +20,13 @@ const user = {
   bio: 'Test bio.',
 };
 
-const authMock = { user: vi.fn(() => user as unknown), signOut: vi.fn(), socket: { on: vi.fn() } };
+const authMock = {
+  signOut: vi.fn(),
+  user: vi.fn(() => user as unknown),
+  userUpdated: { subscribe: vi.fn() },
+  userSignedOut: { subscribe: vi.fn() },
+  socket: { on: vi.fn() },
+};
 
 const colorSchemeMock = {
   selectedScheme: vi.fn(() => SCHEMES[1] as unknown),
@@ -33,6 +40,8 @@ const profilesMock = {
   profileUpdated: { subscribe: vi.fn() },
 };
 
+const notificationsMock = { newItems: vi.fn(() => ({ length: 0 })) };
+
 const renderComponent = ({ providers, ...options }: RenderComponentOptions<Mainbar> = {}) => {
   return render(Mainbar, {
     providers: [
@@ -40,6 +49,7 @@ const renderComponent = ({ providers, ...options }: RenderComponentOptions<Mainb
       { provide: Auth, useValue: authMock },
       { provide: Profiles, useValue: profilesMock },
       { provide: ColorScheme, useValue: colorSchemeMock },
+      { provide: Notifications, useValue: notificationsMock },
       ...(providers || []),
     ],
     routes: [{ path: '**', component: class {} }],
@@ -110,6 +120,48 @@ describe('Mainbar', () => {
       expect(colorSchemeMock.select).toHaveBeenNthCalledWith(i + 1, scheme);
     }
     expect(colorSchemeMock.switch).toHaveBeenCalledTimes(0);
+  });
+
+  it('should not have a notifications link if the user is unauthenticated', async () => {
+    authMock.user.mockImplementation(() => null);
+    await renderComponent();
+    expect(screen.queryByRole('link', { name: /notifications/i })).toBeNull();
+  });
+
+  it('should have a notifications link if the user is authenticated', async () => {
+    authMock.user.mockImplementation(() => user);
+    await renderComponent();
+    const notificationsLink = screen.getByRole('link', { name: /notifications/i });
+    expect(notificationsLink).toHaveAttribute('href', '/notifications');
+    expect(notificationsLink).toBeVisible();
+  });
+
+  it('should not have 0 new notifications count badge', async () => {
+    authMock.user.mockImplementation(() => user);
+    notificationsMock.newItems.mockImplementation(() => ({ length: 0 }));
+    await renderComponent();
+    expect(screen.queryByLabelText(/new notification/i)).toBeNull();
+  });
+
+  it('should have 1 new notification count badge', async () => {
+    authMock.user.mockImplementation(() => user);
+    notificationsMock.newItems.mockImplementation(() => ({ length: 1 }));
+    await renderComponent();
+    expect(screen.getByLabelText(/1 new notification$/i)).toBeVisible();
+  });
+
+  it('should have 9 new notifications count badge', async () => {
+    authMock.user.mockImplementation(() => user);
+    notificationsMock.newItems.mockImplementation(() => ({ length: 9 }));
+    await renderComponent();
+    expect(screen.getByLabelText(/9 new notifications$/i)).toBeVisible();
+  });
+
+  it('should have +9 new notifications count badge', async () => {
+    authMock.user.mockImplementation(() => user);
+    notificationsMock.newItems.mockImplementation(() => ({ length: 10 }));
+    await renderComponent();
+    expect(screen.getByLabelText(/\+9 new notifications$/i)).toBeVisible();
   });
 
   it('should not have a profile toggler/menu if the user is unauthenticated', async () => {

@@ -1,0 +1,52 @@
+<ng-template #li let-_notification>
+  <div class="max-w-xl mx-auto my-2 px-2">
+    <div class="border-surface border rounded-xl p-2 space-y-2"
+         [class]="{ 'bg-highlight': !_notification.seenAt }">
+      <div class="flex justify-between items-center **:align-middle">
+        <a [routerLink]="`/profiles/${_notification.profileName}`" class="leading-0">
+          <app-avatar [user]="_notification.profile?.user || { username: _notification.profileName }"
+                      [profile]="_notification.profile" size="sm" />
+        </a>
+        <p-button outlined rounded type="button" severity="secondary" icon="pi pi-trash"
+                  ariaLabel="Delete notification" (click)="deleteNotification(_notification.id)"
+                  [loading]="deletingIds().includes(_notification.id)" />
+      </div>
+      <div>
+        <a pRipple pButton outlined severity="secondary" [routerLink]="[_notification.url]"
+           class="block p-2 text-muted-color leading-tight">
+          <span class="text-primary-emphasis">
+            @let _header = _notification.header
+            .replace(/upvote/g, 'like')
+            .replace(/Upvote/g, 'Like')
+            .replace(/downvote/g, 'dislike')
+            .replace(/Downvote/g, 'Dislike');
+            @let _splittedHeader = _header.split(_notification.profileName);
+            @for (_slice of _splittedHeader; track $index) {
+            {{ _slice }}
+            @if(!$last) {
+            <span class="font-semibold">
+              @let _maxLen = 16;
+              @{{
+                _notification.profileName.length > _maxLen
+                  ? `${_notification.profileName.slice(0, _maxLen)}...`
+                  : _notification.profileName
+              }}
+            </span>
+            }
+            }
+          </span>
+          <app-time [datetime]="_notification.createdAt" classes="text-sm" prefix="· " />
+          <br />
+          @if (_notification.description; as _desc) {
+          <span class="text-sm line-clamp-3">
+            {{_desc.slice(0, 24).replace(/\.+$/, '') }}...
+            <span class="hover:underline text-primary-emphasis font-light">See more</span>
+          </span>
+          }
+        </a>
+      </div>
+    </div>
+  </div>
+</ng-template>
+<app-list autoLoadMore [store]="notifications" singularLabel="Notification"
+          pluralLabel="Notifications" [itemFragment]="li" />

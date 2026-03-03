@@ -4,6 +4,7 @@ import { MenuItem, MessageService } from 'primeng/api';
 import { ColorScheme, SCHEMES } from '../color-scheme';
 import { Avatar } from '../profiles/profile/avatar';
 import { ButtonDirective } from 'primeng/button';
+import { Notifications } from '../notifications';
 import { environment } from '../../environments';
 import { Ripple } from 'primeng/ripple';
 import { Menu } from 'primeng/menu';
@@ -18,6 +19,7 @@ import { Auth } from '../auth';
 export class Mainbar {
   private readonly _toast = inject(MessageService);
 
+  protected readonly notifications = inject(Notifications);
   protected readonly colorScheme = inject(ColorScheme);
   protected readonly auth = inject(Auth);
 

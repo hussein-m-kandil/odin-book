@@ -9,15 +9,29 @@
       <button pButton pRipple rounded size="small" type="button" [icon]="_selectedScheme.icon"
               (click)="colorSchemeMenu.toggle($event)"
               aria-label="Change the {{ _selectedScheme.value }} color scheme."></button>
-      @if(_user) {
-      <a pButton pRipple rounded routerLinkActive size="small" routerLink="/profiles"
-         icon="pi pi-users" aria-label="Profiles" ariaCurrentWhenActive="page"
-         [routerLinkActiveOptions]="{ exact: true }"></a>
-      }
       <p-menu #colorSchemeMenu [model]="colorSchemeMenuItems()" ariaLabel="Color scheme menu"
               [popup]="true" />
     </li>
     @if (_user) {
+    <li>
+      <a pButton pRipple rounded routerLinkActive size="small" routerLink="/profiles"
+         icon="pi pi-users" aria-label="Profiles" ariaCurrentWhenActive="page"
+         [routerLinkActiveOptions]="{ exact: true }"></a>
+    </li>
+    <li class="relative">
+      <a pButton pRipple rounded routerLinkActive size="small" routerLink="/notifications"
+         icon="pi pi-bell" aria-label="Notifications" ariaCurrentWhenActive="page"
+         [routerLinkActiveOptions]="{ exact: true }"></a>
+      @if(notifications.newItems().length; as _newNotificationsCount) {
+      @let _formattedCount = _newNotificationsCount > 9 ? '+9' : _newNotificationsCount;
+      <span aria-label="You have {{ _formattedCount }} new notification{{ _newNotificationsCount === 1 ? '' : 's' }}"
+            class="bg-(--p-button-danger-background) text-(--p-button-danger-color) text-xs rounded-full absolute -top-0.5 right-0">
+        <span class="text-center inline-block size-[1.4em] p-px">
+          {{ _formattedCount }}
+        </span>
+      </span>
+      }
+    </li>
     <li>
       <button pButton pRipple text rounded outlined type="button" class="p-0 ms-2"
               aria-label="Toggle profile menu" (click)="profileMenu.toggle($event)">

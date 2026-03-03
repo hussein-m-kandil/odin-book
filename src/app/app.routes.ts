@@ -6,6 +6,7 @@ import { environment } from '../environments';
 import { profileResolver } from './profiles';
 import { postResolver } from './posts';
 
+const loadNotificationList = async () => (await import('./notifications')).NotificationList;
 const loadProfileList = async () => (await import('./profiles/profile-list')).ProfileList;
 const loadDeleteImage = async () => (await import('./images/delete-image')).DeleteImage;
 const loadDeleteForm = async () => (await import('./auth/delete-form')).DeleteForm;
@@ -38,6 +39,7 @@ export const routes: Routes = [
           },
         ],
       },
+      { path: 'notifications', title: 'Notifications', loadComponent: loadNotificationList },
       { path: 'followers', title: 'Followers', loadComponent: loadProfileList },
       { path: 'following', title: 'Following', loadComponent: loadProfileList },
       {
