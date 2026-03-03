@@ -1,0 +1,9 @@
+@let _datetime = datetime();
+<time [attr.datetime]="_datetime" [class]="classes()" [style]="styles()">
+  @let _distanceDays = getDistanceDays(_datetime);
+  {{ prefix() }}{{
+    _distanceDays < 1  ? (_datetime | date : 'shortTime')
+    : _distanceDays < 2 ? 'Yesterday'
+    : (_datetime | date : 'mediumDate')
+  }}{{ suffix() }}
+</time>

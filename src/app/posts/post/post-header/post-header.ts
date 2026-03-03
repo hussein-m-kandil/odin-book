@@ -2,12 +2,12 @@ import { input, Component, booleanAttribute, output } from '@angular/core';
 import { Avatar } from '../../../profiles/profile/avatar';
 import type { Comment, Post } from '../../posts.types';
 import { RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { Time } from '../../../time/time';
 import { Button } from 'primeng/button';
 
 @Component({
   selector: 'app-post-header',
-  imports: [RouterLink, DatePipe, Button, Avatar],
+  imports: [RouterLink, Button, Avatar, Time],
   templateUrl: './post-header.html',
   styles: ``,
 })
@@ -20,11 +20,4 @@ export class PostHeader {
   readonly deleteLabel = input('');
 
   readonly deleted = output();
-
-  protected getDistanceDays(date: Date | string) {
-    const dayMS = 24 * 60 * 60 * 1000;
-    const nowMS = new Date().getTime();
-    const dateMS = new Date(date).getTime();
-    return Math.floor((nowMS - dateMS) / dayMS);
-  }
 }

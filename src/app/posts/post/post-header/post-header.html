@@ -18,19 +18,10 @@
         @let _privacy = _public
         ? { label: 'Public', icon: 'pi pi-globe' }
         : { label: 'Private', icon: 'pi pi-lock' };
-        <span [aria-label]="_privacy.label" class="me-0.5 text-xs text-muted-color"
+        <span [aria-label]="_privacy.label" class="me-px text-xs text-muted-color"
               [class]="_privacy.icon"></span>
         }
-        <time [attr.datetime]="_date" class="text-muted-color text-xs">
-          @let _distanceDays = getDistanceDays(_date);
-          {{
-                _distanceDays === 1
-                  ? 'Yesterday'
-                  : _distanceDays === 0
-                  ? (_date | date : 'shortTime')
-                  : (_date | date : 'mediumDate')
-              }}
-        </time>
+        <app-time [datetime]="_date" classes="text-muted-color text-xs" />
       </a>
     </h3>
   </div>
