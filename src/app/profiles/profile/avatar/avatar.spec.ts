@@ -15,6 +15,7 @@ const profile: ProfileBase = {
   lastSeen: new Date().toDateString(),
   followedByCurrentUser: true,
   id: crypto.randomUUID(),
+  userId: user.id,
   tangible: true,
   visible: true,
 };

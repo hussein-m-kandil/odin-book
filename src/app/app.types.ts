@@ -36,19 +36,23 @@ export interface ProfileBase {
   visible: boolean;
   tangible: boolean;
   lastSeen: string;
+  userId: UserBase['id'];
   followedByCurrentUser?: boolean;
 }
 
-export interface User extends Common {
+export interface UserBase extends Common {
   bio: string;
   order: number;
   username: string;
   fullname: string;
   isAdmin: boolean;
-  profile: ProfileBase;
   avatar?: { image: ImageBase } | null;
 }
 
+export interface User extends UserBase {
+  profile: ProfileBase;
+}
+
 export interface Profile extends ProfileBase {
-  user: User;
+  user: UserBase;
 }

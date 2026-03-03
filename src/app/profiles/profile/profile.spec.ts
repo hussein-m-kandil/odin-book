@@ -19,6 +19,7 @@ const profile: ProfileT = {
   user,
   visible: true,
   tangible: true,
+  userId: user.id,
   followedByCurrentUser: false,
   lastSeen: new Date().toISOString(),
 };

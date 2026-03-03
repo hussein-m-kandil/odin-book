@@ -30,6 +30,7 @@ export const user: User = {
     },
   },
   profile: {
+    userId: 'a9826180-945a-4062-bce2-9257f7f8c5e2',
     id: '5f2575f0-2e4c-4ba7-907b-abea5d5a3b41',
     lastSeen: '2026-02-15T15:29:39.782Z',
     visible: true,
@@ -66,6 +67,7 @@ export const user2: User = {
     },
   },
   profile: {
+    userId: '400d7f7b-34bd-47b9-9c84-c83c8b321ae7',
     id: 'a2662b64-3e28-4c37-8a1e-4ae52e5a909e',
     lastSeen: '2026-02-17T06:12:20.049Z',
     visible: true,
