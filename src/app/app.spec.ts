@@ -40,7 +40,11 @@ const user = {
   bio: 'Test bio.',
 };
 
-const authMock = { user: vi.fn(() => user), userSignedOut: { subscribe: vi.fn() } };
+const authMock = {
+  user: vi.fn(() => user),
+  userUpdated: { subscribe: vi.fn() },
+  userSignedOut: { subscribe: vi.fn() },
+};
 const navigationMock = { isInitial: vi.fn(), navigating: vi.fn(), error: vi.fn() };
 const profilesMock = { reset: vi.fn(), profileUpdated: { subscribe: vi.fn() } };
 const storageMock = { getItem: vi.fn(() => 'value'), setItem: vi.fn() };
