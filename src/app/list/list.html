@@ -20,7 +20,7 @@
   @if (_storeList.length) {
   <ul aria-label="{{ singularLabel() }} list">
     @for (_listItem of _storeList; track _listItem.id) {
-    <li>
+    <li aria-label="{{ singularLabel() }}">
       <ng-container [ngTemplateOutlet]="itemFragment()"
                     [ngTemplateOutletContext]="{ $implicit: _listItem }" />
     </li>
