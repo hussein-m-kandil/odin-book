@@ -1,5 +1,5 @@
 @let _profile = profile();
-<div class="bg-zinc-100 dark:bg-zinc-800/75 m-4 rounded-xl">
+<div class="border-surface border m-4 rounded-xl overflow-auto">
   <div pRipple pButton text class="flex justify-between items-center p-4 *:align-middle"
        tabindex="0" (click)="link.click()" (keydown.enter)="link.click()">
     <app-avatar [user]="_profile.user" [profile]="_profile" size="sm" />
