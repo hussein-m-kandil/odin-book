@@ -19,6 +19,12 @@ export class Posts extends ListStore<Post> {
 
   readonly baseUrl = `${environment.apiUrl}/posts`;
 
+  private _updatePostIfExist(updatedPost: Post) {
+    this.list.update((posts) =>
+      posts.map((post) => (post.id === updatedPost.id ? updatedPost : post)),
+    );
+  }
+
   override reset(): void {
     super.reset();
     this._params = new HttpParams();
@@ -32,10 +38,12 @@ export class Posts extends ListStore<Post> {
     return this._http.get<ReturnType<typeof this.list>>(this.baseUrl, { params });
   }
 
-  private _updatePostIfExist(updatedPost: Post) {
-    this.list.update((posts) =>
-      posts.map((post) => (post.id === updatedPost.id ? updatedPost : post)),
-    );
+  constructor() {
+    super();
+    this._auth.userUpdated.subscribe(() => {
+      this.reset();
+      this.load();
+    });
   }
 
   setParams(params: HttpParams) {

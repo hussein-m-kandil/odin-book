@@ -9,7 +9,11 @@ import { Auth } from '../auth';
 
 const postsUrl = `${environment.apiUrl}/posts`;
 
-const authMock = { user: vi.fn() };
+const authMock = {
+  user: vi.fn(),
+  userUpdated: { subscribe: vi.fn() },
+  userSignedOut: { subscribe: vi.fn() },
+};
 
 const setup = () => {
   TestBed.configureTestingModule({
@@ -36,6 +40,20 @@ describe('Posts', () => {
     authMock.user.mockImplementationOnce(() => ({ id: crypto.randomUUID() }));
     const { service, httpTesting } = setup();
     expect(service.isAuthoredByCurrentUser(posts[0])).toBe(false);
+    httpTesting.verify();
+  });
+
+  it('should reload on when the user updated', () => {
+    let callback!: () => void;
+    authMock.userUpdated.subscribe.mockImplementationOnce((fn) => (callback = fn));
+    const { service, httpTesting } = setup();
+    const resBody = posts.slice(1);
+    service.list.set(posts);
+    httpTesting.verify();
+    callback();
+    expect(service.list()).toStrictEqual([]);
+    httpTesting.expectOne({ method: 'GET', url: postsUrl }, 'Request to load posts').flush(resBody);
+    expect(service.list()).toStrictEqual(resBody);
     httpTesting.verify();
   });
 
