@@ -63,9 +63,9 @@ export class ContentForm {
     this.progress.set(null);
   }
 
-  protected hidePicker() {
-    this._pickerPopover().hide();
-    this.picking.set(null);
+  protected hidePicker(picker: 'image' | 'emoji' | 'any') {
+    if (picker === 'any' || picker === this.picking()) this.picking.set(null);
+    if (picker !== 'image') this._pickerPopover().hide();
   }
 
   protected togglePicker(picker: 'image' | 'emoji', event?: Event) {
@@ -94,8 +94,8 @@ export class ContentForm {
   }
 
   protected reset() {
+    this.hidePicker('any');
     this.unpickImage();
-    this.hidePicker();
     this.form.reset();
   }
 

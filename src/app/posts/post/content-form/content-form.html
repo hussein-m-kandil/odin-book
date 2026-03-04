@@ -33,20 +33,22 @@
     }
   </div>
   <div aria-live="polite" aria-atomic="true">
-    <p-popover #picker [unstyled]="true" [dismissable]="false" (onHide)="hidePicker()">
+    @if (_pickingImage) {
+    <div class="mt-1 bg-(--p-content-background) border border-surface rounded-lg overflow-auto">
+      <app-image-picker [progress]="progress()" [disabled]="form.disabled"
+                        (unpicked)="unpickImage()" (canceled)="togglePicker('image')"
+                        (picked)="pickedImage.set($event)" />
+    </div>
+    }
+    <p-popover #picker [unstyled]="true" [dismissable]="false" (onHide)="hidePicker('emoji')">
       <div class="w-screen max-w-sm p-0.5 overflow-auto">
+        @if (_pickingEmoji) {
         <div
-             class="bg-(--p-content-background) max-h-screen border border-surface rounded-lg overflow-auto">
-          @if (_pickingImage) {
-          <app-image-picker [progress]="progress()" [disabled]="form.disabled"
-                            (unpicked)="unpickImage()" (canceled)="togglePicker('image')"
-                            (picked)="pickedImage.set($event)" />
-          }
-          @else if (_pickingEmoji) {
+             class="my-1 bg-(--p-content-background) max-h-screen border border-surface rounded-lg overflow-auto">
           <app-emoji-picker closeableOnEscapeKey [theme]="_theme"
                             (picked)="insertPickedEmoji($event)" (closed)="togglePicker('emoji')" />
-          }
         </div>
+        }
       </div>
     </p-popover>
   </div>
