@@ -11,40 +11,40 @@
            [aria-label]="_option.label" [icon]="_option.icon" [routerLink]="_option.routerLink"></a>
         }
       </div>
-      <div class="text-xs text-muted-color-emphasis leading-2">
+      <div class="text-muted-color-emphasis text-xs leading-2">
         <a routerLink="/followers">Followers</a>
         <span class="text-md text-muted-color font-light mx-1">|</span>
         <a routerLink="/following">Following</a>
       </div>
       }
     </div>
-    <div class="**:leading-tight">
-      <h2 class="text-primary-emphasis text-xl font-black">
+    <div>
+      <h2 class="text-primary-emphasis text-2xl font-black tracking-tight">
         {{ _profile.user.fullname }}
       </h2>
-      <p class="text-sm text-muted-color font-light">@{{ _profile.user.username }}</p>
       @if (_currentUserProfile) {
-      <div class="mt-1 text-muted-color text-sm font-bold **:align-middle">
+      <span class="text-muted-color text-xs **:align-middle">
         <span class="inline-block w-[0.75em]"></span>
-        <label for="online-status-toggler">
-          @if (_profile.visible) {
-          <span class="text-primary-emphasis">Online</span>
-          } @else {
-          <span>Offline</span>
-          }
+        <label for="online-status-toggler" class="*:font-bold"
+               [class]="{ 'text-primary-emphasis': _profile.visible}">
+          You are <span>@{{ _profile.user.username }}</span>, and you are
+          <span>{{ _profile.visible ? 'online' : 'offline' }}</span>
         </label>
         <p-toggle-switch inputId="online-status-toggler" class="mx-1"
                          (onChange)="switchVisibility()" [formControl]="visible"
-                         [dt]="{ root: { width: '1.5rem', height: '0.9rem' }, handle: { size: '0.5rem' } }" />
+                         [dt]="{ root: { width: '1.45rem', height: '0.85rem' }, handle: { size: '0.45rem' } }" />
         <span class="inline-block w-[0.75em] **:text-[0.75em]">
           @if (switchingVisibility()) {
           <span aria-label="Toggling online status..." class="pi pi-spinner pi-spin"></span>
           }
         </span>
-      </div>
+      </span>
+      } @else {
+      <span class="text-sm font-light"
+            [class]="_profile.visible ? 'text-primary-emphasis' : 'text-muted-color'">@{{ _profile.user.username }}</span>
       }
     </div>
-    <p class="tracking-wider">
+    <p class="text-muted-color-emphasis text-lg font-light tracking-wider">
       {{ _profile.user.bio }}
     </p>
     @if (!_currentUserProfile) {
