@@ -1,9 +1,10 @@
 import { HttpClient, HttpEventType, HttpParams } from '@angular/common/http';
+import { Comment, NewPostData, Post } from './posts.types';
+import { mergeDistinctBy, sortByDate } from '../utils';
 import { inject, Injectable } from '@angular/core';
-import { NewPostData, Post } from './posts.types';
+import { catchError, defer, of, tap } from 'rxjs';
 import { environment } from '../../environments';
 import { ListStore } from '../list/list-store';
-import { defer, of, tap } from 'rxjs';
 import { Auth } from '../auth';
 
 @Injectable({
@@ -19,10 +20,19 @@ export class Posts extends ListStore<Post> {
 
   readonly baseUrl = `${environment.apiUrl}/posts`;
 
-  private _updatePostIfExist(updatedPost: Post) {
-    this.list.update((posts) =>
-      posts.map((post) => (post.id === updatedPost.id ? updatedPost : post)),
-    );
+  private _listenToSocketEvents(socket: NonNullable<typeof this._auth.socket>) {
+    socket.onAny((event, postId?: Post['id'], commentId?: Comment['id']) => {
+      if (postId && /^post:/.test(event)) {
+        if (event === 'post:deleted') this.syncPost('delete', postId);
+        else if (event === 'post:created') this.syncPost('create', postId);
+        else if (
+          /^post:(updated|(up|down|un)voted)$/.test(event) ||
+          (commentId && /^post:comment/.test(event))
+        ) {
+          this.syncPost('update', postId);
+        }
+      }
+    });
   }
 
   override reset(): void {
@@ -40,10 +50,66 @@ export class Posts extends ListStore<Post> {
 
   constructor() {
     super();
-    this._auth.userUpdated.subscribe(() => {
+    if (this._auth.socket) this._listenToSocketEvents(this._auth.socket);
+    this._auth.userUpdated.subscribe(({ socket }) => {
       this.reset();
       this.load();
+      this._listenToSocketEvents(socket);
     });
+  }
+
+  updatePostLocally(post: Post) {
+    this.list.update((posts) => posts.map((p) => (p.id === post.id ? post : p)));
+  }
+
+  incrementPostCommentsCount(postId: Post['id'], addedValue: number) {
+    this.list.update((posts) =>
+      posts.map((post) => {
+        const count = post._count.comments + addedValue;
+        return post.id === postId
+          ? { ...post, _count: { ...post._count, comments: count < 0 ? 0 : count } }
+          : post;
+      }),
+    );
+  }
+
+  syncPost(action: 'create' | 'update' | 'delete', postId: Post['id']) {
+    switch (action) {
+      case 'delete': {
+        this.list.update((posts) => posts.filter((p) => p.id !== postId));
+        return;
+      }
+      case 'create':
+      case 'update': {
+        const posts = this.list();
+        if (!posts.length) return this.load();
+        const existedPost = posts.some((post) => post.id === postId);
+        if ((action === 'create' && existedPost) || (action === 'update' && !existedPost)) return;
+        this._http
+          .get<Post | null>(`${this.baseUrl}/${postId}`)
+          .pipe(catchError(() => of(null)))
+          .subscribe((post) => {
+            if (post) {
+              if (action === 'update') {
+                this.updatePostLocally(post);
+              } else {
+                const following = this._params.get('following');
+                const authorId = this._params.get('author');
+                if (
+                  (following === null || post.author.profile.followedByCurrentUser) &&
+                  (authorId === null || authorId === post.authorId)
+                ) {
+                  this.list.update((posts) => {
+                    const mergedPosts = mergeDistinctBy([post], posts, (post) => post.id);
+                    return sortByDate(mergedPosts, (post) => post.createdAt);
+                  });
+                }
+              }
+            }
+          });
+        return;
+      }
+    }
   }
 
   setParams(params: HttpParams) {
@@ -93,18 +159,18 @@ export class Posts extends ListStore<Post> {
   unvote(id: Post['id']) {
     return this._http
       .post<Post>(`${this.baseUrl}/${id}/unvote`, null)
-      .pipe(tap(this._updatePostIfExist.bind(this)));
+      .pipe(tap(this.updatePostLocally.bind(this)));
   }
 
   upvote(id: Post['id']) {
     return this._http
       .post<Post>(`${this.baseUrl}/${id}/upvote`, null)
-      .pipe(tap(this._updatePostIfExist.bind(this)));
+      .pipe(tap(this.updatePostLocally.bind(this)));
   }
 
   downvote(id: Post['id']) {
     return this._http
       .post<Post>(`${this.baseUrl}/${id}/downvote`, null)
-      .pipe(tap(this._updatePostIfExist.bind(this)));
+      .pipe(tap(this.updatePostLocally.bind(this)));
   }
 }

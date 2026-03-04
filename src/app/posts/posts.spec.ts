@@ -44,16 +44,212 @@ describe('Posts', () => {
   });
 
   it('should reload on when the user updated', () => {
-    let callback!: () => void;
+    authMock.userUpdated.subscribe.mockReset();
+    const user = { socket: { on: vi.fn(), onAny: vi.fn() } };
+    let callback!: (u: typeof user) => void;
     authMock.userUpdated.subscribe.mockImplementationOnce((fn) => (callback = fn));
     const { service, httpTesting } = setup();
     const resBody = posts.slice(1);
     service.list.set(posts);
     httpTesting.verify();
-    callback();
+    callback(user);
     expect(service.list()).toStrictEqual([]);
+    expect(user.socket.onAny).toHaveBeenCalled();
+    expect(authMock.userUpdated.subscribe).toHaveBeenCalledTimes(1);
     httpTesting.expectOne({ method: 'GET', url: postsUrl }, 'Request to load posts').flush(resBody);
     expect(service.list()).toStrictEqual(resBody);
+    httpTesting.verify();
+  });
+
+  it('should sync a post-create action', () => {
+    const { service, httpTesting } = setup();
+    const createdPost = posts[0];
+    service.list.set(posts.slice(1));
+    service.syncPost('create', createdPost.id);
+    httpTesting
+      .expectOne(
+        { method: 'GET', url: `${postsUrl}/${createdPost.id}` },
+        'Request to get the created post',
+      )
+      .flush(createdPost);
+    expect(service.list()).toStrictEqual(posts);
+    httpTesting.verify();
+  });
+
+  it('should sync an author post-create action', () => {
+    const { service, httpTesting } = setup();
+    const initialPosts = posts.slice(1);
+    const createdPost = posts[0];
+    service.list.set(initialPosts);
+    service.setParams(new HttpParams({ fromObject: { author: createdPost.author.id } }));
+    service.syncPost('create', createdPost.id);
+    httpTesting
+      .expectOne(
+        { method: 'GET', url: `${postsUrl}/${createdPost.id}` },
+        'Request to get the created post',
+      )
+      .flush(createdPost);
+    expect(service.list()).toStrictEqual(posts);
+    httpTesting.verify();
+  });
+
+  it('should sync a following post-create action', () => {
+    const { service, httpTesting } = setup();
+    const { author, ...restPost } = posts[0];
+    const profile = { ...author.profile, followedByCurrentUser: true };
+    const createdPost = { ...restPost, author: { ...author, profile } };
+    const initialPosts = posts.slice(1);
+    service.list.set(initialPosts);
+    service.setParams(new HttpParams({ fromObject: { following: true } }));
+    service.syncPost('create', createdPost.id);
+    httpTesting
+      .expectOne(
+        { method: 'GET', url: `${postsUrl}/${createdPost.id}` },
+        'Request to get the created post',
+      )
+      .flush(createdPost);
+    expect(service.list()).toStrictEqual([createdPost, ...initialPosts]);
+    httpTesting.verify();
+  });
+
+  it('should not sync an author post-create action', () => {
+    const { service, httpTesting } = setup();
+    const initialPosts = posts.slice(1);
+    const createdPost = posts[0];
+    service.list.set(initialPosts);
+    service.setParams(new HttpParams({ fromObject: { author: crypto.randomUUID() } }));
+    service.syncPost('create', createdPost.id);
+    httpTesting
+      .expectOne(
+        { method: 'GET', url: `${postsUrl}/${createdPost.id}` },
+        'Request to get the created post',
+      )
+      .flush(createdPost);
+    expect(service.list()).toStrictEqual(initialPosts);
+    httpTesting.verify();
+  });
+
+  it('should not sync a following post-create action', () => {
+    const { service, httpTesting } = setup();
+    const { author, ...restPost } = posts[0];
+    const profile = { ...author.profile, followedByCurrentUser: false };
+    const createdPost = { ...restPost, author: { ...author, profile } };
+    const initialPosts = posts.slice(1);
+    service.list.set(initialPosts);
+    service.setParams(new HttpParams({ fromObject: { following: true } }));
+    service.syncPost('create', createdPost.id);
+    httpTesting
+      .expectOne(
+        { method: 'GET', url: `${postsUrl}/${createdPost.id}` },
+        'Request to get the created post',
+      )
+      .flush(createdPost);
+    expect(service.list()).toStrictEqual(initialPosts);
+    httpTesting.verify();
+  });
+
+  it('should sync a post-update action', () => {
+    const { service, httpTesting } = setup();
+    const updatedPost = { ...posts[1], content: 'Test updated post' };
+    service.list.set(posts);
+    service.syncPost('update', updatedPost.id);
+    httpTesting
+      .expectOne(
+        { method: 'GET', url: `${postsUrl}/${updatedPost.id}` },
+        'Request to get the updated post',
+      )
+      .flush(updatedPost);
+    expect(service.list()).toStrictEqual([posts[0], updatedPost, ...posts.slice(2)]);
+    httpTesting.verify();
+  });
+
+  it('should not sync a post-update action if the post is not exist', () => {
+    const { service, httpTesting } = setup();
+    service.list.set(posts);
+    service.syncPost('update', crypto.randomUUID());
+    expect(service.list()).toStrictEqual(posts);
+    httpTesting.verify();
+  });
+
+  it('should sync a post-delete action', () => {
+    const { service, httpTesting } = setup();
+    service.list.set(posts);
+    service.syncPost('delete', posts[1].id);
+    expect(service.list()).toStrictEqual([posts[0], ...posts.slice(2)]);
+    httpTesting.verify();
+  });
+
+  it('should not sync a post-delete action if the post is not exist', () => {
+    const { service, httpTesting } = setup();
+    service.list.set(posts);
+    service.syncPost('delete', crypto.randomUUID());
+    expect(service.list()).toStrictEqual(posts);
+    httpTesting.verify();
+  });
+
+  it('should sync a post-delete action when there are no posts', () => {
+    const { service, httpTesting } = setup();
+    service.syncPost('delete', crypto.randomUUID());
+    expect(service.list()).toStrictEqual([]);
+    httpTesting.verify();
+  });
+
+  it('should update a post locally', () => {
+    const { service, httpTesting } = setup();
+    const updatedPost = { ...posts[1], content: 'Test updating post locally...' };
+    service.list.set(posts.slice(0, 2));
+    service.updatePostLocally(updatedPost);
+    expect(service.list()).toStrictEqual([posts[0], updatedPost]);
+    httpTesting.verify();
+  });
+
+  it('should increment a post comments count by 1', () => {
+    const { service, httpTesting } = setup();
+    const post = { ...posts[1], _count: { ...posts[1]._count, comments: 0 } };
+    const updatedPost = { ...post, _count: { ...post._count, comments: 1 } };
+    service.list.set(posts.map((p) => (p.id === post.id ? post : p)));
+    service.incrementPostCommentsCount(updatedPost.id, 1);
+    expect(service.list()).toStrictEqual(posts.map((p) => (p.id === post.id ? updatedPost : p)));
+    httpTesting.verify();
+  });
+
+  it('should increment a post comments count by 7', () => {
+    const { service, httpTesting } = setup();
+    const post = { ...posts[1], _count: { ...posts[1]._count, comments: 0 } };
+    const updatedPost = { ...post, _count: { ...post._count, comments: 7 } };
+    service.list.set(posts.map((p) => (p.id === post.id ? post : p)));
+    service.incrementPostCommentsCount(updatedPost.id, 7);
+    expect(service.list()).toStrictEqual(posts.map((p) => (p.id === post.id ? updatedPost : p)));
+    httpTesting.verify();
+  });
+
+  it('should decrement a post comments count by 1', () => {
+    const { service, httpTesting } = setup();
+    const post = { ...posts[1], _count: { ...posts[1]._count, comments: 1 } };
+    const updatedPost = { ...post, _count: { ...post._count, comments: 0 } };
+    service.list.set(posts.map((p) => (p.id === post.id ? post : p)));
+    service.incrementPostCommentsCount(updatedPost.id, -1);
+    expect(service.list()).toStrictEqual(posts.map((p) => (p.id === post.id ? updatedPost : p)));
+    httpTesting.verify();
+  });
+
+  it('should decrement a post comments count by 7', () => {
+    const { service, httpTesting } = setup();
+    const post = { ...posts[1], _count: { ...posts[1]._count, comments: 7 } };
+    const updatedPost = { ...post, _count: { ...post._count, comments: 0 } };
+    service.list.set(posts.map((p) => (p.id === post.id ? post : p)));
+    service.incrementPostCommentsCount(updatedPost.id, -7);
+    expect(service.list()).toStrictEqual(posts.map((p) => (p.id === post.id ? updatedPost : p)));
+    httpTesting.verify();
+  });
+
+  it('should not decrement a post comments count below 0', () => {
+    const { service, httpTesting } = setup();
+    const post = { ...posts[1], _count: { ...posts[1]._count, comments: 0 } };
+    const updatedPost = { ...post, _count: { ...post._count, comments: 0 } };
+    service.list.set(posts.map((p) => (p.id === post.id ? post : p)));
+    service.incrementPostCommentsCount(updatedPost.id, -1);
+    expect(service.list()).toStrictEqual(posts.map((p) => (p.id === post.id ? updatedPost : p)));
     httpTesting.verify();
   });
 

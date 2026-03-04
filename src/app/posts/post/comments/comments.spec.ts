@@ -5,12 +5,28 @@ import { NewCommentData } from '../../posts.types';
 import { TestBed } from '@angular/core/testing';
 import { post } from '../../posts.mock';
 import { Comments } from './comments';
+import { Auth } from '../../../auth';
+import { Posts } from '../../posts';
 
 const postsUrl = `${environment.apiUrl}/posts`;
 
+const postsMock = { baseUrl: postsUrl, incrementPostCommentsCount: vi.fn() };
+
+const authMock = {
+  user: vi.fn(),
+  userUpdated: { subscribe: vi.fn() },
+  userSignedOut: { subscribe: vi.fn() },
+};
+
 const setup = () => {
   TestBed.configureTestingModule({
-    providers: [Comments, provideHttpClient(), provideHttpClientTesting()],
+    providers: [
+      Comments,
+      provideHttpClient(),
+      provideHttpClientTesting(),
+      { provide: Auth, useValue: authMock },
+      { provide: Posts, useValue: postsMock },
+    ],
   });
   const httpTesting = TestBed.inject(HttpTestingController);
   const service = TestBed.inject(Comments);
@@ -18,6 +34,8 @@ const setup = () => {
 };
 
 describe('Comments', () => {
+  afterEach(vi.resetAllMocks);
+
   it('should load nothing if not configured', () => {
     const { service, httpTesting } = setup();
     service.load();
@@ -58,6 +76,30 @@ describe('Comments', () => {
     httpTesting.verify();
   });
 
+  it('should reload on when the user updated', () => {
+    authMock.userUpdated.subscribe.mockReset();
+    const user = { socket: { on: vi.fn(), onAny: vi.fn() } };
+    let callback!: (u: typeof user) => void;
+    authMock.userUpdated.subscribe.mockImplementationOnce((fn) => (callback = fn));
+    const { service, httpTesting } = setup();
+    const postId = crypto.randomUUID();
+    service.config({ postId });
+    service.list.set(post.comments);
+    httpTesting.verify();
+    callback(user);
+    expect(service.list()).toStrictEqual([]);
+    expect(user.socket.on).toHaveBeenCalled();
+    expect(authMock.userUpdated.subscribe).toHaveBeenCalledTimes(1);
+    httpTesting
+      .expectOne(
+        { method: 'GET', url: `${postsUrl}/${postId}/comments?sort=asc` },
+        'Request to get all comments',
+      )
+      .flush(post.comments);
+    expect(service.list()).toStrictEqual(post.comments);
+    httpTesting.verify();
+  });
+
   it('should create a comment and append it to the list if it belongs to the current post id', async () => {
     const { service, httpTesting } = setup();
     service.config({ postId: post.id });
@@ -71,6 +113,7 @@ describe('Comments', () => {
     const createdComment = { ...post.comments[0], id: crypto.randomUUID() };
     req.flush(createdComment);
     expect(req.request.body).toStrictEqual(newCommentData);
+    expect(postsMock.incrementPostCommentsCount).toHaveBeenCalledExactlyOnceWith(post.id, 1);
     expect(service.list()).toStrictEqual(post.comments.concat(createdComment));
     expect(resData).toStrictEqual(createdComment);
     expect(resError).toBeUndefined();
@@ -89,6 +132,7 @@ describe('Comments', () => {
     const req = httpTesting.expectOne(reqInfo, 'Request to upvote a post');
     const createdComment = { ...post.comments[0], id: crypto.randomUUID() };
     req.flush(createdComment);
+    expect(postsMock.incrementPostCommentsCount).toHaveBeenCalledExactlyOnceWith(post.id, 1);
     expect(req.request.body).toStrictEqual(newCommentData);
     expect(service.list()).toStrictEqual(post.comments);
     expect(resData).toStrictEqual(createdComment);
@@ -107,6 +151,7 @@ describe('Comments', () => {
     const req = httpTesting.expectOne(reqInfo, 'Request to upvote a post');
     const createdComment = { ...post.comments[0], id: crypto.randomUUID() };
     req.flush(createdComment);
+    expect(postsMock.incrementPostCommentsCount).toHaveBeenCalledExactlyOnceWith(post.id, 1);
     expect(req.request.body).toStrictEqual(newCommentData);
     expect(service.list()).toStrictEqual(post.comments);
     expect(resData).toStrictEqual(createdComment);
@@ -124,6 +169,7 @@ describe('Comments', () => {
     const reqInfo = { method: 'DELETE', url: `${postsUrl}/${post.id}/comments/${testComment.id}` };
     const req = httpTesting.expectOne(reqInfo, 'Request to delete a comment');
     req.flush('', { status: 204, statusText: 'No content' });
+    expect(postsMock.incrementPostCommentsCount).toHaveBeenCalledExactlyOnceWith(post.id, -1);
     expect(service.list()).toStrictEqual(post.comments.slice(1));
     expect(resError).toBeUndefined();
     expect(resData).toEqual('');
@@ -141,6 +187,7 @@ describe('Comments', () => {
     const reqInfo = { method: 'DELETE', url: `${postsUrl}/${post.id}/comments/${testComment.id}` };
     const req = httpTesting.expectOne(reqInfo, 'Request to delete a comment');
     req.flush('', { status: 204, statusText: 'No content' });
+    expect(postsMock.incrementPostCommentsCount).toHaveBeenCalledExactlyOnceWith(post.id, -1);
     expect(service.list()).toStrictEqual(commentList);
     expect(resError).toBeUndefined();
     expect(resData).toEqual('');
