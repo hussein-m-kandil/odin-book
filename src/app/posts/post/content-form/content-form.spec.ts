@@ -94,7 +94,7 @@ describe('ContentForm', () => {
             pickedOutputMock = this.picked;
           }
         }
-        await render(ContentForm, {
+        const { detectChanges } = await render(ContentForm, {
           componentImports: [
             ReactiveFormsModule,
             ImagePicker,
@@ -113,13 +113,22 @@ describe('ContentForm', () => {
         const textValue = 'Hello, Emojis!';
         await actor.type(contentInp, textValue);
         await actor.click(emojiPickerBtn);
+        detectChanges();
         pickedOutputMock.emit({ native: '😎' });
         await actor.pointer([
           { target: contentInp, offset: 5, keys: '[MouseLeft>]' },
           { offset: 7 },
         ]);
+        if (!screen.queryByLabelText(/^emoji picker/i)) {
+          await actor.click(emojiPickerBtn);
+          detectChanges();
+        }
         pickedOutputMock.emit({ native: '😌' });
         await actor.pointer({ target: contentInp, offset: 13, keys: '[MouseLeft]' });
+        if (!screen.queryByLabelText(/^emoji picker/i)) {
+          await actor.click(emojiPickerBtn);
+          detectChanges();
+        }
         pickedOutputMock.emit({ native: '🤡' });
         pickedOutputMock.emit({ native: '🎉' });
         expect(contentInp).toHaveValue('Hello😌Emojis🤡🎉!😎');

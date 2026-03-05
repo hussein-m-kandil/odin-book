@@ -40,11 +40,11 @@
                         (picked)="pickedImage.set($event)" />
     </div>
     }
-    <p-popover #picker [unstyled]="true" [dismissable]="false" (onHide)="hidePicker('emoji')">
-      <div class="w-screen max-w-sm p-0.5 overflow-auto">
+    <p-popover #picker [unstyled]="true" (onHide)="hidePicker('emoji')">
+      <div class="w-screen max-w-xs p-0.5 overflow-auto">
         @if (_pickingEmoji) {
-        <div
-             class="my-1 bg-(--p-content-background) max-h-screen border border-surface rounded-lg overflow-auto">
+        <div style="max-height: 75vh; max-height: min(80vh,320px)"
+             class="my-1 bg-(--p-content-background) border border-surface rounded-lg overflow-hidden">
           <app-emoji-picker closeableOnEscapeKey [theme]="_theme"
                             (picked)="insertPickedEmoji($event)" (closed)="togglePicker('emoji')" />
         </div>
