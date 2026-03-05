@@ -22,7 +22,7 @@
 <div class="p-4 space-y-4 *:block">
   <app-list [store]="comments" singularLabel="Comment" pluralLabel="Comments" [itemFragment]="li" />
 
-  <app-content-form class="overflow-auto" [commentPostId]="postId()" />
+  <app-content-form [commentPostId]="postId()" />
 </div>
 
 @if (_modal) {
