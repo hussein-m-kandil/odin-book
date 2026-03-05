@@ -101,14 +101,6 @@ export class ContentForm {
 
   protected handleSuccess() {
     this.reset();
-    afterNextRender(
-      () => {
-        const contentInput = this._contentInput().nativeElement;
-        contentInput.focus();
-        contentInput.blur();
-      },
-      { injector: this._injector },
-    );
   }
 
   protected handleFailure(action: 'Post' | 'Comment', res: unknown) {
