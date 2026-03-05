@@ -2,9 +2,15 @@ import {
   input,
   signal,
   inject,
+  effect,
+  Injector,
+  untracked,
+  viewChild,
   Component,
   DestroyRef,
+  ElementRef,
   linkedSignal,
+  afterNextRender,
   booleanAttribute,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -41,10 +47,14 @@ import { finalize } from 'rxjs';
   providers: [Comments],
 })
 export class Post {
+  private readonly _comments = viewChild<ElementRef<HTMLElement>>('comments');
+
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _toast = inject(MessageService);
+  private readonly _injector = inject(Injector);
   private readonly _router = inject(Router);
 
+  protected readonly comments = inject(Comments);
   protected readonly posts = inject(Posts);
   protected readonly auth = inject(Auth);
 
@@ -117,5 +127,20 @@ export class Post {
           },
         });
     }
+  }
+
+  constructor() {
+    effect(() => {
+      this.comments.list();
+      untracked(() => {
+        afterNextRender(
+          () => {
+            const commentsElement = this._comments()?.nativeElement;
+            if (commentsElement) commentsElement.scrollTop = commentsElement.scrollHeight;
+          },
+          { injector: this._injector },
+        );
+      });
+    });
   }
 }

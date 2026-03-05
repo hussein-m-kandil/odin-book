@@ -61,7 +61,7 @@
         </div>
 
         @if (commentsVisible()) {
-        <div class="border-surface border-t bg-zinc-100/50 dark:bg-zinc-900/50"
+        <div #comments class="border-surface border-t bg-zinc-100/50 dark:bg-zinc-900/50"
              [class]="_brief ? 'max-h-64 overflow-auto' : ''">
           <app-comment-list [postId]="_post.id" [mutable]="_mutable" />
         </div>
