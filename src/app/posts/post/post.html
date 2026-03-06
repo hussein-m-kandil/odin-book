@@ -9,7 +9,8 @@
 @let _user = auth.user();
 @let _mutable = _user && (_user.isAdmin || _user.id === _post.authorId);
 <div class="w-full min-h-full flex flex-col justify-center">
-  <article aria-labelledby="{{ _labelId }}" class="mx-auto" [class]="_brief ? '' : 'max-w-3xl p-4'">
+  <article aria-labelledby="{{ _labelId }}" class="w-full mx-auto"
+           [class]="_brief ? '' : 'max-w-3xl p-4'">
     <div class="bg-zinc-50 dark:bg-zinc-800 p-5 border-surface border rounded-2xl overflow-hidden">
       <header>
         <app-post-header emphasis [public]="_post.published" [date]="_post.createdAt"
