@@ -72,8 +72,10 @@
   </article>
 </div>
 
-@if (_modal) {
-<app-modal [header]="_modal" [closeAriaLabel]="`Close ${_modal}`" (hidden)="modal.set('')">
+<p-dialog modal [visible]="!!_modal" [resizable]="false" [draggable]="false" [header]="_modal"
+          closeAriaLabel="Close {{ _modal }}" styleClass="w-[calc(100%-2rem)] max-w-xl mx-auto"
+          (onHide)="modal.set('')">
+  @if (_modal) {
   <div class="mb-12">
     @if (_modal === 'Delete Confirmation') {
     <app-confirmation [ariaLabel]="_modal"
@@ -87,5 +89,5 @@
     <app-vote-list [postId]="_post.id" [type]="_modal === 'Likes' ? 'upvote' : 'downvote'" />
     }
   </div>
-</app-modal>
-}
+  }
+</p-dialog>

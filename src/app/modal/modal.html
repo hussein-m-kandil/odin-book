@@ -1,7 +1,0 @@
-<p-dialog modal maximizable [visible]="visible()" [resizable]="false" [draggable]="false"
-          [closeAriaLabel]="closeAriaLabel()" [showHeader]="showHeader()" [header]="header()"
-          (onMaximize)="handleMaximize()" (onHide)="handleHide()" (onShow)="handleShow()"
-          (visibleChange)="handleVisibilityChange($event)"
-          [styleClass]="maximum() ? '' : 'w-[calc(100%-2rem)] max-w-xl mx-auto'">
-  <ng-content />
-</p-dialog>

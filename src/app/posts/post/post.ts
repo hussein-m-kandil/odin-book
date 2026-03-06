@@ -23,8 +23,8 @@ import { MessageService } from 'primeng/api';
 import { getResErrMsg } from '../../utils';
 import { PostHeader } from './post-header';
 import { Button } from 'primeng/button';
+import { Dialog } from 'primeng/dialog';
 import { Image } from '../../images';
-import { Modal } from '../../modal';
 import { VoteList } from './votes';
 import { Auth } from '../../auth';
 import { Posts } from '../posts';
@@ -40,8 +40,8 @@ import { finalize } from 'rxjs';
     RouterLink,
     VoteList,
     Button,
+    Dialog,
     Image,
-    Modal,
   ],
   templateUrl: './post.html',
   providers: [Comments],

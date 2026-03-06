@@ -25,8 +25,10 @@
   <app-content-form [commentPostId]="postId()" />
 </div>
 
-@if (_modal) {
-<app-modal [header]="_modal" [closeAriaLabel]="`Close ${_modal}`" (hidden)="modal.set('')">
+<p-dialog modal [visible]="!!_modal" [resizable]="false" [draggable]="false" [header]="_modal"
+          closeAriaLabel="Close {{ _modal }}" styleClass="w-[calc(100%-2rem)] max-w-xl mx-auto"
+          (onHide)="modal.set('')">
+  @if (_modal) {
   <div class="mb-12">
     <app-confirmation [ariaLabel]="_modal"
                       [accept]="{ severity: 'danger', label: 'Delete', loading: _loading === 'delete' }"
@@ -36,5 +38,5 @@
       </p>
     </app-confirmation>
   </div>
-</app-modal>
-}
+  }
+</p-dialog>

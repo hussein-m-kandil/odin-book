@@ -349,7 +349,6 @@ describe('Post', () => {
     await renderComponent({ inputs: { brief: false } });
     const delBtn = screen.getByRole('button', { name: /delete post/i });
     await actor.click(delBtn);
-    expect(navigationSpy).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('dialog')).toBeVisible();
     expect(delBtn).toHaveClass('p-button-loading');
     expect(postsMock.deletePost).toHaveBeenCalledTimes(0);
@@ -364,7 +363,6 @@ describe('Post', () => {
     await renderComponent({ inputs: { brief: false } });
     await actor.click(screen.getByRole('button', { name: /delete post/i }));
     await actor.click(screen.getByRole('button', { name: /close delete confirmation/i }));
-    expect(navigationSpy).toHaveBeenCalledTimes(2);
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(postsMock.deletePost).toHaveBeenCalledTimes(0);
     expect(screen.getByRole('button', { name: /delete post/i })).not.toHaveClass(

@@ -14,7 +14,7 @@ import { getResErrMsg } from '../../../utils';
 import { ContentForm } from '../content-form';
 import { MessageService } from 'primeng/api';
 import { PostHeader } from '../post-header';
-import { Modal } from '../../../modal';
+import { Dialog } from 'primeng/dialog';
 import { Comments } from './comments';
 import { Auth } from '../../../auth';
 import { List } from '../../../list';
@@ -22,7 +22,7 @@ import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-comment-list',
-  imports: [PostHeader, ContentForm, Confirmation, Modal, List],
+  imports: [PostHeader, ContentForm, Confirmation, Dialog, List],
   templateUrl: './comment-list.html',
   styles: ``,
 })
