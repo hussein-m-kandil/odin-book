@@ -4,30 +4,29 @@
 @let _emphasis = emphasis();
 @let _labelId = `article-header-label-${_author.id}-${_date}`;
 <div class="relative">
-  <div class="**:align-middle space-x-2 flex items-center">
-    <app-avatar [user]="_author" [profile]="_author.profile" size="sm" />
-    <h3 id="{{ _labelId }}" class="inline">
-      <a [routerLink]="['/profiles', _author.username]" class="inline-block *:leading-0"
-         [class]="_emphasis ? 'leading-5' : 'leading-4.5'">
-        <span
-              [class]="_emphasis ? 'text-xl text-primary-emphasis font-bold' : 'text-lg text-primary-emphasis-alt font-medium'">
-          {{ _author.username }}
-        </span>
-        <br />
-        @if(_public !== undefined) {
-        @let _privacy = _public
-        ? { label: 'Public', icon: 'pi pi-globe' }
-        : { label: 'Private', icon: 'pi pi-lock' };
-        <span [aria-label]="_privacy.label" class="me-px text-xs text-muted-color"
-              [class]="_privacy.icon"></span>
-        }
-        <app-time [datetime]="_date" classes="text-muted-color text-xs" />
+  <div class="**:align-middle flex items-center">
+    <app-avatar [user]="_author" [profile]="_author.profile" size="sm" class="inline-block" />
+    <h3 id="{{ _labelId }}" class="inline-block grow w-[calc(100%-6rem)] mx-2 truncate" [class]="
+          _emphasis
+            ? 'text-xl text-primary-emphasis font-bold leading-5'
+            : 'text-lg text-primary-emphasis-alt font-medium leading-4.5'
+        ">
+      <a [routerLink]="['/profiles', _author.username]">
+        {{ _author.username }}
       </a>
+      <br />
+      @if(_public !== undefined) {
+      @let _privacy = _public
+      ? { label: 'Public', icon: 'pi pi-globe' }
+      : { label: 'Private', icon: 'pi pi-lock' };
+      <span [aria-label]="_privacy.label" class="me-px text-xs text-muted-color"
+            [class]="_privacy.icon"></span>
+      }
+      <app-time [datetime]="_date" classes="text-muted-color text-xs font-normal" />
     </h3>
+    @if (deleteLabel(); as _deleteLabel) {
+    <p-button outlined rounded type="button" severity="secondary" icon="pi pi-trash" class="ms-auto"
+              [ariaLabel]="_deleteLabel" [loading]="deleting()" (click)="deleted.emit()" />
+    }
   </div>
-  @if (deleteLabel(); as _deleteLabel) {
-  <p-button text rounded type="button" size="small" severity="secondary" icon="pi pi-trash"
-            [ariaLabel]="_deleteLabel" class="absolute -top-1.5 -right-2.5" [loading]="deleting()"
-            (click)="deleted.emit()" />
-  }
 </div>
