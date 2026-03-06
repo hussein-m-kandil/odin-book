@@ -34,7 +34,8 @@ import { finalize } from 'rxjs';
 })
 export class ContentForm {
   private readonly _contentInput = viewChild.required<ElementRef<HTMLTextAreaElement>>('content');
-  private readonly _pickerPopover = viewChild.required<Popover>('picker');
+  private readonly _privacyPopover = viewChild.required<Popover>('privacyPopover');
+  private readonly _pickerPopover = viewChild.required<Popover>('pickerPopover');
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _injector = inject(Injector);
 
@@ -52,11 +53,16 @@ export class ContentForm {
   protected readonly privacyIndex = signal(1);
 
   protected readonly privacyOptions: MenuItem[] = [
-    { icon: 'pi pi-lock', label: 'Private', command: () => this.privacyIndex.set(0) },
-    { icon: 'pi pi-globe', label: 'Public', command: () => this.privacyIndex.set(1) },
+    { icon: 'pi pi-lock', label: 'Private', command: () => this.setPrivacy(0) },
+    { icon: 'pi pi-globe', label: 'Public', command: () => this.setPrivacy(1) },
   ];
 
   readonly commentPostId = input<Post['id']>();
+
+  protected setPrivacy(privacy: 0 | 1) {
+    this.privacyIndex.set(privacy);
+    this._privacyPopover().hide();
+  }
 
   protected unpickImage() {
     this.pickedImage.set(null);
@@ -69,6 +75,7 @@ export class ContentForm {
   }
 
   protected togglePicker(picker: 'image' | 'emoji', event?: Event) {
+    this._privacyPopover()?.hide();
     this.picking.update((picking) => {
       if (picking !== picker) return picker;
       if (picker === 'image') this.unpickImage();
@@ -95,6 +102,7 @@ export class ContentForm {
 
   protected reset() {
     this.hidePicker('any');
+    this.setPrivacy(1);
     this.unpickImage();
     this.form.reset();
   }

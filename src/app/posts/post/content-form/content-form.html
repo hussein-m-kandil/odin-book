@@ -27,12 +27,10 @@
     @let _privacy = privacyOptions[privacyIndex()];
     <p-button outlined rounded size="small" type="button" severity="secondary"
               [disabled]="form.disabled" [icon]="_privacy.icon" [ariaLabel]="_privacy.label"
-              (onClick)="privacyMenu.toggle($event)" />
-    <p-menu #privacyMenu ariaLabel="Privacy Menu" [popup]="true" [model]="privacyOptions"
-            [pt]="{ root: 'min-w-auto mt-0.5', itemLink: 'p-2' }" />
+              (onClick)="privacyPopover.toggle($event)" />
     }
   </div>
-  <div aria-live="polite" aria-atomic="true">
+  <div #liveContainer aria-live="polite" aria-atomic="true">
     @if (_pickingImage) {
     <div class="mt-1 bg-(--p-content-background) border border-surface rounded-lg overflow-auto">
       <app-image-picker [progress]="progress()" [disabled]="form.disabled"
@@ -40,7 +38,8 @@
                         (picked)="pickedImage.set($event)" />
     </div>
     }
-    <p-popover #picker [unstyled]="true" (onHide)="hidePicker('emoji')">
+    <p-popover #pickerPopover [appendTo]="liveContainer" [unstyled]="true"
+               (onHide)="hidePicker('emoji')">
       <div class="w-screen max-w-xs p-0.5 overflow-auto">
         @if (_pickingEmoji) {
         <div style="max-height: 75vh; max-height: min(80vh,320px)"
@@ -50,6 +49,11 @@
         </div>
         }
       </div>
+    </p-popover>
+    <p-popover #privacyPopover [appendTo]="liveContainer" [unstyled]="true" [pt]="{ root: 'p-0.5' }"
+               (onShow)="hidePicker('any')">
+      <p-menu ariaLabel="Privacy Menu" [model]="privacyOptions"
+              [pt]="{ root: 'min-w-auto', itemLink: 'p-2' }" />
     </p-popover>
   </div>
 </form>
