@@ -25,10 +25,11 @@
       @if (_currentUserProfile) {
       <span class="text-muted-color text-xs **:align-middle">
         <span class="inline-block w-[0.75em]"></span>
-        <label for="online-status-toggler" class="*:font-bold"
+        <label for="online-status-toggler" class="font-bold"
                [class]="{ 'text-primary-emphasis': _profile.visible}">
-          You are <span>@{{ _profile.user.username }}</span>, and you are
-          <span>{{ _profile.visible ? 'online' : 'offline' }}</span>
+          @{{ _profile.user.username }}
+          <span class="text-lg font-normal">|</span>
+          {{ _profile.visible ? 'online' : 'offline' }}
         </label>
         <p-toggle-switch inputId="online-status-toggler" class="mx-1"
                          (onChange)="switchVisibility()" [formControl]="visible"
